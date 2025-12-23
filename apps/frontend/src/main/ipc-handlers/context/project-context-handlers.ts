@@ -21,7 +21,7 @@ import {
   buildMemoryStatus
 } from './memory-status-handlers';
 import { loadFileBasedMemories } from './memory-data-handlers';
-import { parsePythonCommand } from '../../python-detector';
+import { findPythonCommand, parsePythonCommand } from '../../python-detector';
 
 /**
  * Load project index from file
@@ -158,8 +158,10 @@ export function registerProjectContextHandlers(
         const analyzerPath = path.join(autoBuildSource, 'analyzer.py');
         const indexOutputPath = path.join(project.path, AUTO_BUILD_PATHS.PROJECT_INDEX);
 
-        // Get Python command directly from settings file (not pythonEnvManager which creates NEW venv)
-        let pythonCmd = 'python3';
+        // Use robust Python detection to ensure 3.10+ (fixes 'tomli' error)
+        const detectedPython = findPythonCommand();
+        let pythonCmd = detectedPython || 'python3';
+
         try {
           const settingsPath = path.join(app.getPath('userData'), 'settings.json');
           if (existsSync(settingsPath)) {

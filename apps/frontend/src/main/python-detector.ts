@@ -10,11 +10,22 @@ import { existsSync } from 'fs';
 export function findPythonCommand(): string | null {
   const isWindows = process.platform === 'win32';
 
-  // On Windows, try py launcher first (most reliable), then python, then python3
-  // On Unix, try python3 first, then python
+  // On Unix/Mac, try Homebrew paths and specific versions first since aliases aren't inherited by sub-processes
+  const unixCandidates = [
+    '/opt/homebrew/bin/python3',
+    '/usr/local/bin/python3',
+    '/opt/homebrew/bin/python3.12',
+    'python3.13',
+    'python3.12',
+    'python3.11',
+    'python3.10',
+    'python3',
+    'python'
+  ];
+
   const candidates = isWindows
     ? ['py -3', 'python', 'python3', 'py']
-    : ['python3', 'python'];
+    : unixCandidates;
 
   for (const cmd of candidates) {
     try {
@@ -34,8 +45,8 @@ export function findPythonCommand(): string | null {
     }
   }
 
-  // Fallback to platform-specific default
-  return isWindows ? 'python' : 'python3';
+  console.error('[Python] No valid Python 3.10+ installation found in candidates.');
+  return null;
 }
 
 /**
@@ -124,7 +135,7 @@ export function parsePythonCommand(pythonPath: string): [string, string[]] {
   // Remove any surrounding quotes first
   let cleanPath = pythonPath.trim();
   if ((cleanPath.startsWith('"') && cleanPath.endsWith('"')) ||
-      (cleanPath.startsWith("'") && cleanPath.endsWith("'"))) {
+    (cleanPath.startsWith("'") && cleanPath.endsWith("'"))) {
     cleanPath = cleanPath.slice(1, -1);
   }
 

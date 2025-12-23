@@ -100,6 +100,70 @@ interface OllamaPullResult {
  * @param {string} [baseUrl] - Optional Ollama API base URL (defaults to http://localhost:11434)
  * @returns {Promise<{success, data?, error?}>} Result object with success flag and data/error
  */
+/**
+ * Find the ollama_model_detector.py script in various possible locations.
+ *
+ * @returns {string | null} Absolute path to the script or null if not found
+ */
+function getOllamaDetectorScriptPath(): string | null {
+  const SCRIPT_NAME = 'ollama_model_detector.py';
+  const debugId = 'v2-recursive-search';
+
+  // Debug logging
+  console.log(`[Ollama] [${debugId}] Searching. __dirname: ${__dirname}, cwd: ${process.cwd()}`);
+
+  const candidates = new Set<string>();
+
+  // Helper to add search paths from a starting point
+  const addCandidatesFrom = (startDir: string) => {
+    let current = startDir;
+    // Walk up to root
+    for (let i = 0; i < 10; i++) { // Limit to 10 levels deep
+      candidates.add(path.resolve(current, 'backend', SCRIPT_NAME));
+      candidates.add(path.resolve(current, 'apps', 'backend', SCRIPT_NAME));
+      candidates.add(path.resolve(current, 'auto-claude', SCRIPT_NAME));
+      candidates.add(path.resolve(current, SCRIPT_NAME));
+
+      const parent = path.dirname(current);
+      if (parent === current) break;
+      current = parent;
+    }
+  };
+
+  addCandidatesFrom(__dirname);
+  addCandidatesFrom(process.cwd());
+
+  // Also add some explicit fallback guesses (just in case)
+  candidates.add(path.resolve('/Users/sangreal/Documents/GitHub/Auto-Claude/apps/backend', SCRIPT_NAME));
+
+  const checkedPaths: string[] = Array.from(candidates);
+  for (const p of checkedPaths) {
+    if (fs.existsSync(p)) {
+      console.log(`[Ollama] [${debugId}] Found script at: ${p}`);
+      return p;
+    }
+  }
+
+  console.error(`[Ollama] [${debugId}] Script not found. Checked ${checkedPaths.length} paths:`, checkedPaths);
+  return null;
+}
+
+/**
+ * Execute the ollama_model_detector.py Python script.
+ * Spawns a subprocess to run Ollama detection/management commands with a 10-second timeout.
+ * Used to check Ollama status, list models, and manage downloads.
+ *
+ * Supported commands:
+ * - 'check-status': Verify Ollama service is running
+ * - 'list-models': Get all available models
+ * - 'list-embedding-models': Get only embedding models
+ * - 'pull-model': Download a specific model (see OLLAMA_PULL_MODEL handler for full implementation)
+ *
+ * @async
+ * @param {string} command - The command to execute (check-status, list-models, list-embedding-models, pull-model)
+ * @param {string} [baseUrl] - Optional Ollama API base URL (defaults to http://localhost:11434)
+ * @returns {Promise<{success, data?, error?}>} Result object with success flag and data/error
+ */
 async function executeOllamaDetector(
   command: string,
   baseUrl?: string
@@ -109,26 +173,12 @@ async function executeOllamaDetector(
     return { success: false, error: 'Python not found' };
   }
 
-  // Find the ollama_model_detector.py script
-  const possiblePaths = [
-    // Development paths
-    path.resolve(__dirname, '..', '..', '..', '..', 'backend', 'ollama_model_detector.py'),
-    path.resolve(process.cwd(), 'apps', 'backend', 'ollama_model_detector.py'),
-    // Legacy paths (for backwards compatibility)
-    path.resolve(__dirname, '..', '..', '..', 'auto-claude', 'ollama_model_detector.py'),
-    path.resolve(process.cwd(), 'auto-claude', 'ollama_model_detector.py'),
-  ];
-
-  let scriptPath: string | null = null;
-  for (const p of possiblePaths) {
-    if (fs.existsSync(p)) {
-      scriptPath = p;
-      break;
-    }
-  }
-
+  const scriptPath = getOllamaDetectorScriptPath();
   if (!scriptPath) {
-    return { success: false, error: 'ollama_model_detector.py script not found' };
+    return {
+      success: false,
+      error: 'ollama_model_detector.py script not found. Check console for searched paths.'
+    };
   }
 
   const [pythonExe, baseArgs] = parsePythonCommand(pythonCmd);
@@ -189,19 +239,19 @@ async function executeOllamaDetector(
 
 /**
  * Register all memory-related IPC handlers.
- * Sets up handlers for:
- * - Memory infrastructure status and management
- * - Graphiti LLM/Embedding provider validation
- * - Ollama model discovery and downloads with real-time progress tracking
- *
- * These handlers allow the renderer process to:
- * 1. Check memory system status (Kuzu database, LadybugDB)
- * 2. Validate API keys for LLM and embedding providers
- * 3. Discover, list, and download Ollama models
- * 4. Subscribe to real-time download progress events
- *
- * @returns {void}
- */
+   * Sets up handlers for:
+   * - Memory infrastructure status and management
+   * - Graphiti LLM/Embedding provider validation
+   * - Ollama model discovery and downloads with real-time progress tracking
+   *
+   * These handlers allow the renderer process to:
+   * 1. Check memory system status (Kuzu database, LadybugDB)
+   * 2. Validate API keys for LLM and embedding providers
+   * 3. Discover, list, and download Ollama models
+   * 4. Subscribe to real-time download progress events
+   *
+   * @returns {void}
+   */
 export function registerMemoryHandlers(): void {
   // Get memory infrastructure status
   ipcMain.handle(
@@ -360,14 +410,14 @@ export function registerMemoryHandlers(): void {
           // Basic validation for other providers
           llmResult = config.apiKey && config.apiKey.trim()
             ? {
-                success: true,
-                message: `${config.llmProvider} API key format appears valid`,
-                details: { provider: config.llmProvider },
-              }
+              success: true,
+              message: `${config.llmProvider} API key format appears valid`,
+              details: { provider: config.llmProvider },
+            }
             : {
-                success: false,
-                message: 'API key is required',
-              };
+              success: false,
+              message: 'API key is required',
+            };
         }
 
         return {
@@ -416,23 +466,23 @@ export function registerMemoryHandlers(): void {
         };
       }
     }
-   );
+  );
 
-    // ============================================
-    // Ollama Model Discovery & Management
-    // ============================================
+  // ============================================
+  // Ollama Model Discovery & Management
+  // ============================================
 
-    /**
-    * List all available Ollama models (LLMs and embeddings).
-    * Queries Ollama API to get model names, sizes, and metadata.
-    *
-    * @async
-    * @param {string} [baseUrl] - Optional custom Ollama base URL
-    * @returns {Promise<IPCResult<{ models, count }>>} Array of models with metadata
-    */
-   ipcMain.handle(
-     IPC_CHANNELS.OLLAMA_LIST_MODELS,
-     async (_, baseUrl?: string): Promise<IPCResult<{ models: OllamaModel[]; count: number }>> => {
+  /**
+  * List all available Ollama models (LLMs and embeddings).
+  * Queries Ollama API to get model names, sizes, and metadata.
+  *
+  * @async
+  * @param {string} [baseUrl] - Optional custom Ollama base URL
+  * @returns {Promise<IPCResult<{ models, count }>>} Array of models with metadata
+  */
+  ipcMain.handle(
+    IPC_CHANNELS.OLLAMA_LIST_MODELS,
+    async (_, baseUrl?: string): Promise<IPCResult<{ models: OllamaModel[]; count: number }>> => {
       try {
         const result = await executeOllamaDetector('list-models', baseUrl);
 
@@ -460,21 +510,21 @@ export function registerMemoryHandlers(): void {
     }
   );
 
-   /**
-    * List only embedding models from Ollama.
-    * Filters the model list to show only models suitable for semantic search.
-    * Includes dimension info for model compatibility verification.
-    *
-    * @async
-    * @param {string} [baseUrl] - Optional custom Ollama base URL
-    * @returns {Promise<IPCResult<{ embedding_models, count }>>} Filtered embedding models
-    */
-   ipcMain.handle(
-     IPC_CHANNELS.OLLAMA_LIST_EMBEDDING_MODELS,
-     async (
-       _,
-       baseUrl?: string
-     ): Promise<IPCResult<{ embedding_models: OllamaEmbeddingModel[]; count: number }>> => {
+  /**
+   * List only embedding models from Ollama.
+   * Filters the model list to show only models suitable for semantic search.
+   * Includes dimension info for model compatibility verification.
+   *
+   * @async
+   * @param {string} [baseUrl] - Optional custom Ollama base URL
+   * @returns {Promise<IPCResult<{ embedding_models, count }>>} Filtered embedding models
+   */
+  ipcMain.handle(
+    IPC_CHANNELS.OLLAMA_LIST_EMBEDDING_MODELS,
+    async (
+      _,
+      baseUrl?: string
+    ): Promise<IPCResult<{ embedding_models: OllamaEmbeddingModel[]; count: number }>> => {
       try {
         const result = await executeOllamaDetector('list-embedding-models', baseUrl);
 
@@ -506,58 +556,43 @@ export function registerMemoryHandlers(): void {
     }
   );
 
-   /**
-    * Download (pull) an Ollama model from the Ollama registry.
-    * Spawns a Python subprocess to execute ollama pull command with real-time progress tracking.
-    * Emits OLLAMA_PULL_PROGRESS events to renderer with percentage, speed, and ETA.
-    *
-    * Progress events include:
-    * - modelName: The model being downloaded
-    * - status: Current status (downloading, extracting, etc.)
-    * - completed: Bytes downloaded so far
-    * - total: Total bytes to download
-    * - percentage: Completion percentage (0-100)
-    *
-    * @async
-    * @param {Electron.IpcMainInvokeEvent} event - IPC event object for sending progress updates
-    * @param {string} modelName - Name of the model to download (e.g., 'embeddinggemma')
-    * @param {string} [baseUrl] - Optional custom Ollama base URL
-    * @returns {Promise<IPCResult<OllamaPullResult>>} Result with status and output messages
-    */
-   ipcMain.handle(
-     IPC_CHANNELS.OLLAMA_PULL_MODEL,
-     async (
-       event,
-       modelName: string,
-       baseUrl?: string
-     ): Promise<IPCResult<OllamaPullResult>> => {
+  /**
+   * Download (pull) an Ollama model from the Ollama registry.
+   * Spawns a Python subprocess to execute ollama pull command with real-time progress tracking.
+   * Emits OLLAMA_PULL_PROGRESS events to renderer with percentage, speed, and ETA.
+   *
+   * Progress events include:
+   * - modelName: The model being downloaded
+   * - status: Current status (downloading, extracting, etc.)
+   * - completed: Bytes downloaded so far
+   * - total: Total bytes to download
+   * - percentage: Completion percentage (0-100)
+   *
+   * @async
+   * @param {Electron.IpcMainInvokeEvent} event - IPC event object for sending progress updates
+   * @param {string} modelName - Name of the model to download (e.g., 'embeddinggemma')
+   * @param {string} [baseUrl] - Optional custom Ollama base URL
+   * @returns {Promise<IPCResult<OllamaPullResult>>} Result with status and output messages
+   */
+  ipcMain.handle(
+    IPC_CHANNELS.OLLAMA_PULL_MODEL,
+    async (
+      event,
+      modelName: string,
+      baseUrl?: string
+    ): Promise<IPCResult<OllamaPullResult>> => {
       try {
         const pythonCmd = findPythonCommand();
         if (!pythonCmd) {
           return { success: false, error: 'Python not found' };
         }
 
-        // Find the ollama_model_detector.py script
-        const possiblePaths = [
-          // New apps structure
-          path.resolve(__dirname, '..', '..', '..', '..', 'backend', 'ollama_model_detector.py'),
-          path.resolve(process.cwd(), 'apps', 'backend', 'ollama_model_detector.py'),
-          // Legacy paths for backwards compatibility
-          path.resolve(__dirname, '..', '..', '..', 'auto-claude', 'ollama_model_detector.py'),
-          path.resolve(process.cwd(), 'auto-claude', 'ollama_model_detector.py'),
-          path.resolve(process.cwd(), '..', 'auto-claude', 'ollama_model_detector.py'),
-        ];
-
-        let scriptPath: string | null = null;
-        for (const p of possiblePaths) {
-          if (fs.existsSync(p)) {
-            scriptPath = p;
-            break;
-          }
-        }
-
+        const scriptPath = getOllamaDetectorScriptPath();
         if (!scriptPath) {
-          return { success: false, error: 'ollama_model_detector.py script not found' };
+          return {
+            success: false,
+            error: 'ollama_model_detector.py script not found. Check console for searched paths.'
+          };
         }
 
         const [pythonExe, baseArgs] = parsePythonCommand(pythonCmd);
@@ -592,11 +627,11 @@ export function registerMemoryHandlers(): void {
               if (line.trim()) {
                 try {
                   const progressData = JSON.parse(line);
-                  
+
                   // Extract progress information
                   if (progressData.completed !== undefined && progressData.total !== undefined) {
-                    const percentage = progressData.total > 0 
-                      ? Math.round((progressData.completed / progressData.total) * 100) 
+                    const percentage = progressData.total > 0
+                      ? Math.round((progressData.completed / progressData.total) * 100)
                       : 0;
 
                     // Emit progress event to renderer

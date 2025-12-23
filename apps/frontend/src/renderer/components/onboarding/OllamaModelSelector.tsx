@@ -102,7 +102,7 @@ export function OllamaModelSelector({
   const [error, setError] = useState<string | null>(null);
   const [ollamaAvailable, setOllamaAvailable] = useState(true);
   const [downloadProgress, setDownloadProgress] = useState<DownloadProgress>({});
-  
+
   // Track previous progress for speed calculation
   const downloadProgressRef = useRef<{
     [modelName: string]: {
@@ -127,7 +127,14 @@ export function OllamaModelSelector({
       const statusResult = await window.electronAPI.checkOllamaStatus();
       if (abortSignal?.aborted) return;
 
-      if (!statusResult?.success || !statusResult?.data?.running) {
+      if (statusResult && !statusResult.success) {
+        setError(statusResult.error || 'Failed to check Ollama status');
+        setOllamaAvailable(false);
+        setIsLoading(false);
+        return;
+      }
+
+      if (!statusResult?.data?.running) {
         setOllamaAvailable(false);
         setIsLoading(false);
         return;
@@ -178,22 +185,22 @@ export function OllamaModelSelector({
     return () => controller.abort();
   }, []);
 
-   /**
-    * Progress listener effect:
-    * Subscribes to real-time download progress events from the main process.
-    * Calculates and formats download speed (MB/s, KB/s, B/s) and time remaining.
-    * Uses useRef to track previous state for accurate speed calculations.
-    */
-   useEffect(() => {
-     const handleProgress = (data: {
-       modelName: string;
-       status: string;
-       completed: number;
-       total: number;
-       percentage: number;
-     }) => {
+  /**
+   * Progress listener effect:
+   * Subscribes to real-time download progress events from the main process.
+   * Calculates and formats download speed (MB/s, KB/s, B/s) and time remaining.
+   * Uses useRef to track previous state for accurate speed calculations.
+   */
+  useEffect(() => {
+    const handleProgress = (data: {
+      modelName: string;
+      status: string;
+      completed: number;
+      total: number;
+      percentage: number;
+    }) => {
       const now = Date.now();
-      
+
       // Initialize tracking for this model if needed
       if (!downloadProgressRef.current[data.modelName]) {
         downloadProgressRef.current[data.modelName] = {
@@ -209,12 +216,12 @@ export function OllamaModelSelector({
       // Calculate speed only if we have meaningful time delta (> 100ms)
       let speedStr = '';
       let timeStr = '';
-      
+
       if (timeDelta > 100 && bytesDelta > 0) {
         const speed = (bytesDelta / timeDelta) * 1000; // bytes per second
         const remaining = data.total - data.completed;
         const timeRemaining = speed > 0 ? Math.ceil(remaining / speed) : 0;
-        
+
         // Format speed (MB/s or KB/s)
         if (speed > 1024 * 1024) {
           speedStr = `${(speed / (1024 * 1024)).toFixed(1)} MB/s`;
@@ -265,43 +272,43 @@ export function OllamaModelSelector({
     };
   }, []);
 
-   /**
-    * Initiates download of an Ollama embedding model.
-    * Updates UI state during download and refreshes model list after completion.
-    *
-    * @param {string} modelName - Name of the model to download (e.g., 'embeddinggemma')
-    * @returns {Promise<void>}
-    */
-   const handleDownload = async (modelName: string) => {
-     setIsDownloading(modelName);
-     setError(null);
+  /**
+   * Initiates download of an Ollama embedding model.
+   * Updates UI state during download and refreshes model list after completion.
+   *
+   * @param {string} modelName - Name of the model to download (e.g., 'embeddinggemma')
+   * @returns {Promise<void>}
+   */
+  const handleDownload = async (modelName: string) => {
+    setIsDownloading(modelName);
+    setError(null);
 
-     try {
-       const result = await window.electronAPI.pullOllamaModel(modelName);
-       if (result?.success) {
-         // Refresh the model list
-         await checkInstalledModels();
-       } else {
-         setError(result?.error || `Failed to download ${modelName}`);
-       }
-     } catch (err) {
-       setError(err instanceof Error ? err.message : 'Download failed');
-     } finally {
-       setIsDownloading(null);
-     }
-   };
+    try {
+      const result = await window.electronAPI.pullOllamaModel(modelName);
+      if (result?.success) {
+        // Refresh the model list
+        await checkInstalledModels();
+      } else {
+        setError(result?.error || `Failed to download ${modelName}`);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Download failed');
+    } finally {
+      setIsDownloading(null);
+    }
+  };
 
-   /**
-    * Handles model selection by calling the parent callback.
-    * Only allows selection of installed models and when component is not disabled.
-    *
-    * @param {OllamaModel} model - The model to select
-    * @returns {void}
-    */
-   const handleSelect = (model: OllamaModel) => {
-     if (!model.installed || disabled) return;
-     onModelSelect(model.name, model.dim);
-   };
+  /**
+   * Handles model selection by calling the parent callback.
+   * Only allows selection of installed models and when component is not disabled.
+   *
+   * @param {OllamaModel} model - The model to select
+   * @returns {void}
+   */
+  const handleSelect = (model: OllamaModel) => {
+    if (!model.installed || disabled) return;
+    onModelSelect(model.name, model.dim);
+  };
 
   if (isLoading) {
     return (
@@ -345,115 +352,115 @@ export function OllamaModelSelector({
         </div>
       )}
 
-       <div className="space-y-2">
-         {models.map(model => {
-           const isSelected = selectedModel === model.name;
-           const isCurrentlyDownloading = isDownloading === model.name;
-           const progress = downloadProgress[model.name];
+      <div className="space-y-2">
+        {models.map(model => {
+          const isSelected = selectedModel === model.name;
+          const isCurrentlyDownloading = isDownloading === model.name;
+          const progress = downloadProgress[model.name];
 
-           return (
-             <div
-               key={model.name}
-               className={cn(
-                 'rounded-lg border transition-colors',
-                 model.installed && !disabled
-                   ? 'cursor-pointer hover:bg-accent/50'
-                   : 'cursor-default',
-                 isSelected && 'border-primary bg-primary/5',
-                 !model.installed && 'bg-muted/30'
-               )}
-               onClick={() => handleSelect(model)}
-             >
-               <div className="flex items-center justify-between p-3">
-                 <div className="flex items-center gap-3">
-                   {/* Selection/Status indicator */}
-                   <div
-                     className={cn(
-                       'flex h-5 w-5 items-center justify-center rounded-full border-2 shrink-0',
-                       isSelected
-                         ? 'border-primary bg-primary text-primary-foreground'
-                         : model.installed
-                           ? 'border-muted-foreground/30'
-                           : 'border-muted-foreground/20 bg-muted/50'
-                     )}
-                   >
-                     {isSelected && <Check className="h-3 w-3" />}
-                   </div>
+          return (
+            <div
+              key={model.name}
+              className={cn(
+                'rounded-lg border transition-colors',
+                model.installed && !disabled
+                  ? 'cursor-pointer hover:bg-accent/50'
+                  : 'cursor-default',
+                isSelected && 'border-primary bg-primary/5',
+                !model.installed && 'bg-muted/30'
+              )}
+              onClick={() => handleSelect(model)}
+            >
+              <div className="flex items-center justify-between p-3">
+                <div className="flex items-center gap-3">
+                  {/* Selection/Status indicator */}
+                  <div
+                    className={cn(
+                      'flex h-5 w-5 items-center justify-center rounded-full border-2 shrink-0',
+                      isSelected
+                        ? 'border-primary bg-primary text-primary-foreground'
+                        : model.installed
+                          ? 'border-muted-foreground/30'
+                          : 'border-muted-foreground/20 bg-muted/50'
+                    )}
+                  >
+                    {isSelected && <Check className="h-3 w-3" />}
+                  </div>
 
-                   <div className="flex-1">
-                     <div className="flex items-center gap-2">
-                       <span className="text-sm font-medium">{model.name}</span>
-                       <span className="text-xs text-muted-foreground">
-                         ({model.dim} dim)
-                       </span>
-                       {model.installed && (
-                         <span className="inline-flex items-center rounded-full bg-success/10 px-2 py-0.5 text-xs text-success">
-                           Installed
-                         </span>
-                       )}
-                     </div>
-                     <p className="text-xs text-muted-foreground">{model.description}</p>
-                   </div>
-                 </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium">{model.name}</span>
+                      <span className="text-xs text-muted-foreground">
+                        ({model.dim} dim)
+                      </span>
+                      {model.installed && (
+                        <span className="inline-flex items-center rounded-full bg-success/10 px-2 py-0.5 text-xs text-success">
+                          Installed
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground">{model.description}</p>
+                  </div>
+                </div>
 
-                 {/* Download button for non-installed models */}
-                 {!model.installed && (
-                   <Button
-                     variant="outline"
-                     size="sm"
-                     onClick={(e) => {
-                       e.stopPropagation();
-                       handleDownload(model.name);
-                     }}
-                     disabled={isCurrentlyDownloading || disabled}
-                     className="shrink-0"
-                   >
-                     {isCurrentlyDownloading ? (
-                       <>
-                         <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
-                         Downloading...
-                       </>
-                     ) : (
-                       <>
-                         <Download className="h-3.5 w-3.5 mr-1.5" />
-                         Download
-                         {model.size_estimate && (
-                           <span className="ml-1 text-muted-foreground">
-                             ({model.size_estimate})
-                           </span>
-                         )}
-                       </>
-                     )}
-                   </Button>
-                 )}
-               </div>
+                {/* Download button for non-installed models */}
+                {!model.installed && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDownload(model.name);
+                    }}
+                    disabled={isCurrentlyDownloading || disabled}
+                    className="shrink-0"
+                  >
+                    {isCurrentlyDownloading ? (
+                      <>
+                        <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
+                        Downloading...
+                      </>
+                    ) : (
+                      <>
+                        <Download className="h-3.5 w-3.5 mr-1.5" />
+                        Download
+                        {model.size_estimate && (
+                          <span className="ml-1 text-muted-foreground">
+                            ({model.size_estimate})
+                          </span>
+                        )}
+                      </>
+                    )}
+                  </Button>
+                )}
+              </div>
 
-               {/* Progress bar for downloading models */}
-               {isCurrentlyDownloading && progress && (
-                 <div className="px-3 pb-3 space-y-1.5">
-                   {/* Progress bar */}
-                   <div className="w-full bg-muted rounded-full h-2">
-                     <div
-                       className="h-full rounded-full bg-gradient-to-r from-primary via-primary to-primary/80 transition-all duration-300"
-                       style={{ width: `${Math.max(0, Math.min(100, progress.percentage))}%` }}
-                     />
-                   </div>
-                   {/* Progress info: percentage, speed, time remaining */}
-                   <div className="flex items-center justify-between text-xs text-muted-foreground">
-                     <span className="font-medium text-foreground">
-                       {Math.round(progress.percentage)}%
-                     </span>
-                     <div className="flex items-center gap-2">
-                       {progress.speed && <span>{progress.speed}</span>}
-                       {progress.timeRemaining && <span className="text-primary">{progress.timeRemaining}</span>}
-                     </div>
-                   </div>
-                 </div>
-               )}
-             </div>
-           );
-         })}
-       </div>
+              {/* Progress bar for downloading models */}
+              {isCurrentlyDownloading && progress && (
+                <div className="px-3 pb-3 space-y-1.5">
+                  {/* Progress bar */}
+                  <div className="w-full bg-muted rounded-full h-2">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-primary via-primary to-primary/80 transition-all duration-300"
+                      style={{ width: `${Math.max(0, Math.min(100, progress.percentage))}%` }}
+                    />
+                  </div>
+                  {/* Progress info: percentage, speed, time remaining */}
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span className="font-medium text-foreground">
+                      {Math.round(progress.percentage)}%
+                    </span>
+                    <div className="flex items-center gap-2">
+                      {progress.speed && <span>{progress.speed}</span>}
+                      {progress.timeRemaining && <span className="text-primary">{progress.timeRemaining}</span>}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
 
       <p className="text-xs text-muted-foreground">
         Select an installed model for semantic search. Memory works with keyword search even without embeddings.

@@ -61,7 +61,13 @@ export function MemoryBackendSection({
     try {
       // Check Ollama status first
       const statusResult = await window.electronAPI.checkOllamaStatus(ollamaBaseUrl);
-      if (!statusResult.success || !statusResult.data?.running) {
+      if (statusResult && !statusResult.success) {
+        setOllamaStatus('disconnected');
+        setOllamaError(statusResult.error || 'Failed to check Ollama status');
+        return;
+      }
+
+      if (!statusResult?.data?.running) {
         setOllamaStatus('disconnected');
         setOllamaError(statusResult.data?.message || 'Ollama is not running');
         return;
@@ -91,11 +97,10 @@ export function MemoryBackendSection({
   }, [embeddingProvider, envConfig.graphitiEnabled, detectOllamaModels]);
 
   const badge = (
-    <span className={`px-2 py-0.5 text-xs rounded-full ${
-      envConfig.graphitiEnabled
+    <span className={`px-2 py-0.5 text-xs rounded-full ${envConfig.graphitiEnabled
         ? 'bg-success/10 text-success'
         : 'bg-muted text-muted-foreground'
-    }`}>
+      }`}>
       {envConfig.graphitiEnabled ? 'Enabled' : 'Disabled'}
     </span>
   );
