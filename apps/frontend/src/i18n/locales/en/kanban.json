@@ -1,4 +1,7 @@
 {
+    "actions": {
+        "archiveAll": "Archive all completed tasks"
+    },
     "columns": {
         "planning": "Planning",
         "inProgress": "In Progress",
@@ -10,13 +13,13 @@
         "planning": "No tasks planned",
         "planningDesc": "Add a task to get started",
         "inProgress": "Nothing running",
-        "inProgressDesc": "Start a task",
+        "inProgressDesc": "Start a task from Planning",
         "aiReview": "No tasks in review",
-        "aiReviewDesc": "Completed tasks will appear here",
-        "humanReview": "No tasks in review",
-        "humanReviewDesc": "Tasks needing your review will appear here",
+        "aiReviewDesc": "AI will review completed tasks",
+        "humanReview": "Nothing to review",
+        "humanReviewDesc": "Tasks await your approval here",
         "done": "No completed tasks",
-        "doneDesc": "Finished tasks will appear here"
+        "doneDesc": "Approved tasks appear here"
     },
     "taskCard": {
         "progress": "Progress",

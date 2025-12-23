@@ -1,4 +1,7 @@
 {
+    "actions": {
+        "archiveAll": "归档所有已完成任务"
+    },
     "columns": {
         "planning": "规划中",
         "inProgress": "进行中",
@@ -8,15 +11,15 @@
     },
     "emptyStates": {
         "planning": "没有规划中的任务",
-        "planningDesc": "添加一个任务开始",
-        "inProgress": "没有进行中的任务",
-        "inProgressDesc": "开始一个任务",
+        "planningDesc": "添加一个任务来开始",
+        "inProgress": "没有运行中的任务",
+        "inProgressDesc": "从规划中开始一个任务",
         "aiReview": "没有待审查的任务",
-        "aiReviewDesc": "完成的任务将出现在这里",
+        "aiReviewDesc": "AI 将审查已完成的任务",
         "humanReview": "没有待审查的任务",
-        "humanReviewDesc": "需要您审查的任务将出现在这里",
+        "humanReviewDesc": "需要您审批的任务将出现在这里",
         "done": "没有已完成的任务",
-        "doneDesc": "完成的任务将出现在这里"
+        "doneDesc": "已批准的任务将出现在这里"
     },
     "taskCard": {
         "progress": "进度",

@@ -47,42 +47,42 @@ interface DroppableColumnProps {
 }
 
 // Empty state content for each column
-const getEmptyStateContent = (status: TaskStatus): { icon: React.ReactNode; message: string; subtext?: string } => {
+const getEmptyStateContent = (status: TaskStatus, t: (key: string) => string): { icon: React.ReactNode; message: string; subtext?: string } => {
   switch (status) {
     case 'backlog':
       return {
         icon: <Inbox className="h-6 w-6 text-muted-foreground/50" />,
-        message: 'No tasks planned',
-        subtext: 'Add a task to get started'
+        message: t('kanban:emptyStates.planning'),
+        subtext: t('kanban:emptyStates.planningDesc')
       };
     case 'in_progress':
       return {
         icon: <Loader2 className="h-6 w-6 text-muted-foreground/50" />,
-        message: 'Nothing running',
-        subtext: 'Start a task from Planning'
+        message: t('kanban:emptyStates.inProgress'),
+        subtext: t('kanban:emptyStates.inProgressDesc')
       };
     case 'ai_review':
       return {
         icon: <Eye className="h-6 w-6 text-muted-foreground/50" />,
-        message: 'No tasks in review',
-        subtext: 'AI will review completed tasks'
+        message: t('kanban:emptyStates.aiReview'),
+        subtext: t('kanban:emptyStates.aiReviewDesc')
       };
     case 'human_review':
       return {
         icon: <Eye className="h-6 w-6 text-muted-foreground/50" />,
-        message: 'Nothing to review',
-        subtext: 'Tasks await your approval here'
+        message: t('kanban:emptyStates.humanReview'),
+        subtext: t('kanban:emptyStates.humanReviewDesc')
       };
     case 'done':
       return {
         icon: <CheckCircle2 className="h-6 w-6 text-muted-foreground/50" />,
-        message: 'No completed tasks',
-        subtext: 'Approved tasks appear here'
+        message: t('kanban:emptyStates.done'),
+        subtext: t('kanban:emptyStates.doneDesc')
       };
     default:
       return {
         icon: <Inbox className="h-6 w-6 text-muted-foreground/50" />,
-        message: 'No tasks'
+        message: t('kanban:emptyStates.backlog'), // fallback
       };
   }
 };
@@ -111,7 +111,7 @@ function DroppableColumn({ status, tasks, onTaskClick, isOver, onAddClick, onArc
     }
   };
 
-  const emptyState = getEmptyStateContent(status);
+  const emptyState = getEmptyStateContent(status, t);
 
   // Get translated column title
   const getColumnTitle = (status: TaskStatus): string => {
@@ -162,7 +162,7 @@ function DroppableColumn({ status, tasks, onTaskClick, isOver, onAddClick, onArc
               size="icon"
               className="h-7 w-7 hover:bg-muted-foreground/10 hover:text-muted-foreground transition-colors"
               onClick={onArchiveAll}
-              title="Archive all done tasks"
+              title={t("kanban:actions.archiveAll")}
             >
               <Archive className="h-4 w-4" />
             </Button>
