@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { AlertCircle, ExternalLink, Clock, RefreshCw, User, ChevronDown, Check, Zap, Star, Plus } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -25,6 +26,8 @@ import { useClaudeProfileStore, loadClaudeProfiles, switchTerminalToProfile } fr
 const CLAUDE_UPGRADE_URL = 'https://claude.ai/upgrade';
 
 export function RateLimitModal() {
+  const { t } = useTranslation(['common', 'settings']);
+
   const { isModalOpen, rateLimitInfo, hideRateLimitModal, clearPendingRateLimit } = useRateLimitStore();
   const { profiles, activeProfileId, isSwitching } = useClaudeProfileStore();
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);

@@ -3,6 +3,7 @@ import { Progress } from '../ui/progress';
 import { cn, calculateProgress } from '../../lib/utils';
 import { EXECUTION_PHASE_BADGE_COLORS, EXECUTION_PHASE_LABELS } from '../../../shared/constants';
 import type { Task, ExecutionPhase } from '../../../shared/types';
+import { useTranslation } from 'react-i18next';
 
 interface TaskProgressProps {
   task: Task;
@@ -13,6 +14,8 @@ interface TaskProgressProps {
 }
 
 export function TaskProgress({ task, isRunning, hasActiveExecution, executionPhase, isStuck }: TaskProgressProps) {
+  const { t } = useTranslation(['common', 'taskDetail']);
+
   const progress = calculateProgress(task.subtasks);
 
   return (
@@ -27,7 +30,7 @@ export function TaskProgress({ task, isRunning, hasActiveExecution, executionPha
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">
-                {EXECUTION_PHASE_LABELS[executionPhase]}
+                {executionPhase ? t(`taskDetail:logs.phases.${executionPhase}`) : EXECUTION_PHASE_LABELS[executionPhase!]}
               </span>
               <span className="text-sm">
                 {task.executionProgress?.overallProgress || 0}%
@@ -40,7 +43,7 @@ export function TaskProgress({ task, isRunning, hasActiveExecution, executionPha
             )}
             {task.executionProgress?.currentSubtask && (
               <p className="text-xs mt-0.5 opacity-70">
-                Subtask: {task.executionProgress.currentSubtask}
+                {t('taskDetail:progress.subtaskPrefix')} {task.executionProgress.currentSubtask}
               </p>
             )}
           </div>
@@ -50,15 +53,15 @@ export function TaskProgress({ task, isRunning, hasActiveExecution, executionPha
       {/* Progress Bar */}
       <div className="section-divider mb-3">
         <Zap className="h-3 w-3" />
-        Progress
+        {t('taskDetail:progress.title')}
       </div>
       <div className="flex items-center justify-between mb-2">
         <span className="text-xs text-muted-foreground">
           {hasActiveExecution && task.executionProgress?.message
             ? task.executionProgress.message
             : task.subtasks.length > 0
-              ? `${task.subtasks.filter(c => c.status === 'completed').length}/${task.subtasks.length} subtasks completed`
-              : 'No subtasks yet'}
+              ? t('taskDetail:progress.completedSummary', { completed: task.subtasks.filter(c => c.status === 'completed').length, total: task.subtasks.length })
+              : t('taskDetail:progress.noSubtasksYet')}
         </span>
         <span className={cn(
           'text-sm font-semibold tabular-nums',
@@ -92,7 +95,7 @@ export function TaskProgress({ task, isRunning, hasActiveExecution, executionPha
               executionPhase === 'planning' ? 'bg-amber-500' : 'bg-amber-500/30'
             )}
             style={{ width: '20%' }}
-            title="Planning (0-20%)"
+            title={t('taskDetail:progress.phases.tooltip.planning')}
           />
           <div
             className={cn(
@@ -100,7 +103,7 @@ export function TaskProgress({ task, isRunning, hasActiveExecution, executionPha
               executionPhase === 'coding' ? 'bg-info' : 'bg-info/30'
             )}
             style={{ width: '60%' }}
-            title="Coding (20-80%)"
+            title={t('taskDetail:progress.phases.tooltip.coding')}
           />
           <div
             className={cn(
@@ -108,12 +111,12 @@ export function TaskProgress({ task, isRunning, hasActiveExecution, executionPha
               (executionPhase === 'qa_review' || executionPhase === 'qa_fixing') ? 'bg-purple-500' : 'bg-purple-500/30'
             )}
             style={{ width: '15%' }}
-            title="AI Review (80-95%)"
+            title={t('taskDetail:progress.phases.tooltip.review')}
           />
           <div
             className="transition-all duration-300 bg-success/30"
             style={{ width: '5%' }}
-            title="Complete (95-100%)"
+            title={t('taskDetail:progress.phases.tooltip.complete')}
           />
         </div>
       )}

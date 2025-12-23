@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useDroppable } from '@dnd-kit/core';
+import { useTranslation } from 'react-i18next';
 import '@xterm/xterm/css/xterm.css';
 import { FileDown } from 'lucide-react';
 import { cn } from '../lib/utils';
@@ -21,6 +22,8 @@ export function Terminal({
   tasks = [],
   onNewTaskClick
 }: TerminalProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const isMountedRef = useRef(true);
   const isCreatedRef = useRef(false);
 

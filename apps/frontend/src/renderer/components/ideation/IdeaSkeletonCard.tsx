@@ -1,6 +1,9 @@
 import { Card } from '../ui/card';
+import { useTranslation } from 'react-i18next';
 
 export function IdeaSkeletonCard() {
+  const { t } = useTranslation(['common', 'settings']);
+
   return (
     <Card className="p-4 animate-pulse">
       <div className="flex items-start justify-between">

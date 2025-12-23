@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   FileText,
   Lightbulb,
@@ -49,6 +50,8 @@ function TipCard({ icon, title, description }: TipCardProps) {
  * and provides an action to open the Task Creator.
  */
 export function FirstSpecStep({ onNext, onBack, onSkip, onOpenTaskCreator }: FirstSpecStepProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const [hasCreatedSpec, setHasCreatedSpec] = useState(false);
 
   const tips = [
@@ -183,17 +186,13 @@ export function FirstSpecStep({ onNext, onBack, onSkip, onOpenTaskCreator }: Fir
             variant="ghost"
             onClick={onBack}
             className="text-muted-foreground hover:text-foreground"
-          >
-            Back
-          </Button>
+          >{t("common:buttons.back")}</Button>
           <div className="flex gap-4">
             <Button
               variant="ghost"
               onClick={onSkip}
               className="text-muted-foreground hover:text-foreground"
-            >
-              Skip
-            </Button>
+            >{t("common:buttons.skip")}</Button>
             <Button onClick={handleContinue}>
               Continue
             </Button>

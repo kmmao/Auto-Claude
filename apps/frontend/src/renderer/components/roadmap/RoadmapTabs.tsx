@@ -6,6 +6,7 @@ import { PhaseCard } from './PhaseCard';
 import { FeatureCard } from './FeatureCard';
 import { RoadmapKanbanView } from '../RoadmapKanbanView';
 import { getFeaturesByPhase } from '../../stores/roadmap-store';
+import { useTranslation } from 'react-i18next';
 import {
   ROADMAP_PRIORITY_COLORS,
   ROADMAP_PRIORITY_LABELS,
@@ -25,13 +26,15 @@ export function RoadmapTabs({
   onGoToTask,
   onSave,
 }: RoadmapTabsProps) {
+  const { t } = useTranslation(['common', 'roadmap']);
+
   return (
     <Tabs value={activeTab} onValueChange={onTabChange} className="h-full flex flex-col">
       <TabsList className="shrink-0 mx-4 mt-4">
-        <TabsTrigger value="kanban">Kanban</TabsTrigger>
-        <TabsTrigger value="phases">Phases</TabsTrigger>
-        <TabsTrigger value="features">All Features</TabsTrigger>
-        <TabsTrigger value="priorities">By Priority</TabsTrigger>
+        <TabsTrigger value="kanban">{t('roadmap:tabs.kanban')}</TabsTrigger>
+        <TabsTrigger value="phases">{t('roadmap:tabs.phases')}</TabsTrigger>
+        <TabsTrigger value="features">{t('roadmap:tabs.features')}</TabsTrigger>
+        <TabsTrigger value="priorities">{t('roadmap:tabs.priorities')}</TabsTrigger>
       </TabsList>
 
       {/* Kanban View */}
@@ -89,7 +92,7 @@ export function RoadmapTabs({
                   <Badge variant="outline" className={ROADMAP_PRIORITY_COLORS[priority]}>
                     {ROADMAP_PRIORITY_LABELS[priority]}
                   </Badge>
-                  <span className="text-sm text-muted-foreground">{features.length} features</span>
+                  <span className="text-sm text-muted-foreground">{features.length} {t('roadmap:priorityView.features')}</span>
                 </div>
                 <div className="space-y-2">
                   {features.map((feature: RoadmapFeature) => (
@@ -110,12 +113,12 @@ export function RoadmapTabs({
                           variant="outline"
                           className={`text-xs ${ROADMAP_IMPACT_COLORS[feature.impact]}`}
                         >
-                          {feature.impact} impact
+                          {feature.impact} {t('roadmap:priorityView.impact')}
                         </Badge>
                         {hasCompetitorInsight(feature) && (
                           <Badge variant="outline" className="text-xs text-primary border-primary/50">
                             <TrendingUp className="h-3 w-3 mr-1" />
-                            Insight
+                            {t('roadmap:priorityView.insight')}
                           </Badge>
                         )}
                       </div>

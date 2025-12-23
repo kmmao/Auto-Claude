@@ -3,6 +3,7 @@
  */
 
 import { CheckCircle2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '../../ui/button';
 import type { LinearImportResult } from '../types';
 
@@ -12,6 +13,8 @@ interface ImportSuccessBannerProps {
 }
 
 export function ImportSuccessBanner({ importResult, onClose }: ImportSuccessBannerProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   return (
     <div className="rounded-lg bg-success/10 border border-success/30 p-4 flex items-center gap-3">
       <CheckCircle2 className="h-5 w-5 text-success shrink-0" />
@@ -23,9 +26,7 @@ export function ImportSuccessBanner({ importResult, onClose }: ImportSuccessBann
           Tasks are being processed. Check your Kanban board for progress.
         </p>
       </div>
-      <Button variant="outline" size="sm" onClick={onClose}>
-        Close
-      </Button>
+      <Button variant="outline" size="sm" onClick={onClose}>{t("common:buttons.close")}</Button>
     </div>
   );
 }

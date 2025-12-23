@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Check,
   Download,
@@ -66,29 +67,6 @@ interface DownloadProgress {
  * OllamaModelSelector Component
  *
  * Provides UI for selecting and downloading Ollama embedding models for semantic search.
- * Features:
- * - Displays list of recommended embedding models (embeddinggemma, nomic-embed-text, mxbai-embed-large)
- * - Shows installation status with checkmarks for installed models
- * - Download buttons with file size estimates for uninstalled models
- * - Real-time download progress tracking with speed and ETA
- * - Automatic list refresh after successful downloads
- * - Graceful handling when Ollama service is not running
- *
- * @component
- * @param {Object} props - Component props
- * @param {string} props.selectedModel - Currently selected model name
- * @param {Function} props.onModelSelect - Callback when a model is selected (model: string, dim: number) => void
- * @param {boolean} [props.disabled=false] - If true, disables selection and downloads
- * @param {string} [props.className] - Additional CSS classes to apply to root element
- *
- * @example
- * ```tsx
- * <OllamaModelSelector
- *   selectedModel="embeddinggemma"
- *   onModelSelect={(model, dim) => console.log(`Selected ${model} with ${dim} dimensions`)}
- *   disabled={false}
- * />
- * ```
  */
 export function OllamaModelSelector({
   selectedModel,
@@ -96,6 +74,8 @@ export function OllamaModelSelector({
   disabled = false,
   className,
 }: OllamaModelSelectorProps) {
+  const { t } = useTranslation(['common', 'settings', 'onboarding']);
+
   const [models, setModels] = useState<OllamaModel[]>(RECOMMENDED_MODELS);
   const [isLoading, setIsLoading] = useState(true);
   const [isDownloading, setIsDownloading] = useState<string | null>(null);
@@ -113,10 +93,6 @@ export function OllamaModelSelector({
 
   /**
    * Checks Ollama service status and fetches list of installed embedding models.
-   * Updates component state with installation status for each recommended model.
-   *
-   * @param {AbortSignal} [abortSignal] - Optional abort signal to cancel the request
-   * @returns {Promise<void>}
    */
   const checkInstalledModels = async (abortSignal?: AbortSignal) => {
     setIsLoading(true);
@@ -188,8 +164,6 @@ export function OllamaModelSelector({
   /**
    * Progress listener effect:
    * Subscribes to real-time download progress events from the main process.
-   * Calculates and formats download speed (MB/s, KB/s, B/s) and time remaining.
-   * Uses useRef to track previous state for accurate speed calculations.
    */
   useEffect(() => {
     const handleProgress = (data: {
@@ -233,11 +207,11 @@ export function OllamaModelSelector({
 
         // Format time remaining
         if (timeRemaining > 3600) {
-          timeStr = `${Math.ceil(timeRemaining / 3600)}h remaining`;
+          timeStr = t('onboarding:memory.provider.ollama.timeRemaining.hours', { count: Math.ceil(timeRemaining / 3600) });
         } else if (timeRemaining > 60) {
-          timeStr = `${Math.ceil(timeRemaining / 60)}m remaining`;
+          timeStr = t('onboarding:memory.provider.ollama.timeRemaining.minutes', { count: Math.ceil(timeRemaining / 60) });
         } else if (timeRemaining > 0) {
-          timeStr = `${Math.ceil(timeRemaining)}s remaining`;
+          timeStr = t('onboarding:memory.provider.ollama.timeRemaining.seconds', { count: Math.ceil(timeRemaining) });
         }
       }
 
@@ -270,14 +244,10 @@ export function OllamaModelSelector({
         unsubscribe();
       }
     };
-  }, []);
+  }, [t]);
 
   /**
    * Initiates download of an Ollama embedding model.
-   * Updates UI state during download and refreshes model list after completion.
-   *
-   * @param {string} modelName - Name of the model to download (e.g., 'embeddinggemma')
-   * @returns {Promise<void>}
    */
   const handleDownload = async (modelName: string) => {
     setIsDownloading(modelName);
@@ -300,10 +270,6 @@ export function OllamaModelSelector({
 
   /**
    * Handles model selection by calling the parent callback.
-   * Only allows selection of installed models and when component is not disabled.
-   *
-   * @param {OllamaModel} model - The model to select
-   * @returns {void}
    */
   const handleSelect = (model: OllamaModel) => {
     if (!model.installed || disabled) return;
@@ -314,7 +280,7 @@ export function OllamaModelSelector({
     return (
       <div className={cn('flex items-center justify-center py-8', className)}>
         <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-        <span className="ml-2 text-sm text-muted-foreground">Checking Ollama models...</span>
+        <span className="ml-2 text-sm text-muted-foreground">{t('onboarding:memory.provider.ollama.checking')}</span>
       </div>
     );
   }
@@ -325,9 +291,9 @@ export function OllamaModelSelector({
         <div className="flex items-start gap-3">
           <AlertCircle className="h-5 w-5 text-warning shrink-0 mt-0.5" />
           <div className="flex-1">
-            <p className="text-sm font-medium text-warning">Ollama not running</p>
+            <p className="text-sm font-medium text-warning">{t('onboarding:memory.provider.ollama.notRunning')}</p>
             <p className="text-sm text-warning/80 mt-1">
-              Start Ollama to use local embedding models. Memory will still work with keyword search.
+              {t('onboarding:memory.provider.ollama.notRunningDesc')}
             </p>
             <Button
               variant="outline"
@@ -335,9 +301,7 @@ export function OllamaModelSelector({
               onClick={() => checkInstalledModels()}
               className="mt-3"
             >
-              <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
-              Retry
-            </Button>
+              <RefreshCw className="h-3.5 w-3.5 mr-1.5" />{t("common:buttons.retry")}</Button>
           </div>
         </div>
       </div>
@@ -395,11 +359,16 @@ export function OllamaModelSelector({
                       </span>
                       {model.installed && (
                         <span className="inline-flex items-center rounded-full bg-success/10 px-2 py-0.5 text-xs text-success">
-                          Installed
+                          {t('onboarding:memory.provider.ollama.installed')}
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground">{model.description}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {model.name === 'embeddinggemma' ? t('onboarding:memory.provider.ollama.recommended.gemma', { defaultValue: model.description }) :
+                        model.name === 'nomic-embed-text' ? t('onboarding:memory.provider.ollama.recommended.nomic', { defaultValue: model.description }) :
+                          model.name === 'mxbai-embed-large' ? t('onboarding:memory.provider.ollama.recommended.mxbai', { defaultValue: model.description }) :
+                            model.description}
+                    </p>
                   </div>
                 </div>
 
@@ -418,12 +387,12 @@ export function OllamaModelSelector({
                     {isCurrentlyDownloading ? (
                       <>
                         <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
-                        Downloading...
+                        {t('onboarding:memory.provider.ollama.downloading')}
                       </>
                     ) : (
                       <>
                         <Download className="h-3.5 w-3.5 mr-1.5" />
-                        Download
+                        {t('onboarding:memory.provider.ollama.download')}
                         {model.size_estimate && (
                           <span className="ml-1 text-muted-foreground">
                             ({model.size_estimate})
@@ -463,7 +432,7 @@ export function OllamaModelSelector({
       </div>
 
       <p className="text-xs text-muted-foreground">
-        Select an installed model for semantic search. Memory works with keyword search even without embeddings.
+        {t('onboarding:memory.provider.ollama.semanticSearchTip')}
       </p>
     </div>
   );

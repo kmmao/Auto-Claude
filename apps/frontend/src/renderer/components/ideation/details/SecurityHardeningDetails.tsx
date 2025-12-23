@@ -6,6 +6,7 @@ import {
   FileCode,
   ExternalLink
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Badge } from '../../ui/badge';
 import { Card } from '../../ui/card';
 import {
@@ -19,6 +20,8 @@ interface SecurityHardeningDetailsProps {
 }
 
 export function SecurityHardeningDetails({ idea }: SecurityHardeningDetailsProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   return (
     <>
       {/* Metrics */}

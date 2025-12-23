@@ -6,6 +6,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Activity, TrendingUp, AlertCircle } from 'lucide-react';
 import {
   Tooltip,
@@ -16,6 +17,8 @@ import {
 import type { ClaudeUsageSnapshot } from '../../shared/types/agent';
 
 export function UsageIndicator() {
+  const { t } = useTranslation(['common', 'settings']);
+
   const [usage, setUsage] = useState<ClaudeUsageSnapshot | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 

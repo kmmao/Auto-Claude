@@ -4,6 +4,7 @@ import { cn } from '../lib/utils';
 import { Button } from './ui/button';
 import { SortableProjectTab } from './SortableProjectTab';
 import type { Project } from '../../shared/types';
+import { useTranslation } from 'react-i18next';
 
 interface ProjectTabBarProps {
   projects: Project[];
@@ -22,6 +23,8 @@ export function ProjectTabBar({
   onAddProject,
   className
 }: ProjectTabBarProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   // Keyboard shortcuts for tab navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

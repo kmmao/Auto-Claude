@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Activity, ChevronDown, ChevronRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import {
   Collapsible,
   CollapsibleContent,
@@ -12,6 +13,8 @@ interface MonitoringSectionProps {
 }
 
 export function MonitoringSection({ monitoring }: MonitoringSectionProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const [expanded, setExpanded] = useState(false);
 
   if (!monitoring) {

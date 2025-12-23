@@ -2,6 +2,7 @@ import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { AVAILABLE_MODELS } from '../../../shared/constants';
 import type { ProjectSettings } from '../../../shared/types';
+import { useTranslation } from 'react-i18next';
 
 interface AgentConfigSectionProps {
   settings: ProjectSettings;
@@ -9,6 +10,8 @@ interface AgentConfigSectionProps {
 }
 
 export function AgentConfigSection({ settings, onUpdateSettings }: AgentConfigSectionProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   return (
     <section className="space-y-4">
       <h3 className="text-sm font-semibold text-foreground">Agent Configuration</h3>

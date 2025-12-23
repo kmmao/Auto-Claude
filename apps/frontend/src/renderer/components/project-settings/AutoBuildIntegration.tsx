@@ -1,6 +1,7 @@
 import { RefreshCw, Download, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '../ui/button';
 import type { AutoBuildVersionInfo } from '../../../shared/types';
+import { useTranslation } from 'react-i18next';
 
 interface AutoBuildIntegrationProps {
   autoBuildPath: string | null;
@@ -19,6 +20,8 @@ export function AutoBuildIntegration({
   onInitialize,
   onUpdate: _onUpdate,
 }: AutoBuildIntegrationProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   return (
     <section className="space-y-4">
       <h3 className="text-sm font-semibold text-foreground">Auto-Build Integration</h3>

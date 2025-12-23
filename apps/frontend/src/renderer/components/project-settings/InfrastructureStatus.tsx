@@ -1,5 +1,6 @@
 import { Loader2, CheckCircle2, AlertCircle, Database } from 'lucide-react';
 import type { InfrastructureStatus as InfrastructureStatusType } from '../../../shared/types';
+import { useTranslation } from 'react-i18next';
 
 interface InfrastructureStatusProps {
   infrastructureStatus: InfrastructureStatusType | null;
@@ -14,6 +15,8 @@ export function InfrastructureStatus({
   infrastructureStatus,
   isCheckingInfrastructure,
 }: InfrastructureStatusProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   return (
     <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-3">
       <div className="flex items-center justify-between">

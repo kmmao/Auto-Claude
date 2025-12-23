@@ -1,0 +1,77 @@
+# Implementation Plan - UI Components Internationalization
+
+## Status
+- [x] Translate Competitor Analysis Components
+  - [x] ExistingCompetitorAnalysisDialog.tsx
+  - [x] CompetitorAnalysisViewer.tsx
+- [x] Translate Feature Components
+  - [x] AddFeatureDialog.tsx
+- [x] Translate Ideation Components
+  - [x] Ideation.tsx
+  - [x] IdeationHeader.tsx
+  - [x] IdeationEmptyState.tsx
+  - [x] IdeationFilters.tsx
+  - [x] IdeationDialogs.tsx
+  - [x] GenerationProgressScreen.tsx
+  - [x] IdeaCard.tsx
+  - [x] IdeaDetailPanel.tsx
+- [x] Translate Context Components
+  - [x] Context.tsx
+  - [x] ProjectIndexTab.tsx
+  - [x] MemoriesTab.tsx
+  - [x] MemoryCard.tsx
+- [x] Translate Changelog Components
+  - [x] Changelog.tsx
+  - [x] ChangelogHeader.tsx
+  - [x] ChangelogFilters.tsx
+  - [x] ChangelogList.tsx
+  - [x] ConfigurationPanel.tsx
+  - [x] PreviewPanel.tsx
+  - [x] Step3SuccessScreen.tsx
+  - [x] GitHubReleaseCard.tsx
+  - [x] ArchiveTasksCard.tsx
+  - [x] ChangelogEntry.tsx
+- [x] Translate Worktrees Components
+  - [x] Worktrees.tsx
+- [x] Translate GitHub Issues Components
+  - [x] GitHubIssues.tsx
+  - [x] components/EmptyStates.tsx
+  - [x] components/InvestigationDialog.tsx
+  - [x] components/IssueDetail.tsx
+  - [x] components/IssueListHeader.tsx
+  - [x] components/IssueListItem.tsx
+  - [x] components/IssueList.tsx
+- [x] Translate Chat History
+  - [x] ChatHistorySidebar.tsx
+  - [x] Sidebar.tsx
+- [x] Create Translation Files
+  - [x] en/roadmap.json, zh-CN/roadmap.json
+  - [x] en/ideation.json, zh-CN/ideation.json
+  - [x] en/context.json, zh-CN/context.json
+  - [x] en/insights.json, zh-CN/insights.json (Updated)
+  - [x] en/changelog.json, zh-CN/changelog.json
+  - [x] en/worktrees.json, zh-CN/worktrees.json
+  - [x] en/github.json, zh-CN/github.json
+- [x] Update useTranslation Hooks
+  - [x] Added necessary namespaces (roadmap, ideation, context, insights, changelog, worktrees, github)
+- [x] Resolve Technical Issues
+  - [x] Fixed JSX syntax errors
+  - [x] Fixed duplicate code/function signatures
+  - [x] Fixed missing imports (Trans)
+  - [x] Fixed lint errors (unused imports)
+
+## Translation Namespaces Overview
+- **roadmap**: Competitor Analysis, Feature Dialog (AddFeatureDialog)
+- **ideation**: Ideation views, cards, details, dialogs
+- **context**: Project Index, Memories
+- **insights**: Chat History, Search
+- **changelog**: Changelog generator, history, diffs
+- **worktrees**: Worktree management
+- **github**: GitHub issues, integration
+- **common**: Shared buttons, dialogs, messages
+- **sidebar**: Navigation items
+
+## Verification
+- All targeted components have been updated to use `t()` and `Trans` where appropriate.
+- Translation JSON files for English and Simplified Chinese are created and populated.
+- Lint checks passed for modified files.

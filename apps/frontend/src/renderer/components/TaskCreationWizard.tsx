@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef, useMemo, type ClipboardEvent, type DragEvent } from 'react';
 import { Loader2, ChevronDown, ChevronUp, Image as ImageIcon, X, RotateCcw, FolderTree, GitBranch } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -59,6 +60,8 @@ export function TaskCreationWizard({
   open,
   onOpenChange
 }: TaskCreationWizardProps) {
+  const { t } = useTranslation(['common', 'settings', 'taskDetail']);
+
   // Get selected agent profile from settings
   const { settings } = useSettingsStore();
   const selectedProfile = DEFAULT_AGENT_PROFILES.find(
@@ -180,7 +183,7 @@ export function TaskCreationWizard({
       fetchBranches();
       fetchProjectDefaultBranch();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, projectPath]);
 
   const fetchBranches = async () => {
@@ -265,7 +268,7 @@ export function TaskCreationWizard({
     // Check if we can add more images
     const remainingSlots = MAX_IMAGES_PER_TASK - images.length;
     if (remainingSlots <= 0) {
-      setError(`Maximum of ${MAX_IMAGES_PER_TASK} images allowed`);
+      setError(t('taskDetail:editDialog.errors.maxImages', { count: MAX_IMAGES_PER_TASK }));
       return;
     }
 
@@ -281,7 +284,7 @@ export function TaskCreationWizard({
 
       // Validate image type
       if (!isValidImageMimeType(file.type)) {
-        setError(`Invalid image type. Allowed: ${ALLOWED_IMAGE_TYPES_DISPLAY}`);
+        setError(t('taskDetail:editDialog.errors.invalidType', { types: ALLOWED_IMAGE_TYPES_DISPLAY }));
         continue;
       }
 
@@ -306,7 +309,7 @@ export function TaskCreationWizard({
           thumbnail
         });
       } catch {
-        setError('Failed to process pasted image');
+        setError(t('taskDetail:editDialog.errors.pasteFailed'));
       }
     }
 
@@ -514,7 +517,7 @@ export function TaskCreationWizard({
       // Check if we can add more images
       const remainingSlots = MAX_IMAGES_PER_TASK - images.length;
       if (remainingSlots <= 0) {
-        setError(`Maximum of ${MAX_IMAGES_PER_TASK} images allowed`);
+        setError(t('taskDetail:editDialog.errors.maxImages', { count: MAX_IMAGES_PER_TASK }));
         return;
       }
 
@@ -527,7 +530,7 @@ export function TaskCreationWizard({
       for (const file of imageFiles.slice(0, remainingSlots)) {
         // Validate image type
         if (!isValidImageMimeType(file.type)) {
-          setError(`Invalid image type. Allowed: ${ALLOWED_IMAGE_TYPES_DISPLAY}`);
+          setError(t('taskDetail:editDialog.errors.invalidType', { types: ALLOWED_IMAGE_TYPES_DISPLAY }));
           continue;
         }
 
@@ -551,7 +554,7 @@ export function TaskCreationWizard({
             thumbnail
           });
         } catch {
-          setError('Failed to process dropped image');
+          setError(t('taskDetail:editDialog.errors.dropFailed'));
         }
       }
 
@@ -600,7 +603,7 @@ export function TaskCreationWizard({
 
   const handleCreate = async () => {
     if (!description.trim()) {
-      setError('Please provide a description');
+      setError(t('taskDetail:editDialog.errors.descriptionRequired'));
       return;
     }
 
@@ -643,7 +646,7 @@ export function TaskCreationWizard({
         resetForm();
         onOpenChange(false);
       } else {
-        setError('Failed to create task. Please try again.');
+        setError(t('taskDetail:editDialog.errors.updateFailed'));
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
@@ -722,433 +725,430 @@ export function TaskCreationWizard({
             onDragOver={handleContainerDragOver}
             className="flex-1 flex flex-col p-6 min-w-0 min-h-0 overflow-y-auto relative"
           >
-        <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-foreground">Create New Task</DialogTitle>
-            {isDraftRestored && (
-              <div className="flex items-center gap-2">
-                <span className="text-xs bg-info/10 text-info px-2 py-1 rounded-md">
-                  Draft restored
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
-                  onClick={handleDiscardDraft}
-                >
-                  <RotateCcw className="h-3 w-3 mr-1" />
-                  Start Fresh
-                </Button>
-              </div>
-            )}
-          </div>
-          <DialogDescription>
-            Describe what you want to build. The AI will analyze your request and
-            create a detailed specification.
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="space-y-5 py-4">
-          {/* Description (Primary - Required) */}
-          <div className="space-y-2">
-            <Label htmlFor="description" className="text-sm font-medium text-foreground">
-              Description <span className="text-destructive">*</span>
-            </Label>
-            {/* Wrap textarea for file @mentions */}
-            <div className="relative">
-              {/* Syntax highlight overlay for @mentions */}
-              <div
-                className="absolute inset-0 pointer-events-none overflow-hidden rounded-md border border-transparent"
-                style={{
-                  padding: '0.5rem 0.75rem',
-                  font: 'inherit',
-                  lineHeight: '1.5',
-                  wordWrap: 'break-word',
-                  whiteSpace: 'pre-wrap',
-                  color: 'transparent'
-                }}
-              >
-                {description.split(/(@[\w\-./\\]+\.\w+)/g).map((part, i) => {
-                  // Check if this part is an @mention
-                  if (part.match(/^@[\w\-./\\]+\.\w+$/)) {
-                    return (
-                      <span
-                        key={i}
-                        className="bg-info/20 text-info-foreground rounded px-0.5"
-                        style={{ color: 'hsl(var(--info))' }}
-                      >
-                        {part}
-                      </span>
-                    );
-                  }
-                  return <span key={i}>{part}</span>;
-                })}
-              </div>
-              <Textarea
-                ref={descriptionRef}
-                id="description"
-                placeholder="Describe the feature, bug fix, or improvement you want to implement. Be as specific as possible about requirements, constraints, and expected behavior. Type @ to reference files."
-                value={description}
-                onChange={handleDescriptionChange}
-                onPaste={handlePaste}
-                onDragOver={handleTextareaDragOver}
-                onDragLeave={handleTextareaDragLeave}
-                onDrop={handleTextareaDrop}
-                rows={5}
-                disabled={isCreating}
-                className={cn(
-                  "resize-y min-h-[120px] max-h-[400px] relative bg-transparent",
-                  // Visual feedback when dragging over textarea
-                  isDragOverTextarea && !isCreating && "border-primary bg-primary/5 ring-2 ring-primary/20"
-                )}
-                style={{ caretColor: 'auto' }}
-              />
-              {/* File autocomplete popup */}
-              {autocomplete?.show && projectPath && (
-                <FileAutocomplete
-                  query={autocomplete.query}
-                  projectPath={projectPath}
-                  position={autocomplete.position}
-                  onSelect={handleAutocompleteSelect}
-                  onClose={handleAutocompleteClose}
-                />
-              )}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Files and images can be copy/pasted or dragged & dropped into the description.
-            </p>
-
-            {/* Image Thumbnails - displayed inline below description */}
-            {images.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2">
-                {images.map((image) => (
-                  <div
-                    key={image.id}
-                    className="relative group rounded-md border border-border overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all"
-                    style={{ width: '64px', height: '64px' }}
-                    onClick={() => {
-                      // Open full-size image in a new window/modal could be added here
-                    }}
-                    title={image.filename}
-                  >
-                    {image.thumbnail ? (
-                      <img
-                        src={image.thumbnail}
-                        alt={image.filename}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-muted">
-                        <ImageIcon className="h-6 w-6 text-muted-foreground" />
-                      </div>
-                    )}
-                    {/* Remove button */}
-                    {!isCreating && (
-                      <button
-                        type="button"
-                        className="absolute top-0.5 right-0.5 h-4 w-4 flex items-center justify-center rounded-full bg-destructive text-destructive-foreground opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setImages(prev => prev.filter(img => img.id !== image.id));
-                        }}
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    )}
+            <DialogHeader>
+              <div className="flex items-center justify-between">
+                <DialogTitle className="text-foreground">{t('taskDetail:creation.title')}</DialogTitle>
+                {isDraftRestored && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs bg-info/10 text-info px-2 py-1 rounded-md">
+                      {t('taskDetail:creation.draftRestored')}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
+                      onClick={handleDiscardDraft}
+                    >
+                      <RotateCcw className="h-3 w-3 mr-1" />
+                      {t('taskDetail:creation.startFresh')}
+                    </Button>
                   </div>
-                ))}
+                )}
               </div>
-            )}
-          </div>
+              <DialogDescription>
+                {t('taskDetail:creation.description')}
+              </DialogDescription>
+            </DialogHeader>
 
-          {/* Title (Optional - Auto-generated if empty) */}
-          <div className="space-y-2">
-            <Label htmlFor="title" className="text-sm font-medium text-foreground">
-              Task Title <span className="text-muted-foreground font-normal">(optional)</span>
-            </Label>
-            <Input
-              id="title"
-              placeholder="Leave empty to auto-generate from description"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              disabled={isCreating}
-            />
-            <p className="text-xs text-muted-foreground">
-              A short, descriptive title will be generated automatically if left empty.
-            </p>
-          </div>
-
-          {/* Agent Profile Selection */}
-          <AgentProfileSelector
-            profileId={profileId}
-            model={model}
-            thinkingLevel={thinkingLevel}
-            phaseModels={phaseModels}
-            phaseThinking={phaseThinking}
-            onProfileChange={(newProfileId, newModel, newThinkingLevel) => {
-              setProfileId(newProfileId);
-              setModel(newModel);
-              setThinkingLevel(newThinkingLevel);
-            }}
-            onModelChange={setModel}
-            onThinkingLevelChange={setThinkingLevel}
-            onPhaseModelsChange={setPhaseModels}
-            onPhaseThinkingChange={setPhaseThinking}
-            disabled={isCreating}
-          />
-
-          {/* Paste Success Indicator */}
-          {pasteSuccess && (
-            <div className="flex items-center gap-2 text-sm text-success animate-in fade-in slide-in-from-top-1 duration-200">
-              <ImageIcon className="h-4 w-4" />
-              Image added successfully!
-            </div>
-          )}
-
-          {/* Advanced Options Toggle */}
-          <button
-            type="button"
-            onClick={() => setShowAdvanced(!showAdvanced)}
-            className={cn(
-              'flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors',
-              'w-full justify-between py-2 px-3 rounded-md hover:bg-muted/50'
-            )}
-            disabled={isCreating}
-          >
-            <span>Classification (optional)</span>
-            {showAdvanced ? (
-              <ChevronUp className="h-4 w-4" />
-            ) : (
-              <ChevronDown className="h-4 w-4" />
-            )}
-          </button>
-
-          {/* Advanced Options */}
-          {showAdvanced && (
-            <div className="space-y-4 p-4 rounded-lg border border-border bg-muted/30">
-              <div className="grid grid-cols-2 gap-4">
-                {/* Category */}
-                <div className="space-y-2">
-                  <Label htmlFor="category" className="text-xs font-medium text-muted-foreground">
-                    Category
-                  </Label>
-                  <Select
-                    value={category}
-                    onValueChange={(value) => setCategory(value as TaskCategory)}
-                    disabled={isCreating}
-                  >
-                    <SelectTrigger id="category" className="h-9">
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(TASK_CATEGORY_LABELS).map(([value, label]) => (
-                        <SelectItem key={value} value={value}>
-                          {label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Priority */}
-                <div className="space-y-2">
-                  <Label htmlFor="priority" className="text-xs font-medium text-muted-foreground">
-                    Priority
-                  </Label>
-                  <Select
-                    value={priority}
-                    onValueChange={(value) => setPriority(value as TaskPriority)}
-                    disabled={isCreating}
-                  >
-                    <SelectTrigger id="priority" className="h-9">
-                      <SelectValue placeholder="Select priority" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(TASK_PRIORITY_LABELS).map(([value, label]) => (
-                        <SelectItem key={value} value={value}>
-                          {label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Complexity */}
-                <div className="space-y-2">
-                  <Label htmlFor="complexity" className="text-xs font-medium text-muted-foreground">
-                    Complexity
-                  </Label>
-                  <Select
-                    value={complexity}
-                    onValueChange={(value) => setComplexity(value as TaskComplexity)}
-                    disabled={isCreating}
-                  >
-                    <SelectTrigger id="complexity" className="h-9">
-                      <SelectValue placeholder="Select complexity" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(TASK_COMPLEXITY_LABELS).map(([value, label]) => (
-                        <SelectItem key={value} value={value}>
-                          {label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Impact */}
-                <div className="space-y-2">
-                  <Label htmlFor="impact" className="text-xs font-medium text-muted-foreground">
-                    Impact
-                  </Label>
-                  <Select
-                    value={impact}
-                    onValueChange={(value) => setImpact(value as TaskImpact)}
-                    disabled={isCreating}
-                  >
-                    <SelectTrigger id="impact" className="h-9">
-                      <SelectValue placeholder="Select impact" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(TASK_IMPACT_LABELS).map(([value, label]) => (
-                        <SelectItem key={value} value={value}>
-                          {label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <p className="text-xs text-muted-foreground">
-                These labels help organize and prioritize tasks. They&apos;re optional but useful for filtering.
-              </p>
-            </div>
-          )}
-
-          {/* Review Requirement Toggle */}
-          <div className="flex items-start gap-3 p-4 rounded-lg border border-border bg-muted/30">
-            <Checkbox
-              id="require-review"
-              checked={requireReviewBeforeCoding}
-              onCheckedChange={(checked) => setRequireReviewBeforeCoding(checked === true)}
-              disabled={isCreating}
-              className="mt-0.5"
-            />
-            <div className="flex-1 space-y-1">
-              <Label
-                htmlFor="require-review"
-                className="text-sm font-medium text-foreground cursor-pointer"
-              >
-                Require human review before coding
-              </Label>
-              <p className="text-xs text-muted-foreground">
-                When enabled, you&apos;ll be prompted to review the spec and implementation plan before the coding phase begins. This allows you to approve, request changes, or provide feedback.
-              </p>
-            </div>
-          </div>
-
-          {/* Git Options Toggle */}
-          <button
-            type="button"
-            onClick={() => setShowGitOptions(!showGitOptions)}
-            className={cn(
-              'flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors',
-              'w-full justify-between py-2 px-3 rounded-md hover:bg-muted/50'
-            )}
-            disabled={isCreating}
-          >
-            <span className="flex items-center gap-2">
-              <GitBranch className="h-4 w-4" />
-              Git Options (optional)
-              {baseBranch && baseBranch !== PROJECT_DEFAULT_BRANCH && (
-                <span className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded">
-                  {baseBranch}
-                </span>
-              )}
-            </span>
-            {showGitOptions ? (
-              <ChevronUp className="h-4 w-4" />
-            ) : (
-              <ChevronDown className="h-4 w-4" />
-            )}
-          </button>
-
-          {/* Git Options */}
-          {showGitOptions && (
-            <div className="space-y-4 p-4 rounded-lg border border-border bg-muted/30">
+            <div className="space-y-5 py-4">
+              {/* Description (Primary - Required) */}
               <div className="space-y-2">
-                <Label htmlFor="base-branch" className="text-sm font-medium text-foreground">
-                  Base Branch (optional)
+                <Label htmlFor="description" className="text-sm font-medium text-foreground">
+                  {t('taskDetail:editDialog.fields.description.label')} <span className="text-destructive">*</span>
                 </Label>
-                <Select
-                  value={baseBranch}
-                  onValueChange={setBaseBranch}
-                  disabled={isCreating || isLoadingBranches}
-                >
-                  <SelectTrigger id="base-branch" className="h-9">
-                    <SelectValue placeholder={`Use project default${projectDefaultBranch ? ` (${projectDefaultBranch})` : ''}`} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={PROJECT_DEFAULT_BRANCH}>
-                      Use project default{projectDefaultBranch ? ` (${projectDefaultBranch})` : ''}
-                    </SelectItem>
-                    {branches.map((branch) => (
-                      <SelectItem key={branch} value={branch}>
-                        {branch}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {/* Wrap textarea for file @mentions */}
+                <div className="relative">
+                  {/* Syntax highlight overlay for @mentions */}
+                  <div
+                    className="absolute inset-0 pointer-events-none overflow-hidden rounded-md border border-transparent"
+                    style={{
+                      padding: '0.5rem 0.75rem',
+                      font: 'inherit',
+                      lineHeight: '1.5',
+                      wordWrap: 'break-word',
+                      whiteSpace: 'pre-wrap',
+                      color: 'transparent'
+                    }}
+                  >
+                    {description.split(/(@[\w\-./\\]+\.\w+)/g).map((part, i) => {
+                      // Check if this part is an @mention
+                      if (part.match(/^@[\w\-./\\]+\.\w+$/)) {
+                        return (
+                          <span
+                            key={i}
+                            className="bg-info/20 text-info-foreground rounded px-0.5"
+                            style={{ color: 'hsl(var(--info))' }}
+                          >
+                            {part}
+                          </span>
+                        );
+                      }
+                      return <span key={i}>{part}</span>;
+                    })}
+                  </div>
+                  <Textarea
+                    ref={descriptionRef}
+                    id="description"
+                    placeholder={t('taskDetail:editDialog.fields.description.placeholder')}
+                    value={description}
+                    onChange={handleDescriptionChange}
+                    onPaste={handlePaste}
+                    onDragOver={handleTextareaDragOver}
+                    onDragLeave={handleTextareaDragLeave}
+                    onDrop={handleTextareaDrop}
+                    rows={5}
+                    disabled={isCreating}
+                    className={cn(
+                      "resize-y min-h-[120px] max-h-[400px] relative bg-transparent",
+                      // Visual feedback when dragging over textarea
+                      isDragOverTextarea && !isCreating && "border-primary bg-primary/5 ring-2 ring-primary/20"
+                    )}
+                    style={{ caretColor: 'auto' }}
+                  />
+                  {/* File autocomplete popup */}
+                  {autocomplete?.show && projectPath && (
+                    <FileAutocomplete
+                      query={autocomplete.query}
+                      projectPath={projectPath}
+                      position={autocomplete.position}
+                      onSelect={handleAutocompleteSelect}
+                      onClose={handleAutocompleteClose}
+                    />
+                  )}
+                </div>
                 <p className="text-xs text-muted-foreground">
-                  Override the branch this task&apos;s worktree will be created from. Leave empty to use the project&apos;s configured default branch.
+                  {t('taskDetail:editDialog.fields.description.advancedTip')}
+                </p>
+
+                {/* Image Thumbnails - displayed inline below description */}
+                {images.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {images.map((image) => (
+                      <div
+                        key={image.id}
+                        className="relative group rounded-md border border-border overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all"
+                        style={{ width: '64px', height: '64px' }}
+                        onClick={() => {
+                          // Open full-size image in a new window/modal could be added here
+                        }}
+                        title={image.filename}
+                      >
+                        {image.thumbnail ? (
+                          <img
+                            src={image.thumbnail}
+                            alt={image.filename}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-muted">
+                            <ImageIcon className="h-6 w-6 text-muted-foreground" />
+                          </div>
+                        )}
+                        {/* Remove button */}
+                        {!isCreating && (
+                          <button
+                            type="button"
+                            className="absolute top-0.5 right-0.5 h-4 w-4 flex items-center justify-center rounded-full bg-destructive text-destructive-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setImages(prev => prev.filter(img => img.id !== image.id));
+                            }}
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Title (Optional - Auto-generated if empty) */}
+              <div className="space-y-2">
+                <Label htmlFor="title" className="text-sm font-medium text-foreground">
+                  {t('taskDetail:editDialog.fields.title.label')} <span className="text-muted-foreground font-normal">{t('taskDetail:editDialog.fields.title.optional')}</span>
+                </Label>
+                <Input
+                  id="title"
+                  placeholder={t('taskDetail:editDialog.fields.title.placeholder')}
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  disabled={isCreating}
+                />
+                <p className="text-xs text-muted-foreground">
+                  {t('taskDetail:editDialog.fields.title.hint')}
                 </p>
               </div>
-            </div>
-          )}
 
-          {/* Error */}
-          {error && (
-            <div className="flex items-start gap-2 rounded-lg bg-destructive/10 border border-destructive/30 p-3 text-sm text-destructive">
-              <X className="h-4 w-4 mt-0.5 shrink-0" />
-              <span>{error}</span>
-            </div>
-          )}
-        </div>
-
-        <DialogFooter>
-          <div className="flex items-center gap-2">
-            {/* File Explorer Toggle Button */}
-            {projectPath && (
-              <Button
-                type="button"
-                variant={showFileExplorer ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setShowFileExplorer(!showFileExplorer)}
+              {/* Agent Profile Selection */}
+              <AgentProfileSelector
+                profileId={profileId}
+                model={model}
+                thinkingLevel={thinkingLevel}
+                phaseModels={phaseModels}
+                phaseThinking={phaseThinking}
+                onProfileChange={(newProfileId, newModel, newThinkingLevel) => {
+                  setProfileId(newProfileId);
+                  setModel(newModel);
+                  setThinkingLevel(newThinkingLevel);
+                }}
+                onModelChange={setModel}
+                onThinkingLevelChange={setThinkingLevel}
+                onPhaseModelsChange={setPhaseModels}
+                onPhaseThinkingChange={setPhaseThinking}
                 disabled={isCreating}
-                className="gap-1.5"
-              >
-                <FolderTree className="h-4 w-4" />
-                {showFileExplorer ? 'Hide Files' : 'Browse Files'}
-              </Button>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={handleClose} disabled={isCreating}>
-              Cancel
-            </Button>
-            <Button onClick={handleCreate} disabled={isCreating || !description.trim()}>
-              {isCreating ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating...
-                </>
-              ) : (
-                'Create Task'
+              />
+
+              {/* Paste Success Indicator */}
+              {pasteSuccess && (
+                <div className="flex items-center gap-2 text-sm text-success animate-in fade-in slide-in-from-top-1 duration-200">
+                  <ImageIcon className="h-4 w-4" />
+                  {t('taskDetail:editDialog.fields.images.success')}
+                </div>
               )}
-            </Button>
-          </div>
-        </DialogFooter>
+
+              {/* Advanced Options Toggle */}
+              <button
+                type="button"
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className={cn(
+                  'flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors',
+                  'w-full justify-between py-2 px-3 rounded-md hover:bg-muted/50'
+                )}
+                disabled={isCreating}
+              >
+                <span>{t('taskDetail:editDialog.fields.classification.toggle')}</span>
+                {showAdvanced ? (
+                  <ChevronUp className="h-4 w-4" />
+                ) : (
+                  <ChevronDown className="h-4 w-4" />
+                )}
+              </button>
+
+              {/* Advanced Options */}
+              {showAdvanced && (
+                <div className="space-y-4 p-4 rounded-lg border border-border bg-muted/30">
+                  <div className="grid grid-cols-2 gap-4">
+                    {/* Category */}
+                    <div className="space-y-2">
+                      <Label htmlFor="category" className="text-xs font-medium text-muted-foreground">
+                        {t('taskDetail:editDialog.fields.classification.category.label')}
+                      </Label>
+                      <Select
+                        value={category}
+                        onValueChange={(value) => setCategory(value as TaskCategory)}
+                        disabled={isCreating}
+                      >
+                        <SelectTrigger id="category" className="h-9">
+                          <SelectValue placeholder={t('taskDetail:editDialog.fields.classification.category.placeholder')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(TASK_CATEGORY_LABELS).map(([value, label]) => (
+                            <SelectItem key={value} value={value}>
+                              {label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Priority */}
+                    <div className="space-y-2">
+                      <Label htmlFor="priority" className="text-xs font-medium text-muted-foreground">
+                        {t('taskDetail:editDialog.fields.classification.priority.label')}
+                      </Label>
+                      <Select
+                        value={priority}
+                        onValueChange={(value) => setPriority(value as TaskPriority)}
+                        disabled={isCreating}
+                      >
+                        <SelectTrigger id="priority" className="h-9">
+                          <SelectValue placeholder={t('taskDetail:editDialog.fields.classification.priority.placeholder')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(TASK_PRIORITY_LABELS).map(([value, label]) => (
+                            <SelectItem key={value} value={value}>
+                              {label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Complexity */}
+                    <div className="space-y-2">
+                      <Label htmlFor="complexity" className="text-xs font-medium text-muted-foreground">
+                        {t('taskDetail:editDialog.fields.classification.complexity.label')}
+                      </Label>
+                      <Select
+                        value={complexity}
+                        onValueChange={(value) => setComplexity(value as TaskComplexity)}
+                        disabled={isCreating}
+                      >
+                        <SelectTrigger id="complexity" className="h-9">
+                          <SelectValue placeholder={t('taskDetail:editDialog.fields.classification.complexity.placeholder')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(TASK_COMPLEXITY_LABELS).map(([value, label]) => (
+                            <SelectItem key={value} value={value}>
+                              {label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Impact */}
+                    <div className="space-y-2">
+                      <Label htmlFor="impact" className="text-xs font-medium text-muted-foreground">
+                        {t('taskDetail:editDialog.fields.classification.impact.label')}
+                      </Label>
+                      <Select
+                        value={impact}
+                        onValueChange={(value) => setImpact(value as TaskImpact)}
+                        disabled={isCreating}
+                      >
+                        <SelectTrigger id="impact" className="h-9">
+                          <SelectValue placeholder={t('taskDetail:editDialog.fields.classification.impact.placeholder')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(TASK_IMPACT_LABELS).map(([value, label]) => (
+                            <SelectItem key={value} value={value}>
+                              {label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-muted-foreground">
+                    {t('taskDetail:editDialog.fields.classification.hint')}
+                  </p>
+                </div>
+              )}
+
+              {/* Review Requirement Toggle */}
+              <div className="flex items-start gap-3 p-4 rounded-lg border border-border bg-muted/30">
+                <Checkbox
+                  id="require-review"
+                  checked={requireReviewBeforeCoding}
+                  onCheckedChange={(checked) => setRequireReviewBeforeCoding(checked === true)}
+                  disabled={isCreating}
+                  className="mt-0.5"
+                />
+                <div className="flex-1 space-y-1">
+                  <Label
+                    htmlFor="require-review"
+                    className="text-sm font-medium text-foreground cursor-pointer"
+                  >
+                    {t('taskDetail:editDialog.fields.review.label')}
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    {t('taskDetail:editDialog.fields.review.hint')}
+                  </p>
+                </div>
+              </div>
+
+              {/* Git Options Toggle */}
+              <button
+                type="button"
+                onClick={() => setShowGitOptions(!showGitOptions)}
+                className={cn(
+                  'flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors',
+                  'w-full justify-between py-2 px-3 rounded-md hover:bg-muted/50'
+                )}
+                disabled={isCreating}
+              >
+                <span className="flex items-center gap-2">
+                  <GitBranch className="h-4 w-4" />
+                  {t('taskDetail:editDialog.fields.git.toggle')}
+                  {baseBranch && baseBranch !== PROJECT_DEFAULT_BRANCH && (
+                    <span className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded">
+                      {baseBranch}
+                    </span>
+                  )}
+                </span>
+                {showGitOptions ? (
+                  <ChevronUp className="h-4 w-4" />
+                ) : (
+                  <ChevronDown className="h-4 w-4" />
+                )}
+              </button>
+
+              {/* Git Options */}
+              {showGitOptions && (
+                <div className="space-y-4 p-4 rounded-lg border border-border bg-muted/30">
+                  <div className="space-y-2">
+                    <Label htmlFor="base-branch" className="text-sm font-medium text-foreground">
+                      {t('taskDetail:editDialog.fields.git.branch.label')}
+                    </Label>
+                    <Select
+                      value={baseBranch}
+                      onValueChange={setBaseBranch}
+                      disabled={isCreating || isLoadingBranches}
+                    >
+                      <SelectTrigger id="base-branch" className="h-9">
+                        <SelectValue placeholder={t('taskDetail:editDialog.fields.git.branch.placeholderWithBranch', { branch: projectDefaultBranch })} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={PROJECT_DEFAULT_BRANCH}>
+                          {t('taskDetail:editDialog.fields.git.branch.placeholderWithBranch', { branch: projectDefaultBranch })}
+                        </SelectItem>
+                        {branches.map((branch) => (
+                          <SelectItem key={branch} value={branch}>
+                            {branch}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">
+                      {t('taskDetail:editDialog.fields.git.branch.hint')}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Error */}
+              {error && (
+                <div className="flex items-start gap-2 rounded-lg bg-destructive/10 border border-destructive/30 p-3 text-sm text-destructive">
+                  <X className="h-4 w-4 mt-0.5 shrink-0" />
+                  <span>{error}</span>
+                </div>
+              )}
+            </div>
+
+            <DialogFooter>
+              <div className="flex items-center gap-2">
+                {/* File Explorer Toggle Button */}
+                {projectPath && (
+                  <Button
+                    type="button"
+                    variant={showFileExplorer ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setShowFileExplorer(!showFileExplorer)}
+                    disabled={isCreating}
+                    className="gap-1.5"
+                  >
+                    <FolderTree className="h-4 w-4" />
+                    {showFileExplorer ? t('taskDetail:creation.hideFiles') : t('taskDetail:creation.browseFiles')}
+                  </Button>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" onClick={handleClose} disabled={isCreating}>{t("common:buttons.cancel")}</Button>
+                <Button onClick={handleCreate} disabled={isCreating || !description.trim()}>
+                  {isCreating ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {t('taskDetail:editDialog.actions.creating')}
+                    </>
+                  ) : (
+                    t('taskDetail:editDialog.actions.create')
+                  )}
+                </Button>
+              </div>
+            </DialogFooter>
           </div>
 
           {/* File Explorer Drawer */}

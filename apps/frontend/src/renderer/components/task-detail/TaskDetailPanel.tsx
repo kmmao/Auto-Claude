@@ -15,6 +15,7 @@ import { TaskSubtasks } from './TaskSubtasks';
 import { TaskLogs } from './TaskLogs';
 import { TaskReview } from './TaskReview';
 import type { Task } from '../../../shared/types';
+import { useTranslation } from 'react-i18next';
 
 interface TaskDetailPanelProps {
   task: Task;
@@ -22,6 +23,8 @@ interface TaskDetailPanelProps {
 }
 
 export function TaskDetailPanel({ task, onClose }: TaskDetailPanelProps) {
+  const { t } = useTranslation(['common', 'taskDetail']);
+
   const state = useTaskDetail({ task });
   const _progress = calculateProgress(task.subtasks);
 
@@ -138,19 +141,19 @@ export function TaskDetailPanel({ task, onClose }: TaskDetailPanelProps) {
               value="overview"
               className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2.5 text-sm"
             >
-              Overview
+              {t('taskDetail:tabs.overview')}
             </TabsTrigger>
             <TabsTrigger
               value="subtasks"
               className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2.5 text-sm"
             >
-              Subtasks ({task.subtasks.length})
+              {t('taskDetail:tabs.subtasks')} ({task.subtasks.length})
             </TabsTrigger>
             <TabsTrigger
               value="logs"
               className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2.5 text-sm"
             >
-              Logs
+              {t('taskDetail:tabs.logs')}
             </TabsTrigger>
           </TabsList>
 

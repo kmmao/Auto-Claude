@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   DndContext,
   DragOverlay,
@@ -42,6 +43,7 @@ interface DroppableColumnProps {
   isOver: boolean;
   onAddClick?: () => void;
   onArchiveAll?: () => void;
+  t: (key: string) => string;
 }
 
 // Empty state content for each column
@@ -85,7 +87,7 @@ const getEmptyStateContent = (status: TaskStatus): { icon: React.ReactNode; mess
   }
 };
 
-function DroppableColumn({ status, tasks, onTaskClick, isOver, onAddClick, onArchiveAll }: DroppableColumnProps) {
+function DroppableColumn({ status, tasks, onTaskClick, isOver, onAddClick, onArchiveAll, t }: DroppableColumnProps) {
   const { setNodeRef } = useDroppable({
     id: status
   });
@@ -111,6 +113,18 @@ function DroppableColumn({ status, tasks, onTaskClick, isOver, onAddClick, onArc
 
   const emptyState = getEmptyStateContent(status);
 
+  // Get translated column title
+  const getColumnTitle = (status: TaskStatus): string => {
+    const statusKeyMap: Record<TaskStatus, string> = {
+      backlog: 'planning',
+      in_progress: 'inProgress',
+      ai_review: 'aiReview',
+      human_review: 'humanReview',
+      done: 'done'
+    };
+    return t(`kanban:columns.${statusKeyMap[status]}`);
+  };
+
   return (
     <div
       ref={setNodeRef}
@@ -125,7 +139,7 @@ function DroppableColumn({ status, tasks, onTaskClick, isOver, onAddClick, onArc
       <div className="flex items-center justify-between p-4 border-b border-white/5">
         <div className="flex items-center gap-2.5">
           <h2 className="font-semibold text-sm text-foreground">
-            {TASK_STATUS_LABELS[status]}
+            {getColumnTitle(status)}
           </h2>
           <span className="column-count-badge">
             {tasks.length}
@@ -176,7 +190,7 @@ function DroppableColumn({ status, tasks, onTaskClick, isOver, onAddClick, onArc
                       <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center mb-2">
                         <Plus className="h-4 w-4 text-primary" />
                       </div>
-                      <span className="text-sm font-medium text-primary">Drop here</span>
+                      <span className="text-sm font-medium text-primary">{t("common:messages.dropHere")}</span>
                     </>
                   ) : (
                     <>
@@ -210,6 +224,8 @@ function DroppableColumn({ status, tasks, onTaskClick, isOver, onAddClick, onArc
 }
 
 export function KanbanBoard({ tasks, onTaskClick, onNewTaskClick }: KanbanBoardProps) {
+  const { t } = useTranslation(['common', 'kanban']);
+
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [overColumnId, setOverColumnId] = useState<string | null>(null);
   const [showArchived, setShowArchived] = useState(false);
@@ -349,7 +365,7 @@ export function KanbanBoard({ tasks, onTaskClick, onNewTaskClick }: KanbanBoardP
             className="flex items-center gap-1.5 text-sm text-muted-foreground cursor-pointer"
           >
             <Archive className="h-3.5 w-3.5" />
-            Show archived
+            {showArchived ? t("kanban:taskCard.hideArchived") : t("kanban:taskCard.showArchived")}
             {archivedCount > 0 && (
               <span className="ml-1 text-xs px-1.5 py-0.5 rounded-full bg-muted">
                 {archivedCount}
@@ -377,6 +393,7 @@ export function KanbanBoard({ tasks, onTaskClick, onNewTaskClick }: KanbanBoardP
               isOver={overColumnId === status}
               onAddClick={status === 'backlog' ? onNewTaskClick : undefined}
               onArchiveAll={status === 'done' ? handleArchiveAll : undefined}
+              t={t}
             />
           ))}
         </div>
@@ -385,7 +402,7 @@ export function KanbanBoard({ tasks, onTaskClick, onNewTaskClick }: KanbanBoardP
         <DragOverlay>
           {activeTask ? (
             <div className="drag-overlay-card">
-              <TaskCard task={activeTask} onClick={() => {}} />
+              <TaskCard task={activeTask} onClick={() => { }} />
             </div>
           ) : null}
         </DragOverlay>

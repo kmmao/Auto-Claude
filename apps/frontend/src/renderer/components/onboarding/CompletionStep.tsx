@@ -1,13 +1,17 @@
 import {
   CheckCircle2,
-  Rocket,
-  FileText,
   Settings,
-  BookOpen,
+  PlusCircle,
+  HelpCircle,
+  Wand2,
+  Zap,
+  ChevronRight,
   ArrowRight
 } from 'lucide-react';
+import { useTranslation, Trans } from 'react-i18next';
 import { Button } from '../ui/button';
 import { Card, CardContent } from '../ui/card';
+import { cn } from '@/lib/utils';
 
 interface CompletionStepProps {
   onFinish: () => void;
@@ -19,33 +23,35 @@ interface NextStepCardProps {
   icon: React.ReactNode;
   title: string;
   description: string;
-  action?: () => void;
-  actionLabel?: string;
+  onClick?: () => void;
 }
 
-function NextStepCard({ icon, title, description, action, actionLabel }: NextStepCardProps) {
+function NextStepCard({ icon, title, description, onClick }: NextStepCardProps) {
   return (
-    <Card className="border border-border bg-card/50 backdrop-blur-sm">
-      <CardContent className="p-4">
-        <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+    <Card
+      className={cn(
+        "border border-border bg-card/50 backdrop-blur-sm transition-all hover:border-primary/50 hover:bg-primary/5 cursor-pointer group",
+        !onClick && "cursor-default hover:border-border hover:bg-card/50"
+      )}
+      onClick={onClick}
+    >
+      <CardContent className="p-5">
+        <div className="flex flex-col items-center text-center gap-3">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
             {icon}
           </div>
           <div className="flex-1">
-            <h3 className="font-medium text-foreground">{title}</h3>
-            <p className="mt-1 text-sm text-muted-foreground">{description}</p>
-            {action && actionLabel && (
-              <Button
-                variant="link"
-                size="sm"
-                onClick={action}
-                className="mt-2 h-auto p-0 text-primary hover:text-primary/80"
-              >
-                {actionLabel}
-                <ArrowRight className="ml-1 h-3 w-3" />
-              </Button>
-            )}
+            <h3 className="font-semibold text-foreground text-sm">{title}</h3>
+            <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{description}</p>
           </div>
+          {onClick && (
+            <div className="pt-2">
+              <div className="text-xs font-medium text-primary flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                {title.includes('Task') || title.includes('任务') ? 'Create Now' : 'Open'}
+                <ArrowRight className="h-3 w-3" />
+              </div>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
@@ -55,108 +61,111 @@ function NextStepCard({ icon, title, description, action, actionLabel }: NextSte
 /**
  * Completion step component for the onboarding wizard.
  * Displays a success message with suggestions for next steps
- * and a prominent "Finish" button to complete the wizard.
+ * and a prominent {t("common:buttons.finish")} button to complete the wizard.
  */
-export function CompletionStep({
-  onFinish,
-  onOpenTaskCreator,
-  onOpenSettings
-}: CompletionStepProps) {
+export function CompletionStep({ onFinish, onOpenTaskCreator, onOpenSettings }: CompletionStepProps) {
+  const { t } = useTranslation(['common', 'onboarding']);
+
   const nextSteps = [
     {
-      icon: <FileText className="h-5 w-5" />,
-      title: 'Create a Task',
-      description: 'Start by creating your first task to see Auto Claude in action.',
-      action: onOpenTaskCreator,
-      actionLabel: 'Open Task Creator'
+      icon: <PlusCircle className="h-5 w-5 text-primary" />,
+      title: t('onboarding:completion.nextSteps.task.title'),
+      description: t('onboarding:completion.nextSteps.task.description'),
+      onClick: onOpenTaskCreator
     },
     {
-      icon: <Settings className="h-5 w-5" />,
-      title: 'Customize Settings',
-      description: 'Fine-tune your preferences, configure integrations, or re-run this wizard.',
-      action: onOpenSettings,
-      actionLabel: 'Open Settings'
+      icon: <Settings className="h-5 w-5 text-primary" />,
+      title: t('onboarding:completion.nextSteps.settings.title'),
+      description: t('onboarding:completion.nextSteps.settings.description'),
+      onClick: onOpenSettings
     },
     {
-      icon: <BookOpen className="h-5 w-5" />,
-      title: 'Explore Documentation',
-      description: 'Learn more about advanced features, best practices, and troubleshooting.'
+      icon: <HelpCircle className="h-5 w-5 text-primary" />,
+      title: t('onboarding:completion.nextSteps.docs.title'),
+      description: t('onboarding:completion.nextSteps.docs.description'),
+      onClick: () => window.electronAPI.openExternal('https://github.com/kmmao/Auto-Claude')
     }
   ];
 
   return (
     <div className="flex h-full flex-col items-center justify-center px-8 py-6">
       <div className="w-full max-w-2xl">
-        {/* Success Hero */}
-        <div className="text-center mb-10">
+        {/* Success Header */}
+        <div className="text-center mb-8">
           <div className="flex justify-center mb-6">
             <div className="relative">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-success/20 text-success">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-success/10 text-success animate-in zoom-in duration-500">
                 <CheckCircle2 className="h-10 w-10" />
               </div>
-              <div className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                <Rocket className="h-4 w-4" />
+              <div className="absolute -top-1 -right-1">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-background border-2 border-success text-success animate-bounce">
+                  <Wand2 className="h-4 w-4" />
+                </div>
               </div>
             </div>
           </div>
           <h1 className="text-3xl font-bold text-foreground tracking-tight">
-            You&apos;re All Set!
+            {t('onboarding:completion.title')}
           </h1>
           <p className="mt-3 text-muted-foreground text-lg">
-            Auto Claude is ready to help you build amazing software
+            {t('onboarding:completion.subtitle')}
           </p>
         </div>
 
-        {/* Completion message */}
-        <Card className="border border-success/30 bg-success/10 mb-8">
-          <CardContent className="p-5">
-            <div className="flex items-start gap-4">
-              <CheckCircle2 className="h-6 w-6 text-success shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <h3 className="text-lg font-medium text-success">
-                  Setup Complete
-                </h3>
-                <p className="mt-1 text-sm text-success/80">
-                  Your environment is configured and ready. You can start creating tasks
-                  immediately or explore the application at your own pace.
+        {/* Success Card */}
+        <Card className="border-success/20 bg-success/5 mb-10 overflow-hidden">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-lg bg-success/20 flex items-center justify-center shrink-0">
+                <Zap className="h-6 w-6 text-success" />
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">
+                  {t('onboarding:completion.success.card')}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {t('onboarding:completion.success.ready')}
                 </p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Next Steps Section */}
-        <div className="space-y-4 mb-10">
-          <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-            <Rocket className="h-4 w-4" />
-            What&apos;s Next?
-          </div>
-          <div className="grid grid-cols-1 gap-3">
+        {/* Next Steps Grid */}
+        <div className="mb-10">
+          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4 px-1">
+            {t('onboarding:completion.nextSteps.title')}
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {nextSteps.map((step, index) => (
               <NextStepCard
                 key={index}
                 icon={step.icon}
                 title={step.title}
                 description={step.description}
-                action={step.action}
-                actionLabel={step.actionLabel}
+                onClick={step.onClick}
               />
             ))}
           </div>
         </div>
 
-        {/* Finish Button */}
+        {/* Primary Action */}
         <div className="flex flex-col items-center gap-4">
           <Button
             size="lg"
             onClick={onFinish}
-            className="gap-2 px-10"
+            className="w-full sm:w-auto px-12 h-12 text-lg font-semibold group"
           >
-            <Rocket className="h-5 w-5" />
-            Finish & Start Building
+            {t('onboarding:completion.actions.finish')}
+            <ChevronRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
           </Button>
-          <p className="text-sm text-muted-foreground text-center">
-            You can always re-run this wizard from Settings &rarr; Application
+          <p className="text-sm text-muted-foreground">
+            <Trans
+              i18nKey="onboarding:completion.actions.rerun"
+              components={{
+                1: <span className="font-semibold" />
+              }}
+            />
           </p>
         </div>
       </div>

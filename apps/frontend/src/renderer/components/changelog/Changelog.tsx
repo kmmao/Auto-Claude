@@ -5,8 +5,11 @@ import { ChangelogFilters } from './ChangelogFilters';
 import { ChangelogList } from './ChangelogList';
 import { Step2ConfigureGenerate, Step3ReleaseArchive } from './ChangelogDetails';
 import { useChangelog } from './hooks/useChangelog';
+import { useTranslation } from 'react-i18next';
 
 export function Changelog() {
+  const { t } = useTranslation(['common', 'settings', 'changelog']);
+
   const {
     // State
     selectedProjectId,
@@ -85,9 +88,9 @@ export function Changelog() {
       <div className="flex h-full items-center justify-center">
         <div className="text-center">
           <FileText className="mx-auto h-12 w-12 text-muted-foreground/50" />
-          <h3 className="mt-4 text-lg font-medium">No Project Selected</h3>
+          <h3 className="mt-4 text-lg font-medium">{t('changelog:noProject.title')}</h3>
           <p className="mt-2 text-sm text-muted-foreground">
-            Select a project from the sidebar to generate changelogs.
+            {t('changelog:noProject.description')}
           </p>
         </div>
       </div>

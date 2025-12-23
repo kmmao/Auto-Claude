@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Clock,
   CheckCircle2,
@@ -89,6 +90,8 @@ function ListItem({ children, variant = 'default' }: { children: React.ReactNode
 }
 
 export function MemoryCard({ memory }: MemoryCardProps) {
+  const { t } = useTranslation(['common', 'context']);
+
   const Icon = memoryTypeIcons[memory.type] || memoryTypeIcons.session_insight;
   const [expanded, setExpanded] = useState(false);
 
@@ -111,9 +114,9 @@ export function MemoryCard({ memory }: MemoryCardProps) {
   }, [parsed]);
 
   const sessionLabel = memory.session_number
-    ? `Session #${memory.session_number}`
+    ? t('context:memoryCard.session', { number: memory.session_number })
     : parsed?.session_number
-      ? `Session #${parsed.session_number}`
+      ? t('context:memoryCard.session', { number: parsed.session_number })
       : null;
 
   const specId = parsed?.spec_id;
@@ -161,12 +164,12 @@ export function MemoryCard({ memory }: MemoryCardProps) {
               {expanded ? (
                 <>
                   <ChevronUp className="h-4 w-4" />
-                  Collapse
+                  {t('context:memoryCard.collapse')}
                 </>
               ) : (
                 <>
                   <ChevronDown className="h-4 w-4" />
-                  Expand
+                  {t('context:memoryCard.expand')}
                 </>
               )}
             </Button>
@@ -179,7 +182,7 @@ export function MemoryCard({ memory }: MemoryCardProps) {
             {/* What Worked */}
             {parsed.what_worked && parsed.what_worked.length > 0 && (
               <div>
-                <SectionHeader icon={CheckCircle2} title="What Worked" count={parsed.what_worked.length} />
+                <SectionHeader icon={CheckCircle2} title={t('context:memoryCard.sections.whatWorked')} count={parsed.what_worked.length} />
                 <ul className="space-y-0.5">
                   {parsed.what_worked.map((item, idx) => (
                     <ListItem key={idx} variant="success">{item}</ListItem>
@@ -191,7 +194,7 @@ export function MemoryCard({ memory }: MemoryCardProps) {
             {/* What Failed */}
             {parsed.what_failed && parsed.what_failed.length > 0 && (
               <div>
-                <SectionHeader icon={XCircle} title="What Failed" count={parsed.what_failed.length} />
+                <SectionHeader icon={XCircle} title={t('context:memoryCard.sections.whatFailed')} count={parsed.what_failed.length} />
                 <ul className="space-y-0.5">
                   {parsed.what_failed.map((item, idx) => (
                     <ListItem key={idx} variant="error">{item}</ListItem>
@@ -205,7 +208,7 @@ export function MemoryCard({ memory }: MemoryCardProps) {
               <div>
                 <SectionHeader
                   icon={parsed.discoveries.approach_outcome.success ? CheckCircle2 : AlertTriangle}
-                  title="Approach"
+                  title={t('context:memoryCard.sections.approach')}
                 />
                 <div className="pl-4 space-y-2">
                   <p className="text-sm text-foreground">
@@ -228,27 +231,27 @@ export function MemoryCard({ memory }: MemoryCardProps) {
             {/* Recommendations */}
             {((parsed.recommendations_for_next_session?.length ?? 0) > 0 ||
               (parsed.discoveries?.recommendations?.length ?? 0) > 0) && (
-              <div>
-                <SectionHeader
-                  icon={Lightbulb}
-                  title="Recommendations"
-                  count={(parsed.recommendations_for_next_session?.length ?? 0) + (parsed.discoveries?.recommendations?.length ?? 0)}
-                />
-                <ul className="space-y-0.5">
-                  {parsed.recommendations_for_next_session?.map((item, idx) => (
-                    <ListItem key={`rec-${idx}`}>{item}</ListItem>
-                  ))}
-                  {parsed.discoveries?.recommendations?.map((item, idx) => (
-                    <ListItem key={`disc-rec-${idx}`}>{item}</ListItem>
-                  ))}
-                </ul>
-              </div>
-            )}
+                <div>
+                  <SectionHeader
+                    icon={Lightbulb}
+                    title={t('context:memoryCard.sections.recommendations')}
+                    count={(parsed.recommendations_for_next_session?.length ?? 0) + (parsed.discoveries?.recommendations?.length ?? 0)}
+                  />
+                  <ul className="space-y-0.5">
+                    {parsed.recommendations_for_next_session?.map((item, idx) => (
+                      <ListItem key={`rec-${idx}`}>{item}</ListItem>
+                    ))}
+                    {parsed.discoveries?.recommendations?.map((item, idx) => (
+                      <ListItem key={`disc-rec-${idx}`}>{item}</ListItem>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
             {/* Patterns Discovered */}
             {parsed.discoveries?.patterns_discovered && parsed.discoveries.patterns_discovered.length > 0 && (
               <div>
-                <SectionHeader icon={Sparkles} title="Patterns" count={parsed.discoveries.patterns_discovered.length} />
+                <SectionHeader icon={Sparkles} title={t('context:memoryCard.sections.patterns')} count={parsed.discoveries.patterns_discovered.length} />
                 <div className="flex flex-wrap gap-2 pl-4">
                   {parsed.discoveries.patterns_discovered.map((pattern, idx) => {
                     const text = typeof pattern === 'string' ? pattern : pattern.pattern;
@@ -265,7 +268,7 @@ export function MemoryCard({ memory }: MemoryCardProps) {
             {/* Gotchas */}
             {parsed.discoveries?.gotchas_discovered && parsed.discoveries.gotchas_discovered.length > 0 && (
               <div>
-                <SectionHeader icon={AlertTriangle} title="Gotchas" count={parsed.discoveries.gotchas_discovered.length} />
+                <SectionHeader icon={AlertTriangle} title={t('context:memoryCard.sections.gotchas')} count={parsed.discoveries.gotchas_discovered.length} />
                 <ul className="space-y-0.5">
                   {parsed.discoveries.gotchas_discovered.map((gotcha, idx) => {
                     const text = typeof gotcha === 'string' ? gotcha : gotcha.gotcha;
@@ -280,7 +283,7 @@ export function MemoryCard({ memory }: MemoryCardProps) {
             {/* Changed Files */}
             {parsed.discoveries?.changed_files && parsed.discoveries.changed_files.length > 0 && (
               <div>
-                <SectionHeader icon={FileCode} title="Changed Files" count={parsed.discoveries.changed_files.length} />
+                <SectionHeader icon={FileCode} title={t('context:memoryCard.sections.changedFiles')} count={parsed.discoveries.changed_files.length} />
                 <div className="flex flex-wrap gap-1.5 pl-4">
                   {parsed.discoveries.changed_files.map((file, idx) => (
                     <Badge key={idx} variant="outline" className="text-xs font-mono">
@@ -294,7 +297,7 @@ export function MemoryCard({ memory }: MemoryCardProps) {
             {/* File Insights */}
             {parsed.discoveries?.file_insights && parsed.discoveries.file_insights.length > 0 && (
               <div>
-                <SectionHeader icon={FileCode} title="File Insights" count={parsed.discoveries.file_insights.length} />
+                <SectionHeader icon={FileCode} title={t('context:memoryCard.sections.fileInsights')} count={parsed.discoveries.file_insights.length} />
                 <div className="space-y-2 pl-4">
                   {parsed.discoveries.file_insights.map((insight, idx) => (
                     <div key={idx} className="text-sm">
@@ -318,7 +321,7 @@ export function MemoryCard({ memory }: MemoryCardProps) {
             {/* Subtasks Completed */}
             {parsed.subtasks_completed && parsed.subtasks_completed.length > 0 && (
               <div>
-                <SectionHeader icon={CheckCircle2} title="Subtasks Completed" count={parsed.subtasks_completed.length} />
+                <SectionHeader icon={CheckCircle2} title={t('context:memoryCard.sections.subtasks')} count={parsed.subtasks_completed.length} />
                 <div className="flex flex-wrap gap-1.5 pl-4">
                   {parsed.subtasks_completed.map((task, idx) => (
                     <Badge key={idx} variant="secondary" className="text-xs font-mono">

@@ -5,6 +5,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { cn } from '../../lib/utils';
 import { TASK_STATUS_LABELS } from '../../../shared/constants';
 import type { Task } from '../../../shared/types';
+import { useTranslation } from 'react-i18next';
 
 interface TaskHeaderProps {
   task: Task;
@@ -25,6 +26,8 @@ export function TaskHeader({
   onClose,
   onEdit
 }: TaskHeaderProps) {
+  const { t } = useTranslation(['common', 'taskDetail', 'kanban']);
+
   return (
     <div className="flex items-start justify-between p-4 pb-3">
       <div className="flex-1 min-w-0 pr-2">
@@ -47,16 +50,16 @@ export function TaskHeader({
           {isStuck ? (
             <Badge variant="warning" className="text-xs flex items-center gap-1 animate-pulse">
               <AlertTriangle className="h-3 w-3" />
-              Stuck
+              {t('taskDetail:status.stuck')}
             </Badge>
           ) : isIncomplete ? (
             <>
               <Badge variant="warning" className="text-xs flex items-center gap-1">
                 <AlertTriangle className="h-3 w-3" />
-                Incomplete
+                {t('taskDetail:status.incomplete')}
               </Badge>
               <Badge variant="outline" className="text-xs text-orange-400">
-                {taskProgress.completed}/{taskProgress.total} subtasks
+                {t('taskDetail:subtasks.count', { completed: taskProgress.completed, total: taskProgress.total })}
               </Badge>
             </>
           ) : (
@@ -65,16 +68,16 @@ export function TaskHeader({
                 variant={task.status === 'done' ? 'success' : task.status === 'human_review' ? 'purple' : task.status === 'in_progress' ? 'info' : 'secondary'}
                 className={cn('text-xs', (task.status === 'in_progress' && !isStuck) && 'status-running')}
               >
-                {TASK_STATUS_LABELS[task.status]}
+                {t(`kanban:columns.${task.status === 'backlog' ? 'planning' : task.status === 'in_progress' ? 'inProgress' : task.status === 'ai_review' ? 'aiReview' : task.status === 'human_review' ? 'humanReview' : 'done'}`)}
               </Badge>
               {task.status === 'human_review' && task.reviewReason && (
                 <Badge
                   variant={task.reviewReason === 'completed' ? 'success' : task.reviewReason === 'errors' ? 'destructive' : 'warning'}
                   className="text-xs"
                 >
-                  {task.reviewReason === 'completed' ? 'Completed' :
-                   task.reviewReason === 'errors' ? 'Has Errors' :
-                   task.reviewReason === 'plan_review' ? 'Approve Plan' : 'QA Issues'}
+                  {task.reviewReason === 'completed' ? t('taskDetail:status.review.completed') :
+                    task.reviewReason === 'errors' ? t('taskDetail:status.review.hasErrors') :
+                      task.reviewReason === 'plan_review' ? t('taskDetail:status.review.approvePlan') : t('taskDetail:status.review.qaIssues')}
                 </Badge>
               )}
             </>
@@ -97,7 +100,7 @@ export function TaskHeader({
             </span>
           </TooltipTrigger>
           <TooltipContent side="bottom">
-            {isRunning && !isStuck ? 'Cannot edit while task is running' : 'Edit task'}
+            {isRunning && !isStuck ? t('taskDetail:header.editDisabledTooltip') : t('taskDetail:header.editTooltip')}
           </TooltipContent>
         </Tooltip>
         <Button variant="ghost" size="icon" className="hover:bg-destructive/10 hover:text-destructive transition-colors" onClick={onClose}>

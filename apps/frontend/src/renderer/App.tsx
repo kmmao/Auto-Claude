@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Settings2, Download, RefreshCw, AlertCircle } from 'lucide-react';
+import '../i18n'; // Initialize i18n
 import {
   DndContext,
   DragOverlay,

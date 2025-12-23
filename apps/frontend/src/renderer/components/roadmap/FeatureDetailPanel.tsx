@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ChevronRight,
   Lightbulb,
@@ -31,6 +32,8 @@ export function FeatureDetailPanel({
   onDelete,
   competitorInsights = [],
 }: FeatureDetailPanelProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleDelete = () => {
@@ -243,12 +246,8 @@ export function FeatureDetailPanel({
               </p>
             </div>
             <div className="flex gap-2 justify-center">
-              <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>
-                Cancel
-              </Button>
-              <Button variant="destructive" onClick={handleDelete}>
-                Delete
-              </Button>
+              <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>{t("common:buttons.cancel")}</Button>
+              <Button variant="destructive" onClick={handleDelete}>{t("common:buttons.delete")}</Button>
             </div>
           </div>
         </div>

@@ -1,0 +1,35 @@
+{
+  "title": "工作树",
+  "subtitle": "管理 Auto Claude 任务的隔离工作区",
+  "noWorktrees": {
+    "title": "没有工作树",
+    "description": "Auto Claude 构建功能时会自动创建工作树。它们为每个任务提供隔离的工作区。"
+  },
+  "card": {
+    "filesChanged": "修改 {{count}} 个文件",
+    "commitsAhead": "领先 {{count}} 次提交",
+    "merge": "合并到 {{branch}}",
+    "copyPath": "复制路径"
+  },
+  "mergeDialog": {
+    "title": "合并工作树",
+    "description": "将此工作树的更改合并到基础分支。",
+    "sourceBranch": "源分支",
+    "targetBranch": "目标分支",
+    "changes": "更改",
+    "changesDetail": "{{commits}} 次提交，{{files}} 个文件",
+    "success": "合并成功",
+    "failed": "合并失败",
+    "conflictingFiles": "冲突文件：",
+    "close": "关闭",
+    "cancel": "取消",
+    "merge": "合并",
+    "merging": "正在合并..."
+  },
+  "deleteDialog": {
+    "title": "删除工作树？",
+    "description": "这将永久删除工作树及所有未提交的更改。",
+    "warning": "此操作无法撤销。",
+    "deleting": "正在删除..."
+  }
+}

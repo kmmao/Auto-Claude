@@ -1,0 +1,48 @@
+{
+    "columns": {
+        "planning": "Planning",
+        "inProgress": "In Progress",
+        "aiReview": "AI Review",
+        "humanReview": "Human Review",
+        "done": "Done"
+    },
+    "emptyStates": {
+        "planning": "No tasks planned",
+        "planningDesc": "Add a task to get started",
+        "inProgress": "Nothing running",
+        "inProgressDesc": "Start a task",
+        "aiReview": "No tasks in review",
+        "aiReviewDesc": "Completed tasks will appear here",
+        "humanReview": "No tasks in review",
+        "humanReviewDesc": "Tasks needing your review will appear here",
+        "done": "No completed tasks",
+        "doneDesc": "Finished tasks will appear here"
+    },
+    "taskCard": {
+        "progress": "Progress",
+        "justNow": "just now",
+        "archive": "Archive",
+        "showArchived": "Show archived",
+        "hideArchived": "Hide archived"
+    },
+    "categories": {
+        "feature": "Feature",
+        "bug": "Bug",
+        "refactor": "Refactor",
+        "docs": "Docs",
+        "test": "Test",
+        "chore": "Chore"
+    },
+    "complexity": {
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High"
+    },
+    "status": {
+        "planning": "Planning",
+        "inProgress": "In Progress",
+        "review": "Review",
+        "completed": "Completed",
+        "archived": "Archived"
+    }
+}

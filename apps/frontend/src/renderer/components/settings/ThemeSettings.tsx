@@ -1,6 +1,7 @@
 import { SettingsSection } from './SettingsSection';
 import { ThemeSelector } from './ThemeSelector';
 import type { AppSettings } from '../../../shared/types';
+import { useTranslation } from 'react-i18next';
 
 interface ThemeSettingsProps {
   settings: AppSettings;
@@ -12,10 +13,12 @@ interface ThemeSettingsProps {
  * Wraps the ThemeSelector component with a consistent settings section layout
  */
 export function ThemeSettings({ settings, onSettingsChange }: ThemeSettingsProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   return (
     <SettingsSection
-      title="Appearance"
-      description="Customize how Auto Claude looks"
+      title={t("settings:appearance.title")}
+      description={t("settings:appearance.description")}
     >
       <ThemeSelector settings={settings} onSettingsChange={onSettingsChange} />
     </SettingsSection>

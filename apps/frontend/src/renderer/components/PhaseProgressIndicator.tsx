@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 import type { ExecutionPhase, TaskLogs, Subtask } from '../../shared/types';
+import { useTranslation } from 'react-i18next';
 
 interface PhaseProgressIndicatorProps {
   phase?: ExecutionPhase;
@@ -36,6 +37,8 @@ export function PhaseProgressIndicator({
   isRunning = false,
   className,
 }: PhaseProgressIndicatorProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   // Calculate subtask-based progress (for coding phase)
   const completedSubtasks = subtasks.filter((c) => c.status === 'completed').length;
   const totalSubtasks = subtasks.length;

@@ -3,6 +3,7 @@
  */
 
 import { Label } from '../../ui/label';
+import { useTranslation } from 'react-i18next';
 import {
   Select,
   SelectContent,
@@ -33,6 +34,8 @@ export function TeamProjectSelector({
   onTeamChange,
   onProjectChange
 }: TeamProjectSelectorProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   return (
     <div className="flex gap-4 shrink-0">
       <div className="flex-1 space-y-2">

@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
 import type { Task } from '../../../shared/types';
+import { useTranslation } from 'react-i18next';
 import {
   Tooltip,
   TooltipContent,
@@ -14,6 +15,8 @@ interface TerminalTitleProps {
 }
 
 export function TerminalTitle({ title, associatedTask, onTitleChange }: TerminalTitleProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);

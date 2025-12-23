@@ -5,6 +5,7 @@ import { Card } from '../ui/card';
 import { Progress } from '../ui/progress';
 import { ROADMAP_PRIORITY_COLORS } from '../../../shared/constants';
 import type { PhaseCardProps } from './types';
+import { useTranslation } from 'react-i18next';
 
 export function PhaseCard({
   phase,
@@ -14,6 +15,8 @@ export function PhaseCard({
   onConvertToSpec,
   onGoToTask,
 }: PhaseCardProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const completedCount = features.filter((f) => f.status === 'done').length;
   const progress = features.length > 0 ? (completedCount / features.length) * 100 : 0;
 

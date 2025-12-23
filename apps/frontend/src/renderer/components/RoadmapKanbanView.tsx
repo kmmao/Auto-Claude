@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   DndContext,
   DragOverlay,
@@ -177,6 +178,8 @@ export function RoadmapKanbanView({
   onGoToTask,
   onSave
 }: RoadmapKanbanViewProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const [activeFeature, setActiveFeature] = useState<RoadmapFeature | null>(null);
   const [overColumnId, setOverColumnId] = useState<string | null>(null);
 

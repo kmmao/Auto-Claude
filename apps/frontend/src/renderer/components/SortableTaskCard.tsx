@@ -3,6 +3,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { TaskCard } from './TaskCard';
 import { cn } from '../lib/utils';
 import type { Task } from '../../shared/types';
+import { useTranslation } from 'react-i18next';
 
 interface SortableTaskCardProps {
   task: Task;
@@ -10,6 +11,8 @@ interface SortableTaskCardProps {
 }
 
 export function SortableTaskCard({ task, onClick }: SortableTaskCardProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const {
     attributes,
     listeners,

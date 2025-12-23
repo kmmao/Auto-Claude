@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   AlertCircle,
   Key,
@@ -49,6 +50,8 @@ export function EnvConfigModal({
   description = 'A Claude Code OAuth token is required to use AI features like Ideation and Roadmap generation.',
   projectId
 }: EnvConfigModalProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const [token, setToken] = useState('');
   const [showToken, setShowToken] = useState(false);
   const [showManualEntry, setShowManualEntry] = useState(false);

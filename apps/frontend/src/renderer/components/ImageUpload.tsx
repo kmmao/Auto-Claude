@@ -3,6 +3,7 @@ import { Upload, X, AlertCircle, Image as ImageIcon } from 'lucide-react';
 import { Button } from './ui/button';
 import { cn } from '../lib/utils';
 import type { ImageAttachment } from '../../shared/types';
+import { useTranslation } from 'react-i18next';
 import {
   MAX_IMAGE_SIZE,
   MAX_IMAGES_PER_TASK,
@@ -128,6 +129,8 @@ export function ImageUpload({
   disabled = false,
   className
 }: ImageUploadProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const [isDragOver, setIsDragOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);

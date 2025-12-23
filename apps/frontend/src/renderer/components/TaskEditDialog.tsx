@@ -3,6 +3,7 @@
  *
  * Allows users to modify all task properties including title, description,
  * classification fields, images, and review settings.
+import { useTranslation } from 'react-i18next';
  * Follows the same dialog pattern as TaskCreationWizard for consistency.
  *
  * Features:
@@ -24,6 +25,7 @@
  * />
  * ```
  */
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useCallback, useRef, type ClipboardEvent, type DragEvent } from 'react';
 import { Loader2, Image as ImageIcon, ChevronDown, ChevronUp, X } from 'lucide-react';
 import {
@@ -87,6 +89,8 @@ interface TaskEditDialogProps {
 }
 
 export function TaskEditDialog({ task, open, onOpenChange, onSaved }: TaskEditDialogProps) {
+  const { t } = useTranslation(['common', 'taskDetail']);
+
   // Get selected agent profile from settings for defaults
   const { settings } = useSettingsStore();
   const selectedProfile = DEFAULT_AGENT_PROFILES.find(
@@ -228,7 +232,7 @@ export function TaskEditDialog({ task, open, onOpenChange, onSaved }: TaskEditDi
     // Check if we can add more images
     const remainingSlots = MAX_IMAGES_PER_TASK - images.length;
     if (remainingSlots <= 0) {
-      setError(`Maximum of ${MAX_IMAGES_PER_TASK} images allowed`);
+      setError(t('taskDetail:editDialog.errors.maxImages', { count: MAX_IMAGES_PER_TASK }));
       return;
     }
 
@@ -244,7 +248,7 @@ export function TaskEditDialog({ task, open, onOpenChange, onSaved }: TaskEditDi
 
       // Validate image type
       if (!isValidImageMimeType(file.type)) {
-        setError(`Invalid image type. Allowed: ${ALLOWED_IMAGE_TYPES_DISPLAY}`);
+        setError(t('taskDetail:editDialog.errors.invalidType', { types: ALLOWED_IMAGE_TYPES_DISPLAY }));
         continue;
       }
 
@@ -269,7 +273,7 @@ export function TaskEditDialog({ task, open, onOpenChange, onSaved }: TaskEditDi
           thumbnail
         });
       } catch {
-        setError('Failed to process pasted image');
+        setError(t('taskDetail:editDialog.errors.pasteFailed'));
       }
     }
 
@@ -329,7 +333,7 @@ export function TaskEditDialog({ task, open, onOpenChange, onSaved }: TaskEditDi
       // Check if we can add more images
       const remainingSlots = MAX_IMAGES_PER_TASK - images.length;
       if (remainingSlots <= 0) {
-        setError(`Maximum of ${MAX_IMAGES_PER_TASK} images allowed`);
+        setError(t('taskDetail:editDialog.errors.maxImages', { count: MAX_IMAGES_PER_TASK }));
         return;
       }
 
@@ -342,7 +346,7 @@ export function TaskEditDialog({ task, open, onOpenChange, onSaved }: TaskEditDi
       for (const file of imageFiles.slice(0, remainingSlots)) {
         // Validate image type
         if (!isValidImageMimeType(file.type)) {
-          setError(`Invalid image type. Allowed: ${ALLOWED_IMAGE_TYPES_DISPLAY}`);
+          setError(t('taskDetail:editDialog.errors.invalidType', { types: ALLOWED_IMAGE_TYPES_DISPLAY }));
           continue;
         }
 
@@ -366,7 +370,7 @@ export function TaskEditDialog({ task, open, onOpenChange, onSaved }: TaskEditDi
             thumbnail
           });
         } catch {
-          setError('Failed to process dropped image');
+          setError(t('taskDetail:editDialog.errors.dropFailed'));
         }
       }
 
@@ -385,7 +389,7 @@ export function TaskEditDialog({ task, open, onOpenChange, onSaved }: TaskEditDi
   const handleSave = async () => {
     // Validate input - only description is required
     if (!description.trim()) {
-      setError('Description is required');
+      setError(t('taskDetail:editDialog.errors.descriptionRequired'));
       return;
     }
 
@@ -444,7 +448,7 @@ export function TaskEditDialog({ task, open, onOpenChange, onSaved }: TaskEditDi
       onOpenChange(false);
       onSaved?.();
     } else {
-      setError('Failed to update task. Please try again.');
+      setError(t('taskDetail:editDialog.errors.updateFailed'));
     }
 
     setIsSaving(false);
@@ -463,9 +467,9 @@ export function TaskEditDialog({ task, open, onOpenChange, onSaved }: TaskEditDi
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-foreground">Edit Task</DialogTitle>
+          <DialogTitle className="text-foreground">{t('taskDetail:editDialog.title')}</DialogTitle>
           <DialogDescription>
-            Update task details including title, description, classification, images, and settings. Changes will be saved to the spec files.
+            {t('taskDetail:editDialog.description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -473,12 +477,12 @@ export function TaskEditDialog({ task, open, onOpenChange, onSaved }: TaskEditDi
           {/* Description (Primary - Required) */}
           <div className="space-y-2">
             <Label htmlFor="edit-description" className="text-sm font-medium text-foreground">
-              Description <span className="text-destructive">*</span>
+              {t('taskDetail:editDialog.fields.description.label')} <span className="text-destructive">*</span>
             </Label>
             <Textarea
               ref={descriptionRef}
               id="edit-description"
-              placeholder="Describe the feature, bug fix, or improvement. Be as specific as possible about requirements, constraints, and expected behavior."
+              placeholder={t('taskDetail:editDialog.fields.description.placeholder')}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               onPaste={handlePaste}
@@ -492,24 +496,24 @@ export function TaskEditDialog({ task, open, onOpenChange, onSaved }: TaskEditDi
               )}
             />
             <p className="text-xs text-muted-foreground">
-              Tip: Paste screenshots directly with {navigator.platform.includes('Mac') ? '⌘V' : 'Ctrl+V'} to add reference images.
+              {t('taskDetail:editDialog.fields.description.tip', { mod: navigator.platform.includes('Mac') ? '⌘' : 'Ctrl+' })}
             </p>
           </div>
 
           {/* Title (Optional - Auto-generated if empty) */}
           <div className="space-y-2">
             <Label htmlFor="edit-title" className="text-sm font-medium text-foreground">
-              Task Title <span className="text-muted-foreground font-normal">(optional)</span>
+              {t('taskDetail:editDialog.fields.title.label')} <span className="text-muted-foreground font-normal">{t('taskDetail:editDialog.fields.title.optional')}</span>
             </Label>
             <Input
               id="edit-title"
-              placeholder="Leave empty to auto-generate from description"
+              placeholder={t('taskDetail:editDialog.fields.title.placeholder')}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               disabled={isSaving}
             />
             <p className="text-xs text-muted-foreground">
-              A short, descriptive title will be generated automatically if left empty.
+              {t('taskDetail:editDialog.fields.title.hint')}
             </p>
           </div>
 
@@ -536,7 +540,7 @@ export function TaskEditDialog({ task, open, onOpenChange, onSaved }: TaskEditDi
           {pasteSuccess && (
             <div className="flex items-center gap-2 text-sm text-success animate-in fade-in slide-in-from-top-1 duration-200">
               <ImageIcon className="h-4 w-4" />
-              Image added successfully!
+              {t('taskDetail:editDialog.fields.images.success')}
             </div>
           )}
 
@@ -550,7 +554,7 @@ export function TaskEditDialog({ task, open, onOpenChange, onSaved }: TaskEditDi
             )}
             disabled={isSaving}
           >
-            <span>Classification (optional)</span>
+            <span>{t('taskDetail:editDialog.fields.classification.toggle')}</span>
             {showAdvanced ? (
               <ChevronUp className="h-4 w-4" />
             ) : (
@@ -565,7 +569,7 @@ export function TaskEditDialog({ task, open, onOpenChange, onSaved }: TaskEditDi
                 {/* Category */}
                 <div className="space-y-2">
                   <Label htmlFor="edit-category" className="text-xs font-medium text-muted-foreground">
-                    Category
+                    {t('taskDetail:editDialog.fields.classification.category.label')}
                   </Label>
                   <Select
                     value={category}
@@ -573,12 +577,12 @@ export function TaskEditDialog({ task, open, onOpenChange, onSaved }: TaskEditDi
                     disabled={isSaving}
                   >
                     <SelectTrigger id="edit-category" className="h-9">
-                      <SelectValue placeholder="Select category" />
+                      <SelectValue placeholder={t('taskDetail:editDialog.fields.classification.category.placeholder')} />
                     </SelectTrigger>
                     <SelectContent>
                       {Object.entries(TASK_CATEGORY_LABELS).map(([value, label]) => (
                         <SelectItem key={value} value={value}>
-                          {label}
+                          {t(`taskDetail:labels.${value}`)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -588,7 +592,7 @@ export function TaskEditDialog({ task, open, onOpenChange, onSaved }: TaskEditDi
                 {/* Priority */}
                 <div className="space-y-2">
                   <Label htmlFor="edit-priority" className="text-xs font-medium text-muted-foreground">
-                    Priority
+                    {t('taskDetail:editDialog.fields.classification.priority.label')}
                   </Label>
                   <Select
                     value={priority}
@@ -596,12 +600,12 @@ export function TaskEditDialog({ task, open, onOpenChange, onSaved }: TaskEditDi
                     disabled={isSaving}
                   >
                     <SelectTrigger id="edit-priority" className="h-9">
-                      <SelectValue placeholder="Select priority" />
+                      <SelectValue placeholder={t('taskDetail:editDialog.fields.classification.priority.placeholder')} />
                     </SelectTrigger>
                     <SelectContent>
                       {Object.entries(TASK_PRIORITY_LABELS).map(([value, label]) => (
                         <SelectItem key={value} value={value}>
-                          {label}
+                          {t(`taskDetail:labels.${value}`)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -611,7 +615,7 @@ export function TaskEditDialog({ task, open, onOpenChange, onSaved }: TaskEditDi
                 {/* Complexity */}
                 <div className="space-y-2">
                   <Label htmlFor="edit-complexity" className="text-xs font-medium text-muted-foreground">
-                    Complexity
+                    {t('taskDetail:editDialog.fields.classification.complexity.label')}
                   </Label>
                   <Select
                     value={complexity}
@@ -619,12 +623,12 @@ export function TaskEditDialog({ task, open, onOpenChange, onSaved }: TaskEditDi
                     disabled={isSaving}
                   >
                     <SelectTrigger id="edit-complexity" className="h-9">
-                      <SelectValue placeholder="Select complexity" />
+                      <SelectValue placeholder={t('taskDetail:editDialog.fields.classification.complexity.placeholder')} />
                     </SelectTrigger>
                     <SelectContent>
                       {Object.entries(TASK_COMPLEXITY_LABELS).map(([value, label]) => (
                         <SelectItem key={value} value={value}>
-                          {label}
+                          {t(`taskDetail:labels.${value}`)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -634,7 +638,7 @@ export function TaskEditDialog({ task, open, onOpenChange, onSaved }: TaskEditDi
                 {/* Impact */}
                 <div className="space-y-2">
                   <Label htmlFor="edit-impact" className="text-xs font-medium text-muted-foreground">
-                    Impact
+                    {t('taskDetail:editDialog.fields.classification.impact.label')}
                   </Label>
                   <Select
                     value={impact}
@@ -642,12 +646,12 @@ export function TaskEditDialog({ task, open, onOpenChange, onSaved }: TaskEditDi
                     disabled={isSaving}
                   >
                     <SelectTrigger id="edit-impact" className="h-9">
-                      <SelectValue placeholder="Select impact" />
+                      <SelectValue placeholder={t('taskDetail:editDialog.fields.classification.impact.placeholder')} />
                     </SelectTrigger>
                     <SelectContent>
                       {Object.entries(TASK_IMPACT_LABELS).map(([value, label]) => (
                         <SelectItem key={value} value={value}>
-                          {label}
+                          {t(`taskDetail:labels.${value}`)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -656,7 +660,7 @@ export function TaskEditDialog({ task, open, onOpenChange, onSaved }: TaskEditDi
               </div>
 
               <p className="text-xs text-muted-foreground">
-                These labels help organize and prioritize tasks. They&apos;re optional but useful for filtering.
+                {t('taskDetail:editDialog.fields.classification.hint')}
               </p>
             </div>
           )}
@@ -673,7 +677,7 @@ export function TaskEditDialog({ task, open, onOpenChange, onSaved }: TaskEditDi
           >
             <span className="flex items-center gap-2">
               <ImageIcon className="h-4 w-4" />
-              Reference Images (optional)
+              {t('taskDetail:editDialog.fields.images.toggle')}
               {images.length > 0 && (
                 <span className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded">
                   {images.length}
@@ -691,7 +695,7 @@ export function TaskEditDialog({ task, open, onOpenChange, onSaved }: TaskEditDi
           {showImages && (
             <div className="space-y-3 p-4 rounded-lg border border-border bg-muted/30">
               <p className="text-xs text-muted-foreground">
-                Attach screenshots, mockups, or diagrams to provide visual context for the AI.
+                {t('taskDetail:editDialog.fields.images.hint')}
               </p>
               <ImageUpload
                 images={images}
@@ -715,10 +719,10 @@ export function TaskEditDialog({ task, open, onOpenChange, onSaved }: TaskEditDi
                 htmlFor="edit-require-review"
                 className="text-sm font-medium text-foreground cursor-pointer"
               >
-                Require human review before coding
+                {t('taskDetail:editDialog.fields.review.label')}
               </Label>
               <p className="text-xs text-muted-foreground">
-                When enabled, you&apos;ll be prompted to review the spec and implementation plan before the coding phase begins. This allows you to approve, request changes, or provide feedback.
+                {t('taskDetail:editDialog.fields.review.hint')}
               </p>
             </div>
           </div>
@@ -733,9 +737,7 @@ export function TaskEditDialog({ task, open, onOpenChange, onSaved }: TaskEditDi
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={handleClose} disabled={isSaving}>
-            Cancel
-          </Button>
+          <Button variant="outline" onClick={handleClose} disabled={isSaving}>{t("taskDetail:deleteDialog.cancel")}</Button>
           <Button
             onClick={handleSave}
             disabled={isSaving || !isValid}
@@ -743,10 +745,10 @@ export function TaskEditDialog({ task, open, onOpenChange, onSaved }: TaskEditDi
             {isSaving ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
+                {t('taskDetail:editDialog.actions.saving')}
               </>
             ) : (
-              'Save Changes'
+              t('taskDetail:editDialog.actions.save')
             )}
           </Button>
         </DialogFooter>

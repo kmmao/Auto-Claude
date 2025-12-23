@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Package, ChevronDown, ChevronRight } from 'lucide-react';
 import { Badge } from '../../ui/badge';
+import { useTranslation } from 'react-i18next';
 import {
   Collapsible,
   CollapsibleContent,
@@ -12,6 +13,8 @@ interface DependenciesSectionProps {
 }
 
 export function DependenciesSection({ dependencies }: DependenciesSectionProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const [expanded, setExpanded] = useState(false);
 
   if (!dependencies || dependencies.length === 0) {

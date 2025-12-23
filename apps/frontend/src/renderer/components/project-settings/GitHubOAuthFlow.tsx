@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Github,
   Loader2,
@@ -41,6 +42,8 @@ const AUTH_TIMEOUT_MS = 5 * 60 * 1000;
  * Guides users through authenticating with GitHub using the gh CLI
  */
 export function GitHubOAuthFlow({ onSuccess, onCancel }: GitHubOAuthFlowProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const [status, setStatus] = useState<'checking' | 'need-install' | 'need-auth' | 'authenticating' | 'success' | 'error'>('checking');
   const [error, setError] = useState<string | null>(null);
   const [_cliInstalled, setCliInstalled] = useState(false);
@@ -579,13 +582,9 @@ export function GitHubOAuthFlow({ onSuccess, onCancel }: GitHubOAuthFlowProps) {
           )}
 
           <div className="flex justify-center gap-3">
-            <Button onClick={handleStartAuth} variant="outline">
-              Retry
-            </Button>
+            <Button onClick={handleStartAuth} variant="outline">{t("common:buttons.retry")}</Button>
             {onCancel && (
-              <Button onClick={onCancel} variant="ghost">
-                Cancel
-              </Button>
+              <Button onClick={onCancel} variant="ghost">{t("common:buttons.cancel")}</Button>
             )}
           </div>
         </div>
@@ -594,9 +593,7 @@ export function GitHubOAuthFlow({ onSuccess, onCancel }: GitHubOAuthFlowProps) {
       {/* Cancel button for non-error states */}
       {status !== 'error' && status !== 'success' && onCancel && (
         <div className="flex justify-center pt-2">
-          <Button onClick={onCancel} variant="ghost">
-            Cancel
-          </Button>
+          <Button onClick={onCancel} variant="ghost">{t("common:buttons.cancel")}</Button>
         </div>
       )}
     </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Settings,
   Save,
@@ -52,27 +53,25 @@ export type AppSection = 'appearance' | 'display' | 'agent' | 'paths' | 'integra
 
 interface NavItem<T extends string> {
   id: T;
-  label: string;
   icon: React.ElementType;
-  description: string;
 }
 
 const appNavItems: NavItem<AppSection>[] = [
-  { id: 'appearance', label: 'Appearance', icon: Palette, description: 'Theme and visual preferences' },
-  { id: 'display', label: 'Display', icon: Monitor, description: 'UI scale and zoom' },
-  { id: 'agent', label: 'Agent Settings', icon: Bot, description: 'Default model and framework' },
-  { id: 'paths', label: 'Paths', icon: FolderOpen, description: 'Python and framework paths' },
-  { id: 'integrations', label: 'Integrations', icon: Key, description: 'API keys & Claude accounts' },
-  { id: 'updates', label: 'Updates', icon: Package, description: 'Auto Claude updates' },
-  { id: 'notifications', label: 'Notifications', icon: Bell, description: 'Alert preferences' }
+  { id: 'appearance', icon: Palette },
+  { id: 'display', icon: Monitor },
+  { id: 'agent', icon: Bot },
+  { id: 'paths', icon: FolderOpen },
+  { id: 'integrations', icon: Key },
+  { id: 'updates', icon: Package },
+  { id: 'notifications', icon: Bell }
 ];
 
 const projectNavItems: NavItem<ProjectSettingsSection>[] = [
-  { id: 'general', label: 'General', icon: Settings2, description: 'Auto-Build and agent config' },
-  { id: 'claude', label: 'Claude Auth', icon: Key, description: 'Claude authentication' },
-  { id: 'linear', label: 'Linear', icon: Zap, description: 'Linear integration' },
-  { id: 'github', label: 'GitHub', icon: Github, description: 'GitHub issues sync' },
-  { id: 'memory', label: 'Memory', icon: Database, description: 'Graphiti memory backend' }
+  { id: 'general', icon: Settings2 },
+  { id: 'claude', icon: Key },
+  { id: 'linear', icon: Zap },
+  { id: 'github', icon: Github },
+  { id: 'memory', icon: Database }
 ];
 
 /**
@@ -80,6 +79,8 @@ const projectNavItems: NavItem<ProjectSettingsSection>[] = [
  * Coordinates app and project settings sections
  */
 export function AppSettingsDialog({ open, onOpenChange, initialSection, initialProjectSection, onRerunWizard }: AppSettingsDialogProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const { settings, setSettings, isSaving, error, saveSettings, revertTheme, commitTheme } = useSettings();
   const [version, setVersion] = useState<string>('');
 
@@ -132,7 +133,7 @@ export function AppSettingsDialog({ open, onOpenChange, initialSection, initialP
 
     // If on project section with a project selected, save project settings too
     if (activeTopLevel === 'project' && selectedProject && projectSettingsHook) {
-      await projectSettingsHook.handleSave(() => {});
+      await projectSettingsHook.handleSave(() => { });
       // Check for project errors
       if (projectSettingsHook.error || projectSettingsHook.envError) {
         setProjectError(projectSettingsHook.error || projectSettingsHook.envError);
@@ -206,11 +207,9 @@ export function AppSettingsDialog({ open, onOpenChange, initialSection, initialP
       <FullScreenDialogContent>
         <FullScreenDialogHeader>
           <FullScreenDialogTitle className="flex items-center gap-3">
-            <Settings className="h-6 w-6" />
-            Settings
-          </FullScreenDialogTitle>
+            <Settings className="h-6 w-6" />{t("common:common.settings")}</FullScreenDialogTitle>
           <FullScreenDialogDescription>
-            Configure application and project settings
+            {t("settings:appearance.description")}
           </FullScreenDialogDescription>
         </FullScreenDialogHeader>
 
@@ -223,7 +222,7 @@ export function AppSettingsDialog({ open, onOpenChange, initialSection, initialP
                   {/* APPLICATION Section */}
                   <div>
                     <h3 className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      Application
+                      {t("settings:nav.application")}
                     </h3>
                     <div className="space-y-1">
                       {appNavItems.map((item) => {
@@ -245,8 +244,8 @@ export function AppSettingsDialog({ open, onOpenChange, initialSection, initialP
                           >
                             <Icon className="h-5 w-5 mt-0.5 shrink-0" />
                             <div className="min-w-0">
-                              <div className="font-medium text-sm">{item.label}</div>
-                              <div className="text-xs text-muted-foreground truncate">{item.description}</div>
+                              <div className="font-medium text-sm">{t(`settings:${item.id}.title`)}</div>
+                              <div className="text-xs text-muted-foreground truncate">{t(`settings:${item.id}.description`)}</div>
                             </div>
                           </button>
                         );
@@ -267,8 +266,8 @@ export function AppSettingsDialog({ open, onOpenChange, initialSection, initialP
                         >
                           <Sparkles className="h-5 w-5 mt-0.5 shrink-0" />
                           <div className="min-w-0">
-                            <div className="font-medium text-sm">Re-run Wizard</div>
-                            <div className="text-xs text-muted-foreground truncate">Start the setup wizard again</div>
+                            <div className="font-medium text-sm">{t("settings:wizard.title")}</div>
+                            <div className="text-xs text-muted-foreground truncate">{t("settings:wizard.description")}</div>
                           </div>
                         </button>
                       )}
@@ -278,7 +277,7 @@ export function AppSettingsDialog({ open, onOpenChange, initialSection, initialP
                   {/* PROJECT Section */}
                   <div>
                     <h3 className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      Project
+                      {t("settings:nav.project")}
                     </h3>
 
                     {/* Project Selector */}
@@ -313,8 +312,20 @@ export function AppSettingsDialog({ open, onOpenChange, initialSection, initialP
                           >
                             <Icon className="h-5 w-5 mt-0.5 shrink-0" />
                             <div className="min-w-0">
-                              <div className="font-medium text-sm">{item.label}</div>
-                              <div className="text-xs text-muted-foreground truncate">{item.description}</div>
+                              <div className="font-medium text-sm">
+                                {item.id === 'claude'
+                                  ? t('settings:project.claudeAuth.title')
+                                  : (item.id === 'linear' || item.id === 'github')
+                                    ? t(`settings:integrations.${item.id}.title`)
+                                    : t(`settings:project.${item.id}.title`)}
+                              </div>
+                              <div className="text-xs text-muted-foreground truncate">
+                                {item.id === 'claude'
+                                  ? t('settings:project.claudeAuth.description')
+                                  : (item.id === 'linear' || item.id === 'github')
+                                    ? t(`settings:integrations.${item.id}.description`)
+                                    : t(`settings:project.${item.id}.description`)}
+                              </div>
                             </div>
                           </button>
                         );
@@ -327,7 +338,7 @@ export function AppSettingsDialog({ open, onOpenChange, initialSection, initialP
                 {version && (
                   <div className="mt-8 pt-4 border-t border-border">
                     <p className="text-xs text-muted-foreground text-center">
-                      Version {version}
+                      {t("settings:nav.version", { version })}
                     </p>
                   </div>
                 )}
@@ -351,9 +362,7 @@ export function AppSettingsDialog({ open, onOpenChange, initialSection, initialP
               {error || projectError}
             </div>
           )}
-          <Button variant="outline" onClick={handleCancel}>
-            Cancel
-          </Button>
+          <Button variant="outline" onClick={handleCancel}>{t("common:buttons.cancel")}</Button>
           <Button
             onClick={handleSave}
             disabled={isSaving || (activeTopLevel === 'project' && projectSettingsHook?.isSaving)}
@@ -361,12 +370,12 @@ export function AppSettingsDialog({ open, onOpenChange, initialSection, initialP
             {(isSaving || (activeTopLevel === 'project' && projectSettingsHook?.isSaving)) ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
+                {t("settings:actions.saving")}
               </>
             ) : (
               <>
                 <Save className="mr-2 h-4 w-4" />
-                Save Settings
+                {t("settings:actions.save")}
               </>
             )}
           </Button>

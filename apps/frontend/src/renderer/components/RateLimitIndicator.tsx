@@ -1,12 +1,15 @@
 import { AlertTriangle, X } from 'lucide-react';
 import { Button } from './ui/button';
 import { useRateLimitStore } from '../stores/rate-limit-store';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Sidebar indicator that shows when there's an active rate limit.
  * Clicking on it reopens the rate limit modal.
  */
 export function RateLimitIndicator() {
+  const { t } = useTranslation(['common', 'settings']);
+
   const {
     hasPendingRateLimit,
     pendingRateLimitType,

@@ -4,6 +4,7 @@ import { Button } from './ui/button';
 import { ScrollArea } from './ui/scroll-area';
 import { FileTree } from './FileTree';
 import { useFileExplorerStore } from '../stores/file-explorer-store';
+import { useTranslation } from 'react-i18next';
 
 interface FileExplorerPanelProps {
   projectPath: string;
@@ -34,6 +35,8 @@ const contentVariants = {
 };
 
 export function FileExplorerPanel({ projectPath }: FileExplorerPanelProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const { isOpen, close, clearCache, loadDirectory } = useFileExplorerStore();
 
   const handleRefresh = () => {
@@ -80,7 +83,7 @@ export function FileExplorerPanel({ projectPath }: FileExplorerPanelProps) {
                   size="icon"
                   className="h-6 w-6"
                   onClick={handleRefresh}
-                  title="Refresh"
+                  title={t("common:buttons.refresh")}
                 >
                   <RefreshCw className="h-3.5 w-3.5" />
                 </Button>

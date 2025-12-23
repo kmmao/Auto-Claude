@@ -6,8 +6,11 @@ import { useProjectContext, useRefreshIndex, useMemorySearch } from './hooks';
 import { ProjectIndexTab } from './ProjectIndexTab';
 import { MemoriesTab } from './MemoriesTab';
 import type { ContextProps } from './types';
+import { useTranslation } from 'react-i18next';
 
 export function Context({ projectId }: ContextProps) {
+  const { t } = useTranslation(['common', 'context']);
+
   const {
     projectIndex,
     indexLoading,
@@ -34,11 +37,11 @@ export function Context({ projectId }: ContextProps) {
           <TabsList className="grid w-full max-w-md grid-cols-2">
             <TabsTrigger value="index" className="gap-2">
               <FolderTree className="h-4 w-4" />
-              Project Index
+              {t('context:tabs.index')}
             </TabsTrigger>
             <TabsTrigger value="memories" className="gap-2">
               <Brain className="h-4 w-4" />
-              Memories
+              {t('context:tabs.memories')}
             </TabsTrigger>
           </TabsList>
         </div>

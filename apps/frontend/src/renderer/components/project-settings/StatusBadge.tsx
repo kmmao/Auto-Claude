@@ -1,9 +1,13 @@
+import { useTranslation } from 'react-i18next';
+
 interface StatusBadgeProps {
   status: 'success' | 'warning' | 'info';
   label: string;
 }
 
 export function StatusBadge({ status, label }: StatusBadgeProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const colors = {
     success: 'bg-success/10 text-success',
     warning: 'bg-warning/10 text-warning',

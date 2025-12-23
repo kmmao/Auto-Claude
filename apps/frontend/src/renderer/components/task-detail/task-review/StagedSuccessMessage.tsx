@@ -4,6 +4,7 @@ import { Button } from '../../ui/button';
 import { Textarea } from '../../ui/textarea';
 import type { Task } from '../../../../shared/types';
 import { useTerminalHandler } from '../hooks/useTerminalHandler';
+import { useTranslation, Trans } from 'react-i18next';
 
 interface StagedSuccessMessageProps {
   stagedSuccess: string;
@@ -21,6 +22,8 @@ export function StagedSuccessMessage({
   task,
   suggestedCommitMessage
 }: StagedSuccessMessageProps) {
+  const { t } = useTranslation(['common', 'taskDetail']);
+
   const [commitMessage, setCommitMessage] = useState(suggestedCommitMessage || '');
   const [copied, setCopied] = useState(false);
   const { openTerminal, error: terminalError, isOpening } = useTerminalHandler();
@@ -40,7 +43,7 @@ export function StagedSuccessMessage({
     <div className="rounded-xl border border-success/30 bg-success/10 p-4">
       <h3 className="font-medium text-sm text-foreground mb-2 flex items-center gap-2">
         <GitMerge className="h-4 w-4 text-success" />
-        Changes Staged Successfully
+        {t('taskDetail:review.stagedSuccess.title')}
       </h3>
       <p className="text-sm text-muted-foreground mb-3">
         {stagedSuccess}
@@ -52,7 +55,7 @@ export function StagedSuccessMessage({
           <div className="flex items-center justify-between mb-2">
             <p className="text-xs text-muted-foreground flex items-center gap-1.5">
               <Sparkles className="h-3 w-3 text-purple-400" />
-              AI-generated commit message
+              {t('taskDetail:review.stagedSuccess.commitTitle')}
             </p>
             <Button
               variant="ghost"
@@ -64,12 +67,12 @@ export function StagedSuccessMessage({
               {copied ? (
                 <>
                   <Check className="h-3 w-3 mr-1 text-success" />
-                  Copied!
+                  {t('taskDetail:review.stagedSuccess.copied')}
                 </>
               ) : (
                 <>
                   <Copy className="h-3 w-3 mr-1" />
-                  Copy
+                  {t('taskDetail:review.stagedSuccess.copy')}
                 </>
               )}
             </Button>
@@ -78,20 +81,36 @@ export function StagedSuccessMessage({
             value={commitMessage}
             onChange={(e) => setCommitMessage(e.target.value)}
             className="font-mono text-xs min-h-[100px] bg-background/80 resize-y"
-            placeholder="Commit message..."
+            placeholder={t('taskDetail:review.stagedSuccess.pendingMessage')}
           />
           <p className="text-[10px] text-muted-foreground mt-1.5">
-            Edit as needed, then copy and use with <code className="bg-background px-1 rounded">git commit -m "..."</code>
+            <Trans
+              i18nKey="taskDetail:review.stagedSuccess.editAndCopy"
+              values={{ cmd: 'git commit -m "..."' }}
+              components={{ code: <code className="bg-background px-1 rounded" /> }}
+            />
           </p>
         </div>
       )}
 
       <div className="bg-background/50 rounded-lg p-3 mb-3">
-        <p className="text-xs text-muted-foreground mb-2">Next steps:</p>
+        <p className="text-xs text-muted-foreground mb-2">{t('taskDetail:review.stagedSuccess.nextSteps')}</p>
         <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
-          <li>Open your project in your IDE or terminal</li>
-          <li>Review the staged changes with <code className="bg-background px-1 rounded">git status</code> and <code className="bg-background px-1 rounded">git diff --staged</code></li>
-          <li>Commit when ready: <code className="bg-background px-1 rounded">git commit -m "your message"</code></li>
+          <li>{t('taskDetail:review.stagedSuccess.step1')}</li>
+          <li>
+            <Trans
+              i18nKey="taskDetail:review.stagedSuccess.step2"
+              values={{ status: 'git status', diff: 'git diff --staged' }}
+              components={{ code: <code className="bg-background px-1 rounded" /> }}
+            />
+          </li>
+          <li>
+            <Trans
+              i18nKey="taskDetail:review.stagedSuccess.step3"
+              values={{ cmd: 'git commit -m "your message"' }}
+              components={{ code: <code className="bg-background px-1 rounded" /> }}
+            />
+          </li>
         </ol>
       </div>
       {stagedProjectPath && (
@@ -104,7 +123,7 @@ export function StagedSuccessMessage({
             disabled={isOpening}
           >
             <ExternalLink className="mr-2 h-4 w-4" />
-            {isOpening ? 'Opening Terminal...' : 'Open Project in Terminal'}
+            {isOpening ? t('taskDetail:review.stagedSuccess.openingTerminal') : t('taskDetail:review.stagedSuccess.openTerminal')}
           </Button>
           {terminalError && (
             <div className="mt-2 text-sm text-red-600">

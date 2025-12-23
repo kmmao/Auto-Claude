@@ -1,0 +1,78 @@
+{
+    "buttons": {
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "edit": "Edit",
+        "close": "Close",
+        "refresh": "Refresh",
+        "view": "View",
+        "add": "Add",
+        "remove": "Remove",
+        "create": "Create",
+        "update": "Update",
+        "confirm": "Confirm",
+        "back": "Back",
+        "next": "Next",
+        "finish": "Finish",
+        "skip": "Skip",
+        "retry": "Retry",
+        "rename": "Rename",
+        "newChat": "New Chat",
+        "saveSettings": "Save Settings"
+    },
+    "status": {
+        "loading": "Loading...",
+        "saving": "Saving...",
+        "saved": "Saved",
+        "error": "Error",
+        "success": "Success",
+        "failed": "Failed",
+        "pending": "Pending",
+        "completed": "Completed",
+        "inProgress": "In Progress"
+    },
+    "common": {
+        "settings": "Settings",
+        "version": "Version",
+        "language": "Language",
+        "theme": "Theme",
+        "search": "Search",
+        "filter": "Filter",
+        "sort": "Sort",
+        "name": "Name",
+        "description": "Description",
+        "date": "Date",
+        "time": "Time",
+        "appName": "Auto Claude"
+    },
+    "messages": {
+        "noConversations": "No conversations yet",
+        "noResults": "No results",
+        "noData": "No data",
+        "confirmDelete": "Are you sure you want to delete?",
+        "cannotUndo": "This action cannot be undone.",
+        "saveSuccess": "Saved successfully",
+        "saveFailed": "Failed to save",
+        "deleteSuccess": "Deleted successfully",
+        "deleteFailed": "Failed to delete",
+        "dropHere": "Drop here"
+    },
+    "dialogs": {
+        "deleteConversation": "Delete conversation?",
+        "deleteConversationDesc": "This will permanently delete this conversation and all its messages.",
+        "cannotUndo": "This action cannot be undone."
+    },
+    "sidebar": {
+        "chatHistory": "Chat History"
+    },
+    "settings": {
+        "description": "Configure application and project settings",
+        "themeDesc": "Theme and visual preferences"
+    },
+    "placeholders": {
+        "search": "Search...",
+        "enterText": "Enter text...",
+        "selectOption": "Select option..."
+    }
+}

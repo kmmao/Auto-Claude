@@ -6,6 +6,7 @@
  */
 
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { RefreshCw, X } from 'lucide-react';
 import { Button } from './ui/button';
 
@@ -17,6 +18,8 @@ interface SwapNotification {
 }
 
 export function ProactiveSwapListener() {
+  const { t } = useTranslation(['common', 'settings']);
+
   const [notification, setNotification] = useState<SwapNotification | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 

@@ -1,0 +1,114 @@
+{
+  "header": {
+    "title": "创意构思",
+    "subtitle": "为您的项目生成 AI 驱动的功能创意",
+    "ideaCount": "{{count}} 个创意",
+    "selectedCount": "已选 {{count}} 个",
+    "tooltips": {
+      "clearSelection": "清除选择",
+      "selectAll": "全选",
+      "hideDismissed": "隐藏已忽略",
+      "showDismissed": "显示已忽略",
+      "hideArchived": "隐藏已归档",
+      "showArchived": "显示已归档",
+      "configure": "配置",
+      "addMore": "添加更多创意类型",
+      "dismissAll": "忽略所有创意",
+      "regenerate": "重新生成创意"
+    },
+    "buttons": {
+      "addMore": "添加更多"
+    }
+  },
+  "common": {
+    "noIdeas": "暂无创意可显示",
+    "impact": "影响",
+    "tooltips": {
+      "convertToTask": "转换为任务",
+      "dismiss": "忽略",
+      "goToTask": "前往任务"
+    }
+  },
+  "details": {
+    "rationale": "理由",
+    "actions": {
+      "convert": "转换为自动构建任务",
+      "dismiss": "忽略创意"
+    }
+  },
+  "envConfig": {
+    "title": "需要 Claude 认证",
+    "description": "生成 AI 驱动的功能创意需要 Claude Code OAuth 令牌。"
+  },
+  "emptyState": {
+    "title": "暂无创意",
+    "description": "根据您的项目上下文、现有模式和目标受众生成 AI 驱动的功能创意。",
+    "enabledTypes": "启用的创意类型",
+    "generate": "生成创意",
+    "tokenWarning": "未配置 Claude 令牌。生成时将提示您输入。"
+  },
+  "filters": {
+    "all": "全部",
+    "code": "代码",
+    "ui": "UI/UX",
+    "docs": "文档",
+    "security": "安全",
+    "performance": "性能"
+  },
+  "configDialog": {
+    "title": "创意配置",
+    "description": "配置要生成的创意类型",
+    "typesTitle": "创意类型",
+    "contextTitle": "上下文来源",
+    "includeRoadmap": "包含开发路线图上下文",
+    "includeKanban": "包含看板上下文"
+  },
+  "addMoreDialog": {
+    "title": "添加更多创意",
+    "description": "选择要生成的其他创意类型。现有的创意将被保留。",
+    "allGenerated": "您已生成所有类型的创意！",
+    "useRegenerate": "使用“重新生成”以刷新现有创意。",
+    "selectedCount": "已选 {{count}} 个",
+    "generateButton": "生成 {{count}} 种类型",
+    "generateButtonEmpty": "生成创意"
+  },
+  "progress": {
+    "title": "正在生成创意",
+    "complete": "{{complete}}/{{total}} 完成",
+    "showLogs": "显示日志",
+    "hideLogs": "隐藏日志",
+    "stop": "停止",
+    "stopping": "停止中...",
+    "stopTooltip": "停止生成",
+    "waiting": "等待开始...",
+    "failed": "未能为该类别生成创意",
+    "noIdeas": "该类别未生成任何创意",
+    "ideaCount": "{{count}} 个创意"
+  },
+  "types": {
+    "code_improvements": {
+      "label": "代码改进",
+      "description": "改进代码质量、可读性和结构的建议"
+    },
+    "ui_ux_improvements": {
+      "label": "UI/UX 改进",
+      "description": "增强用户界面和体验的创意"
+    },
+    "documentation_gaps": {
+      "label": "文档缺失",
+      "description": "识别缺失或不完整的文档"
+    },
+    "security_hardening": {
+      "label": "安全加固",
+      "description": "漏洞修复和安全最佳实践"
+    },
+    "performance_optimizations": {
+      "label": "性能优化",
+      "description": "速度和资源使用的优化机会"
+    },
+    "code_quality": {
+      "label": "代码质量",
+      "description": "改进代码结构和可维护性的建议"
+    }
+  }
+}

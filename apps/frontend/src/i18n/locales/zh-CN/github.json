@@ -1,0 +1,54 @@
+{
+  "header": {
+    "title": "GitHub Issues",
+    "openIssues_one": "{{count}} 个开启",
+    "openIssues_other": "{{count}} 个开启",
+    "searchPlaceholder": "搜索 Issues..."
+  },
+  "filters": {
+    "open": "开启",
+    "closed": "关闭",
+    "all": "全部"
+  },
+  "list": {
+    "emptySearch": "没有匹配搜索的 Issues",
+    "emptyMessage": "未找到 Issues",
+    "loading": "加载中...",
+    "notConnected": {
+      "title": "未连接 GitHub",
+      "description": "在项目设置中配置 GitHub 令牌和仓库以同步 Issues。",
+      "button": "打开设置"
+    }
+  },
+  "detail": {
+    "comments": "{{count}} 条评论",
+    "labels": "标签",
+    "milestone": "里程碑",
+    "assignees": "指派给",
+    "noDescription": "未提供描述。",
+    "viewTask": "查看任务",
+    "createTask": "创建任务",
+    "taskLinked": "任务已关联",
+    "taskId": "任务 ID：{{id}}",
+    "selectToView": "选择一个 Issue 以查看详情"
+  },
+  "investigation": {
+    "title": "从 Issue 创建任务",
+    "issueTitle": "Issue #{{number}}：{{title}}",
+    "description": "从此 GitHub Issue 创建任务。该任务将被添加到看板的“待办”列。",
+    "selectComments": "选择要包含的评论 ({{selected}}/{{total}})",
+    "selectAll": "全选",
+    "deselectAll": "取消全选",
+    "failedToLoadComments": "加载评论失败",
+    "noComments": "无评论（此 Issue 没有评论）",
+    "taskIncludes": "任务将包含：",
+    "includeTitle": "Issue 标题和描述",
+    "includeLink": "回溯到 GitHub Issue 的链接",
+    "includeMetadata": "来自 Issue 的标签和元数据",
+    "loading": "正在创建...",
+    "success": "任务已创建！在看板中查看。",
+    "done": "完成",
+    "cancel": "取消",
+    "create": "创建任务"
+  }
+}

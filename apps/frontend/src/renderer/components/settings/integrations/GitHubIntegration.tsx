@@ -3,11 +3,13 @@ import { Github, RefreshCw, KeyRound, Loader2, CheckCircle2, AlertCircle, User, 
 import { Input } from '../../ui/input';
 import { Label } from '../../ui/label';
 import { Switch } from '../../ui/switch';
+import { Trans } from 'react-i18next';
 import { Separator } from '../../ui/separator';
 import { Button } from '../../ui/button';
 import { GitHubOAuthFlow } from '../../project-settings/GitHubOAuthFlow';
 import { PasswordInput } from '../../project-settings/PasswordInput';
 import type { ProjectEnvConfig, GitHubSyncStatus } from '../../../../shared/types';
+import { useTranslation } from 'react-i18next';
 
 // Debug logging
 const DEBUG = process.env.NODE_ENV === 'development' || process.env.DEBUG === 'true';
@@ -50,6 +52,8 @@ export function GitHubIntegration({
   isCheckingGitHub,
   projectPath
 }: GitHubIntegrationProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const [authMode, setAuthMode] = useState<'manual' | 'oauth' | 'oauth-success'>('manual');
   const [oauthUsername, setOauthUsername] = useState<string | null>(null);
   const [repos, setRepos] = useState<GitHubRepo[]>([]);
@@ -81,7 +85,7 @@ export function GitHubIntegration({
     } else {
       debugLog('useEffect[branches] - Skipping fetchBranches (conditions not met)');
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [envConfig?.githubEnabled, projectPath]);
 
   const fetchBranches = async () => {
@@ -184,9 +188,9 @@ export function GitHubIntegration({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="space-y-0.5">
-          <Label className="font-normal text-foreground">Enable GitHub Issues</Label>
+          <Label className="font-normal text-foreground">{t("settings:project.github.enable")}</Label>
           <p className="text-xs text-muted-foreground">
-            Sync issues from GitHub and create tasks automatically
+            {t("settings:project.github.enableDesc")}
           </p>
         </div>
         <Switch
@@ -205,11 +209,11 @@ export function GitHubIntegration({
                   <div className="flex items-center gap-3">
                     <CheckCircle2 className="h-5 w-5 text-success" />
                     <div>
-                      <p className="text-sm font-medium text-success">Connected via GitHub CLI</p>
+                      <p className="text-sm font-medium text-success">{t("settings:project.github.status.connectedOAuth")}</p>
                       {oauthUsername && (
                         <p className="text-xs text-success/80 flex items-center gap-1 mt-0.5">
                           <User className="h-3 w-3" />
-                          Authenticated as {oauthUsername}
+                          {t("settings:project.github.status.authenticatedAs", { username: oauthUsername })}
                         </p>
                       )}
                     </div>
@@ -220,7 +224,7 @@ export function GitHubIntegration({
                     onClick={handleSwitchToManual}
                     className="text-xs"
                   >
-                    Use Different Token
+                    {t("settings:project.github.actions.useDifferentToken")}
                   </Button>
                 </div>
               </div>
@@ -242,13 +246,13 @@ export function GitHubIntegration({
           {authMode === 'oauth' && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium text-foreground">GitHub Authentication</Label>
+                <Label className="text-sm font-medium text-foreground">{t("settings:project.github.auth.title")}</Label>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={handleSwitchToManual}
                 >
-                  Use Manual Token
+                  {t("settings:project.github.actions.useManualToken")}
                 </Button>
               </div>
               <GitHubOAuthFlow
@@ -263,7 +267,7 @@ export function GitHubIntegration({
             <>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label className="text-sm font-medium text-foreground">Personal Access Token</Label>
+                  <Label className="text-sm font-medium text-foreground">{t("settings:project.github.auth.token")}</Label>
                   <Button
                     variant="outline"
                     size="sm"
@@ -271,19 +275,17 @@ export function GitHubIntegration({
                     className="gap-2"
                   >
                     <KeyRound className="h-3 w-3" />
-                    Use OAuth Instead
+                    {t("settings:project.github.actions.useOAuth")}
                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Create a token with <code className="px-1 bg-muted rounded">repo</code> scope from{' '}
-                  <a
-                    href="https://github.com/settings/tokens/new?scopes=repo&description=Auto-Build-UI"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-info hover:underline"
-                  >
-                    GitHub Settings
-                  </a>
+                  <Trans
+                    i18nKey="settings:project.github.auth.tokenHint"
+                    components={{
+                      1: <code className="px-1 bg-muted rounded" />,
+                      2: <a href="https://github.com/settings/tokens/new?scopes=repo&description=Auto-Build-UI" target="_blank" rel="noopener noreferrer" className="text-info hover:underline" />
+                    }}
+                  />
                 </p>
                 <PasswordInput
                   value={envConfig.githubToken || ''}
@@ -353,6 +355,7 @@ function RepositoryDropdown({
   onRefresh,
   onManualEntry
 }: RepositoryDropdownProps) {
+  const { t } = useTranslation(['common', 'settings']);
   const [isOpen, setIsOpen] = useState(false);
   const [filter, setFilter] = useState('');
 
@@ -366,7 +369,7 @@ function RepositoryDropdown({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <Label className="text-sm font-medium text-foreground">Repository</Label>
+        <Label className="text-sm font-medium text-foreground">{t("settings:project.github.repo.title")}</Label>
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
@@ -383,7 +386,7 @@ function RepositoryDropdown({
             onClick={onManualEntry}
             className="h-7 text-xs"
           >
-            Enter Manually
+            {t("settings:project.github.actions.enterManually")}
           </Button>
         </div>
       </div>
@@ -405,7 +408,7 @@ function RepositoryDropdown({
           {isLoading ? (
             <span className="flex items-center gap-2 text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" />
-              Loading repositories...
+              {t("settings:project.github.repo.loading")}
             </span>
           ) : selectedRepo ? (
             <span className="flex items-center gap-2">
@@ -417,7 +420,7 @@ function RepositoryDropdown({
               {selectedRepo}
             </span>
           ) : (
-            <span className="text-muted-foreground">Select a repository...</span>
+            <span className="text-muted-foreground">{t("settings:project.github.repo.select")}</span>
           )}
           <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${isOpen ? 'rotate-180' : ''}`} />
         </button>
@@ -427,7 +430,7 @@ function RepositoryDropdown({
             {/* Search filter */}
             <div className="p-2 border-b border-border">
               <Input
-                placeholder="Search repositories..."
+                placeholder={t("settings:project.github.repo.search")}
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
                 className="h-8 text-sm"
@@ -439,7 +442,7 @@ function RepositoryDropdown({
             <div className="max-h-48 overflow-y-auto">
               {filteredRepos.length === 0 ? (
                 <div className="px-3 py-4 text-sm text-muted-foreground text-center">
-                  {filter ? 'No matching repositories' : 'No repositories found'}
+                  {filter ? t("settings:project.github.repo.noMatch") : t("settings:project.github.repo.none")}
                 </div>
               ) : (
                 filteredRepos.map((repo) => (
@@ -451,9 +454,8 @@ function RepositoryDropdown({
                       setIsOpen(false);
                       setFilter('');
                     }}
-                    className={`w-full px-3 py-2 text-left hover:bg-accent flex items-start gap-2 ${
-                      repo.fullName === selectedRepo ? 'bg-accent' : ''
-                    }`}
+                    className={`w-full px-3 py-2 text-left hover:bg-accent flex items-start gap-2 ${repo.fullName === selectedRepo ? 'bg-accent' : ''
+                      }`}
                   >
                     {repo.isPrivate ? (
                       <Lock className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
@@ -476,7 +478,11 @@ function RepositoryDropdown({
 
       {selectedRepo && (
         <p className="text-xs text-muted-foreground">
-          Selected: <code className="px-1 bg-muted rounded">{selectedRepo}</code>
+          <Trans
+            i18nKey="settings:project.github.repo.selected"
+            values={{ repo: selectedRepo }}
+            components={{ 1: <code className="px-1 bg-muted rounded" /> }}
+          />
         </p>
       )}
     </div>
@@ -489,11 +495,15 @@ interface RepositoryInputProps {
 }
 
 function RepositoryInput({ value, onChange }: RepositoryInputProps) {
+  const { t } = useTranslation(['common', 'settings']);
   return (
     <div className="space-y-2">
-      <Label className="text-sm font-medium text-foreground">Repository</Label>
+      <Label className="text-sm font-medium text-foreground">{t("settings:project.github.repo.title")}</Label>
       <p className="text-xs text-muted-foreground">
-        Format: <code className="px-1 bg-muted rounded">owner/repo</code> (e.g., facebook/react)
+        <Trans
+          i18nKey="settings:project.github.auth.repoFormat"
+          components={{ 1: <code className="px-1 bg-muted rounded" /> }}
+        />
       </p>
       <Input
         placeholder="owner/repository"
@@ -510,16 +520,17 @@ interface ConnectionStatusProps {
 }
 
 function ConnectionStatus({ isChecking, connectionStatus }: ConnectionStatusProps) {
+  const { t } = useTranslation(['common', 'settings']);
   return (
     <div className="rounded-lg border border-border bg-muted/30 p-3">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-foreground">Connection Status</p>
+          <p className="text-sm font-medium text-foreground">{t("settings:project.github.status.title")}</p>
           <p className="text-xs text-muted-foreground">
-            {isChecking ? 'Checking...' :
+            {isChecking ? t("settings:project.github.status.checking") :
               connectionStatus?.connected
-                ? `Connected to ${connectionStatus.repoFullName}`
-                : connectionStatus?.error || 'Not connected'}
+                ? t("settings:project.github.status.connected", { repo: connectionStatus.repoFullName })
+                : connectionStatus?.error || t("settings:project.github.status.notConnected")}
           </p>
           {connectionStatus?.connected && connectionStatus.repoDescription && (
             <p className="text-xs text-muted-foreground mt-1 italic">
@@ -540,14 +551,15 @@ function ConnectionStatus({ isChecking, connectionStatus }: ConnectionStatusProp
 }
 
 function IssuesAvailableInfo() {
+  const { t } = useTranslation(['common', 'settings']);
   return (
     <div className="rounded-lg border border-info/30 bg-info/5 p-3">
       <div className="flex items-start gap-3">
         <Github className="h-5 w-5 text-info mt-0.5" />
         <div className="flex-1">
-          <p className="text-sm font-medium text-foreground">Issues Available</p>
+          <p className="text-sm font-medium text-foreground">{t("settings:project.github.issues.title")}</p>
           <p className="text-xs text-muted-foreground mt-1">
-            Access GitHub Issues from the sidebar to view, investigate, and create tasks from issues.
+            {t("settings:project.github.issues.description")}
           </p>
         </div>
       </div>
@@ -561,15 +573,16 @@ interface AutoSyncToggleProps {
 }
 
 function AutoSyncToggle({ enabled, onToggle }: AutoSyncToggleProps) {
+  const { t } = useTranslation(['common', 'settings']);
   return (
     <div className="flex items-center justify-between">
       <div className="space-y-0.5">
         <div className="flex items-center gap-2">
           <RefreshCw className="h-4 w-4 text-info" />
-          <Label className="font-normal text-foreground">Auto-Sync on Load</Label>
+          <Label className="font-normal text-foreground">{t("settings:project.github.autoSync.title")}</Label>
         </div>
         <p className="text-xs text-muted-foreground pl-6">
-          Automatically fetch issues when the project loads
+          {t("settings:project.github.autoSync.description")}
         </p>
       </div>
       <Switch checked={enabled} onCheckedChange={onToggle} />
@@ -594,6 +607,7 @@ function BranchSelector({
   onSelect,
   onRefresh
 }: BranchSelectorProps) {
+  const { t } = useTranslation(['common', 'settings']);
   const [isOpen, setIsOpen] = useState(false);
   const [filter, setFilter] = useState('');
 
@@ -607,10 +621,10 @@ function BranchSelector({
         <div className="space-y-0.5">
           <div className="flex items-center gap-2">
             <GitBranch className="h-4 w-4 text-info" />
-            <Label className="text-sm font-medium text-foreground">Default Branch</Label>
+            <Label className="text-sm font-medium text-foreground">{t("settings:project.github.branch.title")}</Label>
           </div>
           <p className="text-xs text-muted-foreground pl-6">
-            Base branch for creating task worktrees
+            {t("settings:project.github.branch.description")}
           </p>
         </div>
         <Button
@@ -641,7 +655,7 @@ function BranchSelector({
           {isLoading ? (
             <span className="flex items-center gap-2 text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" />
-              Loading branches...
+              {t("settings:project.github.branch.loading")}
             </span>
           ) : selectedBranch ? (
             <span className="flex items-center gap-2">
@@ -649,7 +663,7 @@ function BranchSelector({
               {selectedBranch}
             </span>
           ) : (
-            <span className="text-muted-foreground">Auto-detect (main/master)</span>
+            <span className="text-muted-foreground">{t("settings:project.github.branch.autoDetect")}</span>
           )}
           <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${isOpen ? 'rotate-180' : ''}`} />
         </button>
@@ -659,7 +673,7 @@ function BranchSelector({
             {/* Search filter */}
             <div className="p-2 border-b border-border">
               <Input
-                placeholder="Search branches..."
+                placeholder={t("settings:project.github.branch.search")}
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
                 className="h-8 text-sm"
@@ -675,18 +689,17 @@ function BranchSelector({
                 setIsOpen(false);
                 setFilter('');
               }}
-              className={`w-full px-3 py-2 text-left hover:bg-accent flex items-center gap-2 ${
-                !selectedBranch ? 'bg-accent' : ''
-              }`}
+              className={`w-full px-3 py-2 text-left hover:bg-accent flex items-center gap-2 ${!selectedBranch ? 'bg-accent' : ''
+                }`}
             >
-              <span className="text-sm text-muted-foreground italic">Auto-detect (main/master)</span>
+              <span className="text-sm text-muted-foreground italic">{t("settings:project.github.branch.autoDetect")}</span>
             </button>
 
             {/* Branch list */}
             <div className="max-h-40 overflow-y-auto border-t border-border">
               {filteredBranches.length === 0 ? (
                 <div className="px-3 py-4 text-sm text-muted-foreground text-center">
-                  {filter ? 'No matching branches' : 'No branches found'}
+                  {filter ? t("settings:project.github.branch.noMatch") : t("settings:project.github.branch.none")}
                 </div>
               ) : (
                 filteredBranches.map((branch) => (
@@ -698,9 +711,8 @@ function BranchSelector({
                       setIsOpen(false);
                       setFilter('');
                     }}
-                    className={`w-full px-3 py-2 text-left hover:bg-accent flex items-center gap-2 ${
-                      branch === selectedBranch ? 'bg-accent' : ''
-                    }`}
+                    className={`w-full px-3 py-2 text-left hover:bg-accent flex items-center gap-2 ${branch === selectedBranch ? 'bg-accent' : ''
+                      }`}
                   >
                     <GitBranch className="h-3 w-3 text-muted-foreground" />
                     <span className="text-sm">{branch}</span>
@@ -714,7 +726,11 @@ function BranchSelector({
 
       {selectedBranch && (
         <p className="text-xs text-muted-foreground pl-6">
-          All new tasks will branch from <code className="px-1 bg-muted rounded">{selectedBranch}</code>
+          <Trans
+            i18nKey="settings:project.github.branch.hint"
+            values={{ branch: selectedBranch }}
+            components={{ 1: <code className="px-1 bg-muted rounded" /> }}
+          />
         </p>
       )}
     </div>

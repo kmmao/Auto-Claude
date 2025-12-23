@@ -1,4 +1,5 @@
 import type { Task, WorktreeStatus, WorktreeDiff, MergeConflict, MergeStats, GitConflictInfo } from '../../../shared/types';
+import { useTranslation } from 'react-i18next';
 import {
   StagedSuccessMessage,
   WorkspaceStatus,
@@ -81,6 +82,8 @@ export function TaskReview({
   onLoadMergePreview,
   onClose
 }: TaskReviewProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   return (
     <div className="space-y-4">
       {/* Section divider */}

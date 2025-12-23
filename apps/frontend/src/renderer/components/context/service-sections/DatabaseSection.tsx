@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Database, ChevronDown, ChevronRight } from 'lucide-react';
 import { Badge } from '../../ui/badge';
+import { useTranslation } from 'react-i18next';
 import {
   Collapsible,
   CollapsibleContent,
@@ -13,6 +14,8 @@ interface DatabaseSectionProps {
 }
 
 export function DatabaseSection({ database }: DatabaseSectionProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const [expanded, setExpanded] = useState(false);
 
   if (!database || database.total_models === 0) {

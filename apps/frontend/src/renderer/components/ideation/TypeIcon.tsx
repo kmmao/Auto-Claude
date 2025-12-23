@@ -7,6 +7,7 @@ import {
   Gauge,
   Code2
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { IdeationType } from '../../../shared/types';
 
 interface TypeIconProps {
@@ -14,6 +15,8 @@ interface TypeIconProps {
 }
 
 export function TypeIcon({ type }: TypeIconProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   switch (type) {
     case 'code_improvements':
       return <Zap className="h-4 w-4" />;

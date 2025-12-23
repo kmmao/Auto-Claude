@@ -1,5 +1,6 @@
 import { Settings2, Save, Loader2 } from 'lucide-react';
 import { LinearTaskImportModal } from '../LinearTaskImportModal';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -24,6 +25,8 @@ interface ProjectSettingsProps {
 }
 
 export function ProjectSettings({ project, open, onOpenChange }: ProjectSettingsProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const hook = useProjectSettings(project, open);
 
   const {
@@ -160,9 +163,7 @@ export function ProjectSettings({ project, open, onOpenChange }: ProjectSettings
         </div>
 
         <DialogFooter className="shrink-0">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>{t("common:buttons.cancel")}</Button>
           <Button onClick={() => handleSave(() => onOpenChange(false))} disabled={isSaving || isSavingEnv}>
             {isSaving || isSavingEnv ? (
               <>

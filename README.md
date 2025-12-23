@@ -83,6 +83,33 @@ AI-assisted feature planning with competitor analysis and audience targeting.
 
 ---
 
+## Internationalization (i18n)
+
+Auto Claude supports multiple languages for the user interface:
+
+| Language | Code | Status |
+|----------|------|--------|
+| English | `en` | ✅ Complete |
+| 简体中文 (Simplified Chinese) | `zh-CN` | ✅ 92% Complete |
+
+### Switching Languages
+
+1. Open **Settings** (gear icon in sidebar)
+2. Navigate to the **Paths** tab
+3. Select your preferred language from the **Language / 语言** dropdown
+4. The interface will update immediately
+
+Your language preference is automatically saved and will persist across app restarts.
+
+### Contributing Translations
+
+We welcome contributions to improve existing translations or add new languages! See [apps/frontend/docs/README.md](apps/frontend/docs/README.md) for:
+- Translation guidelines
+- Available tools for extracting and managing translations
+- Step-by-step instructions for adding new languages
+
+---
+
 ## Project Structure
 
 ```

@@ -5,6 +5,7 @@
  */
 
 import { Download, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -31,6 +32,8 @@ export function LinearTaskImportModalRefactored({
   onOpenChange,
   onImportComplete
 }: LinearTaskImportModalProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   // Use the orchestration hook to manage all state and handlers
   const {
     teams,

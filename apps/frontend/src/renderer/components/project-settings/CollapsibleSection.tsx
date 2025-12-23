@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface CollapsibleSectionProps {
   title: string;
@@ -18,6 +19,8 @@ export function CollapsibleSection({
   badge,
   children,
 }: CollapsibleSectionProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   return (
     <section className="space-y-3">
       <button

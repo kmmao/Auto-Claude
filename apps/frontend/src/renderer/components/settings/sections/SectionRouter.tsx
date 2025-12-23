@@ -7,6 +7,7 @@ import { LinearIntegration } from '../integrations/LinearIntegration';
 import { GitHubIntegration } from '../integrations/GitHubIntegration';
 import { InitializationGuard } from '../common/InitializationGuard';
 import type { ProjectSettingsSection } from '../ProjectSettingsContent';
+import { useTranslation } from 'react-i18next';
 
 interface SectionRouterProps {
   activeSection: ProjectSettingsSection;
@@ -75,12 +76,14 @@ export function SectionRouter({
   handleClaudeSetup,
   onOpenLinearImport
 }: SectionRouterProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   switch (activeSection) {
     case 'general':
       return (
         <SettingsSection
-          title="General"
-          description={`Configure Auto-Build, agent model, and notifications for ${project.name}`}
+          title={t("settings:project.general.title")}
+          description={t("settings:project.general.description", { name: project.name })}
         >
           <GeneralSettings
             project={project}
@@ -98,13 +101,13 @@ export function SectionRouter({
     case 'claude':
       return (
         <SettingsSection
-          title="Claude Authentication"
-          description="Configure Claude CLI authentication for this project"
+          title={t("settings:project.claudeAuth.title")}
+          description={t("settings:project.claudeAuth.description")}
         >
           <InitializationGuard
             initialized={!!project.autoBuildPath}
-            title="Claude Authentication"
-            description="Configure Claude CLI authentication"
+            title={t("settings:project.claudeAuth.title")}
+            description={t("settings:project.claudeAuth.description")}
           >
             <EnvironmentSettings
               envConfig={envConfig}
@@ -117,7 +120,7 @@ export function SectionRouter({
               showClaudeToken={showClaudeToken}
               setShowClaudeToken={setShowClaudeToken}
               expanded={true}
-              onToggle={() => {}}
+              onToggle={() => { }}
             />
           </InitializationGuard>
         </SettingsSection>
@@ -126,13 +129,13 @@ export function SectionRouter({
     case 'linear':
       return (
         <SettingsSection
-          title="Linear Integration"
-          description="Connect to Linear for issue tracking and task import"
+          title={t("settings:project.linear.title")}
+          description={t("settings:project.linear.description")}
         >
           <InitializationGuard
             initialized={!!project.autoBuildPath}
-            title="Linear Integration"
-            description="Sync with Linear for issue tracking"
+            title={t("settings:project.linear.title")}
+            description={t("settings:project.linear.description")}
           >
             <LinearIntegration
               envConfig={envConfig}
@@ -150,13 +153,13 @@ export function SectionRouter({
     case 'github':
       return (
         <SettingsSection
-          title="GitHub Integration"
-          description="Connect to GitHub for issue tracking"
+          title={t("settings:project.github.title")}
+          description={t("settings:project.github.description")}
         >
           <InitializationGuard
             initialized={!!project.autoBuildPath}
-            title="GitHub Integration"
-            description="Sync with GitHub Issues"
+            title={t("settings:project.github.title")}
+            description={t("settings:project.github.description")}
           >
             <GitHubIntegration
               envConfig={envConfig}
@@ -174,13 +177,13 @@ export function SectionRouter({
     case 'memory':
       return (
         <SettingsSection
-          title="Memory"
-          description="Configure persistent cross-session memory for agents"
+          title={t("settings:project.memory.title")}
+          description={t("settings:project.memory.description")}
         >
           <InitializationGuard
             initialized={!!project.autoBuildPath}
-            title="Memory"
-            description="Configure persistent memory"
+            title={t("settings:project.memory.title")}
+            description={t("settings:project.memory.description")}
           >
             <SecuritySettings
               envConfig={envConfig}
@@ -190,7 +193,7 @@ export function SectionRouter({
               showOpenAIKey={showOpenAIKey}
               setShowOpenAIKey={setShowOpenAIKey}
               expanded={true}
-              onToggle={() => {}}
+              onToggle={() => { }}
             />
           </InitializationGuard>
         </SettingsSection>

@@ -1,0 +1,114 @@
+{
+  "header": {
+    "title": "Ideation",
+    "subtitle": "AI-generated feature ideas for your project",
+    "ideaCount": "{{count}} ideas",
+    "selectedCount": "{{count}} selected",
+    "tooltips": {
+      "clearSelection": "Clear selection",
+      "selectAll": "Select all",
+      "hideDismissed": "Hide dismissed",
+      "showDismissed": "Show dismissed",
+      "hideArchived": "Hide archived",
+      "showArchived": "Show archived",
+      "configure": "Configure",
+      "addMore": "Add more ideation types",
+      "dismissAll": "Dismiss all ideas",
+      "regenerate": "Regenerate Ideas"
+    },
+    "buttons": {
+      "addMore": "Add More"
+    }
+  },
+  "common": {
+    "noIdeas": "No ideas to display",
+    "impact": "impact",
+    "tooltips": {
+      "convertToTask": "Convert to Task",
+      "dismiss": "Dismiss",
+      "goToTask": "Go to Task"
+    }
+  },
+  "details": {
+    "rationale": "Rationale",
+    "actions": {
+      "convert": "Convert to Auto-Build Task",
+      "dismiss": "Dismiss Idea"
+    }
+  },
+  "envConfig": {
+    "title": "Claude Authentication Required",
+    "description": "A Claude Code OAuth token is required to generate AI-powered feature ideas."
+  },
+  "emptyState": {
+    "title": "No Ideas Yet",
+    "description": "Generate AI-powered feature ideas based on your project's context, existing patterns, and target audience.",
+    "enabledTypes": "Enabled Ideation Types",
+    "generate": "Generate Ideas",
+    "tokenWarning": "Claude token not configured. You'll be prompted to enter it when generating."
+  },
+  "filters": {
+    "all": "All",
+    "code": "Code",
+    "ui": "UI/UX",
+    "docs": "Docs",
+    "security": "Security",
+    "performance": "Performance"
+  },
+  "configDialog": {
+    "title": "Ideation Configuration",
+    "description": "Configure which types of ideas to generate",
+    "typesTitle": "Ideation Types",
+    "contextTitle": "Context Sources",
+    "includeRoadmap": "Include Roadmap Context",
+    "includeKanban": "Include Kanban Context"
+  },
+  "addMoreDialog": {
+    "title": "Add More Ideas",
+    "description": "Select additional ideation types to generate. Your existing ideas will be preserved.",
+    "allGenerated": "You've already generated all ideation types!",
+    "useRegenerate": "Use \"Regenerate\" to refresh existing ideas.",
+    "selectedCount": "{{count}} selected",
+    "generateButton": "Generate {{count}} Types",
+    "generateButtonEmpty": "Generate Ideas"
+  },
+  "progress": {
+    "title": "Generating Ideas",
+    "complete": "{{complete}}/{{total}} complete",
+    "showLogs": "Show Logs",
+    "hideLogs": "Hide Logs",
+    "stop": "Stop",
+    "stopping": "Stopping...",
+    "stopTooltip": "Stop generation",
+    "waiting": "Waiting to start...",
+    "failed": "Failed to generate ideas for this category",
+    "noIdeas": "No ideas generated for this category",
+    "ideaCount": "{{count}} ideas"
+  },
+  "types": {
+    "code_improvements": {
+      "label": "Code Improvements",
+      "description": "Suggestions to improve code quality, readability, and structure"
+    },
+    "ui_ux_improvements": {
+      "label": "UI/UX Improvements",
+      "description": "Ideas to enhance user interface and experience"
+    },
+    "documentation_gaps": {
+      "label": "Documentation",
+      "description": "Identify missing or incomplete documentation"
+    },
+    "security_hardening": {
+      "label": "Security Hardening",
+      "description": "Vulnerability fixes and security best practices"
+    },
+    "performance_optimizations": {
+      "label": "Performance",
+      "description": "Optimization opportunities for speed and resource usage"
+    },
+    "code_quality": {
+      "label": "Code Quality",
+      "description": "Suggestions to improve code structure and maintainability"
+    }
+  }
+}

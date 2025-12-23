@@ -3,6 +3,7 @@ import { File, Folder, ChevronRight } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useFileExplorerStore } from '../stores/file-explorer-store';
 import type { FileNode } from '../../shared/types';
+import { useTranslation } from 'react-i18next';
 
 interface FileAutocompleteProps {
   query: string;
@@ -25,6 +26,8 @@ export function FileAutocomplete({
   onClose,
   maxResults = 10
 }: FileAutocompleteProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const [selectedIndex, setSelectedIndex] = useState(0);
   const listRef = useRef<HTMLDivElement>(null);
   const { files, loadDirectory } = useFileExplorerStore();

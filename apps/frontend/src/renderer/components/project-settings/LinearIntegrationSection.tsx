@@ -9,6 +9,7 @@ import { Input } from '../ui/input';
 import { Switch } from '../ui/switch';
 import { Separator } from '../ui/separator';
 import type { ProjectEnvConfig, LinearSyncStatus } from '../../../shared/types';
+import { useTranslation } from 'react-i18next';
 
 interface LinearIntegrationSectionProps {
   isExpanded: boolean;
@@ -29,6 +30,8 @@ export function LinearIntegrationSection({
   isCheckingLinear,
   onOpenImportModal,
 }: LinearIntegrationSectionProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const badge = envConfig.linearEnabled ? (
     <StatusBadge status="success" label="Enabled" />
   ) : null;

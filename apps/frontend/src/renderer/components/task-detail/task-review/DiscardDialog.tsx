@@ -1,4 +1,5 @@
 import { FolderX, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,31 +32,32 @@ export function DiscardDialog({
   onOpenChange,
   onDiscard
 }: DiscardDialogProps) {
+  const { t } = useTranslation(['common', 'taskDetail']);
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
             <FolderX className="h-5 w-5 text-destructive" />
-            Discard Build
+            {t('taskDetail:discardDialog.title')}
           </AlertDialogTitle>
           <AlertDialogDescription asChild>
             <div className="text-sm text-muted-foreground space-y-3">
               <p>
-                Are you sure you want to discard all changes for <strong className="text-foreground">"{task.title}"</strong>?
+                {t('taskDetail:discardDialog.description')}
               </p>
               <p className="text-destructive">
-                This will permanently delete the isolated workspace and all uncommitted changes.
-                The task will be moved back to Planning status.
+                {t('taskDetail:discardDialog.warning')}
               </p>
               {worktreeStatus?.exists && (
                 <div className="bg-muted/50 rounded-lg p-3 text-sm">
                   <div className="flex justify-between mb-1">
-                    <span className="text-muted-foreground">Files changed:</span>
+                    <span className="text-muted-foreground">{t('taskDetail:discardDialog.filesChanged')}</span>
                     <span>{worktreeStatus.filesChanged || 0}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Lines:</span>
+                    <span className="text-muted-foreground">{t('taskDetail:discardDialog.lines')}</span>
                     <span className="text-success">+{worktreeStatus.additions || 0}</span>
                     <span className="text-destructive">-{worktreeStatus.deletions || 0}</span>
                   </div>
@@ -65,7 +67,7 @@ export function DiscardDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDiscarding}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={isDiscarding}>{t('taskDetail:discardDialog.cancel')}</AlertDialogCancel>
           <AlertDialogAction
             onClick={(e) => {
               e.preventDefault();
@@ -77,12 +79,12 @@ export function DiscardDialog({
             {isDiscarding ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Discarding...
+                {t('taskDetail:actions.deleting')}
               </>
             ) : (
               <>
                 <FolderX className="mr-2 h-4 w-4" />
-                Discard Build
+                {t('taskDetail:discardDialog.action')}
               </>
             )}
           </AlertDialogAction>
@@ -91,3 +93,4 @@ export function DiscardDialog({
     </AlertDialog>
   );
 }
+

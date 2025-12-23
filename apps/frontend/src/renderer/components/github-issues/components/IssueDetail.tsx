@@ -3,6 +3,7 @@ import { Badge } from '../../ui/badge';
 import { Button } from '../../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
 import { ScrollArea } from '../../ui/scroll-area';
+import { useTranslation } from 'react-i18next';
 import {
   GITHUB_ISSUE_STATE_COLORS,
   GITHUB_ISSUE_STATE_LABELS,
@@ -12,6 +13,8 @@ import { formatDate } from '../utils';
 import type { IssueDetailProps } from '../types';
 
 export function IssueDetail({ issue, onInvestigate, investigationResult, linkedTaskId, onViewTask }: IssueDetailProps) {
+  const { t } = useTranslation(['common', 'settings', 'github']);
+
   // Determine which task ID to use - either already linked or just created
   const taskId = linkedTaskId || (investigationResult?.success ? investigationResult.taskId : undefined);
   const hasLinkedTask = !!taskId;
@@ -61,7 +64,7 @@ export function IssueDetail({ issue, onInvestigate, investigationResult, linkedT
           {issue.commentsCount > 0 && (
             <div className="flex items-center gap-1">
               <MessageCircle className="h-4 w-4" />
-              {issue.commentsCount} comments
+              {t('github:detail.comments', { count: issue.commentsCount })}
             </div>
           )}
         </div>
@@ -90,12 +93,12 @@ export function IssueDetail({ issue, onInvestigate, investigationResult, linkedT
           {hasLinkedTask ? (
             <Button onClick={handleViewTask} className="flex-1" variant="secondary">
               <Eye className="h-4 w-4 mr-2" />
-              View Task
+              {t('github:detail.viewTask')}
             </Button>
           ) : (
             <Button onClick={onInvestigate} className="flex-1">
               <Sparkles className="h-4 w-4 mr-2" />
-              Create Task
+              {t('github:detail.createTask')}
             </Button>
           )}
         </div>
@@ -106,7 +109,7 @@ export function IssueDetail({ issue, onInvestigate, investigationResult, linkedT
             <CardHeader className="pb-2">
               <CardTitle className="text-sm flex items-center gap-2 text-success">
                 <CheckCircle2 className="h-4 w-4" />
-                Task Linked
+                {t('github:detail.taskLinked')}
               </CardTitle>
             </CardHeader>
             <CardContent className="text-sm space-y-2">
@@ -118,14 +121,14 @@ export function IssueDetail({ issue, onInvestigate, investigationResult, linkedT
                       {investigationResult.analysis.estimatedComplexity}
                     </Badge>
                     <span className="text-xs text-muted-foreground">
-                      Task ID: {taskId}
+                      {t('github:detail.taskId', { id: taskId })}
                     </span>
                   </div>
                 </>
               ) : (
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-muted-foreground">
-                    Task ID: {taskId}
+                    {t('github:detail.taskId', { id: taskId })}
                   </span>
                 </div>
               )}
@@ -136,7 +139,7 @@ export function IssueDetail({ issue, onInvestigate, investigationResult, linkedT
         {/* Body */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Description</CardTitle>
+            <CardTitle className="text-sm">{t("common:common.description")}</CardTitle>
           </CardHeader>
           <CardContent>
             {issue.body ? (
@@ -147,7 +150,7 @@ export function IssueDetail({ issue, onInvestigate, investigationResult, linkedT
               </div>
             ) : (
               <p className="text-sm text-muted-foreground italic">
-                No description provided.
+                {t('github:detail.noDescription')}
               </p>
             )}
           </CardContent>
@@ -157,7 +160,7 @@ export function IssueDetail({ issue, onInvestigate, investigationResult, linkedT
         {issue.assignees.length > 0 && (
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm">Assignees</CardTitle>
+              <CardTitle className="text-sm">{t('github:detail.assignees')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
@@ -176,7 +179,7 @@ export function IssueDetail({ issue, onInvestigate, investigationResult, linkedT
         {issue.milestone && (
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm">Milestone</CardTitle>
+              <CardTitle className="text-sm">{t('github:detail.milestone')}</CardTitle>
             </CardHeader>
             <CardContent>
               <Badge variant="outline">{issue.milestone.title}</Badge>

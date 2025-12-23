@@ -3,6 +3,7 @@ import { FolderOpen, FolderPlus, ChevronRight } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -24,6 +25,8 @@ interface AddProjectModalProps {
 }
 
 export function AddProjectModal({ open, onOpenChange, onProjectAdded }: AddProjectModalProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const [step, setStep] = useState<ModalStep>('choose');
   const [projectName, setProjectName] = useState('');
   const [projectLocation, setProjectLocation] = useState('');
@@ -277,9 +280,7 @@ export function AddProjectModal({ open, onOpenChange, onProjectAdded }: AddProje
       </div>
 
       <DialogFooter>
-        <Button variant="outline" onClick={() => setStep('choose')} disabled={isCreating}>
-          Back
-        </Button>
+        <Button variant="outline" onClick={() => setStep('choose')} disabled={isCreating}>{t("common:buttons.back")}</Button>
         <Button onClick={handleCreateProject} disabled={isCreating}>
           {isCreating ? 'Creating...' : 'Create Project'}
         </Button>

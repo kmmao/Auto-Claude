@@ -4,6 +4,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Switch } from '../ui/switch';
 import { SettingsSection } from './SettingsSection';
 import { AgentProfileSettings } from './AgentProfileSettings';
+import { LanguageSelector } from '../LanguageSelector';
+import { useTranslation } from 'react-i18next';
 import {
   AVAILABLE_MODELS,
   THINKING_LEVELS,
@@ -23,6 +25,8 @@ interface GeneralSettingsProps {
  * General settings component for agent configuration and paths
  */
 export function GeneralSettings({ settings, onSettingsChange, section }: GeneralSettingsProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   if (section === 'agent') {
     return (
       <div className="space-y-8">
@@ -31,13 +35,13 @@ export function GeneralSettings({ settings, onSettingsChange, section }: General
 
         {/* Other Agent Settings */}
         <SettingsSection
-          title="Other Agent Settings"
-          description="Additional agent configuration options"
+          title={t("settings:agent.features.title")}
+          description={t("settings:agent.features.description")}
         >
           <div className="space-y-6">
             <div className="space-y-3">
-              <Label htmlFor="agentFramework" className="text-sm font-medium text-foreground">Agent Framework</Label>
-              <p className="text-sm text-muted-foreground">The coding framework used for autonomous tasks</p>
+              <Label htmlFor="agentFramework" className="text-sm font-medium text-foreground">{t("settings:agent.framework.title")}</Label>
+              <p className="text-sm text-muted-foreground">{t("settings:agent.framework.description")}</p>
               <Select
                 value={settings.agentFramework}
                 onValueChange={(value) => onSettingsChange({ ...settings, agentFramework: value })}
@@ -54,10 +58,10 @@ export function GeneralSettings({ settings, onSettingsChange, section }: General
               <div className="flex items-center justify-between max-w-md">
                 <div className="space-y-1">
                   <Label htmlFor="autoNameTerminals" className="text-sm font-medium text-foreground">
-                    AI Terminal Naming
+                    {t("settings:agent.naming.title")}
                   </Label>
                   <p className="text-sm text-muted-foreground">
-                    Automatically name terminals based on commands (uses Haiku)
+                    {t("settings:agent.naming.description")}
                   </p>
                 </div>
                 <Switch
@@ -68,12 +72,11 @@ export function GeneralSettings({ settings, onSettingsChange, section }: General
               </div>
             </div>
 
-            {/* Feature Model Configuration */}
             <div className="space-y-4 pt-4 border-t border-border">
               <div className="space-y-1">
-                <Label className="text-sm font-medium text-foreground">Feature Model Settings</Label>
+                <Label className="text-sm font-medium text-foreground">{t("settings:agent.model.title")}</Label>
                 <p className="text-sm text-muted-foreground">
-                  Model and thinking level for Insights, Ideation, and Roadmap
+                  {t("settings:agent.model.description")}
                 </p>
               </div>
 
@@ -85,16 +88,16 @@ export function GeneralSettings({ settings, onSettingsChange, section }: General
                   <div key={feature} className="space-y-2">
                     <div className="flex items-center justify-between">
                       <Label className="text-sm font-medium text-foreground">
-                        {FEATURE_LABELS[feature].label}
+                        {t(`settings:agent.features.${feature}.label`)}
                       </Label>
                       <span className="text-xs text-muted-foreground">
-                        {FEATURE_LABELS[feature].description}
+                        {t(`settings:agent.features.${feature}.description`)}
                       </span>
                     </div>
                     <div className="grid grid-cols-2 gap-3 max-w-md">
                       {/* Model Select */}
                       <div className="space-y-1">
-                        <Label className="text-xs text-muted-foreground">Model</Label>
+                        <Label className="text-xs text-muted-foreground">{t("settings:agent.profile.model")}</Label>
                         <Select
                           value={featureModels[feature]}
                           onValueChange={(value) => {
@@ -116,7 +119,7 @@ export function GeneralSettings({ settings, onSettingsChange, section }: General
                       </div>
                       {/* Thinking Level Select */}
                       <div className="space-y-1">
-                        <Label className="text-xs text-muted-foreground">Thinking Level</Label>
+                        <Label className="text-xs text-muted-foreground">{t("settings:agent.profile.thinkingLevel")}</Label>
                         <Select
                           value={featureThinking[feature]}
                           onValueChange={(value) => {
@@ -130,7 +133,7 @@ export function GeneralSettings({ settings, onSettingsChange, section }: General
                           <SelectContent>
                             {THINKING_LEVELS.map((level) => (
                               <SelectItem key={level.value} value={level.value}>
-                                {level.label}
+                                {t(`settings:agent.thinking.${level.value}.label`)}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -150,27 +153,32 @@ export function GeneralSettings({ settings, onSettingsChange, section }: General
   // paths section
   return (
     <SettingsSection
-      title="Paths"
-      description="Configure executable and framework paths"
+      title={t("settings:paths.title")}
+      description={t("settings:paths.description")}
     >
       <div className="space-y-6">
+        {/* Language Selector - First setting */}
+        <div className="space-y-3 pb-6 border-b border-border">
+          <LanguageSelector />
+        </div>
+
         <div className="space-y-3">
-          <Label htmlFor="pythonPath" className="text-sm font-medium text-foreground">Python Path</Label>
-          <p className="text-sm text-muted-foreground">Path to Python executable (leave empty for default)</p>
+          <Label htmlFor="pythonPath" className="text-sm font-medium text-foreground">{t("settings:paths.python.title")}</Label>
+          <p className="text-sm text-muted-foreground">{t("settings:paths.python.description")}</p>
           <Input
             id="pythonPath"
-            placeholder="python3 (default)"
+            placeholder={t("settings:paths.python.placeholder")}
             className="w-full max-w-lg"
             value={settings.pythonPath || ''}
             onChange={(e) => onSettingsChange({ ...settings, pythonPath: e.target.value })}
           />
         </div>
         <div className="space-y-3">
-          <Label htmlFor="autoBuildPath" className="text-sm font-medium text-foreground">Auto Claude Path</Label>
-          <p className="text-sm text-muted-foreground">Relative path to auto-claude directory in projects</p>
+          <Label htmlFor="autoBuildPath" className="text-sm font-medium text-foreground">{t("settings:paths.autoBuild.title")}</Label>
+          <p className="text-sm text-muted-foreground">{t("settings:paths.autoBuild.description")}</p>
           <Input
             id="autoBuildPath"
-            placeholder="auto-claude (default)"
+            placeholder={t("settings:paths.autoBuild.placeholder")}
             className="w-full max-w-lg"
             value={settings.autoBuildPath || ''}
             onChange={(e) => onSettingsChange({ ...settings, autoBuildPath: e.target.value })}

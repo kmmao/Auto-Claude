@@ -4,6 +4,7 @@ import { Card } from './ui/card';
 import { ScrollArea } from './ui/scroll-area';
 import { Separator } from './ui/separator';
 import type { Project } from '../../shared/types';
+import { useTranslation } from 'react-i18next';
 
 interface WelcomeScreenProps {
   projects: Project[];
@@ -18,6 +19,8 @@ export function WelcomeScreen({
   onOpenProject,
   onSelectProject
 }: WelcomeScreenProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   // Sort projects by updatedAt (most recent first)
   const recentProjects = [...projects]
     .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())

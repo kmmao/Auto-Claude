@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Wand2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import {
   FullScreenDialog,
   FullScreenDialogContent,
@@ -27,30 +28,22 @@ interface OnboardingWizardProps {
 type WizardStepId = 'welcome' | 'oauth' | 'memory' | 'completion';
 
 // Step configuration
-const WIZARD_STEPS: { id: WizardStepId; label: string }[] = [
-  { id: 'welcome', label: 'Welcome' },
-  { id: 'oauth', label: 'Auth' },
-  { id: 'memory', label: 'Memory' },
-  { id: 'completion', label: 'Done' }
-];
-
-/**
- * Main onboarding wizard component.
- * Provides a full-screen, multi-step wizard experience for new users
- * to configure their Auto Claude environment.
- *
- * Features:
- * - Step progress indicator
- * - Navigation between steps (next, back, skip)
- * - Persists completion state to settings
- * - Can be re-run from settings
- */
 export function OnboardingWizard({
   open,
   onOpenChange,
   onOpenTaskCreator,
   onOpenSettings
 }: OnboardingWizardProps) {
+  const { t } = useTranslation(['common', 'onboarding']);
+
+  // Step configuration
+  const WIZARD_STEPS: { id: WizardStepId; label: string }[] = [
+    { id: 'welcome', label: t('onboarding:wizard.steps.welcome') },
+    { id: 'oauth', label: t('onboarding:wizard.steps.oauth') },
+    { id: 'memory', label: t('onboarding:wizard.steps.memory') },
+    { id: 'completion', label: t('onboarding:wizard.steps.completion') }
+  ];
+
   const { updateSettings } = useSettingsStore();
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<Set<WizardStepId>>(new Set());
@@ -189,10 +182,10 @@ export function OnboardingWizard({
         <FullScreenDialogHeader>
           <FullScreenDialogTitle className="flex items-center gap-3">
             <Wand2 className="h-6 w-6" />
-            Setup Wizard
+            {t('onboarding:wizard.title')}
           </FullScreenDialogTitle>
           <FullScreenDialogDescription>
-            Configure your Auto Claude environment in a few simple steps
+            {t('onboarding:wizard.description')}
           </FullScreenDialogDescription>
 
           {/* Progress indicator - show for all steps except welcome and completion */}

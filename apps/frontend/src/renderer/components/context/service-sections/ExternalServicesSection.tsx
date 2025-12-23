@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Server, ChevronDown, ChevronRight, HardDrive, Mail, CreditCard, Zap } from 'lucide-react';
 import { Badge } from '../../ui/badge';
+import { useTranslation } from 'react-i18next';
 import {
   Collapsible,
   CollapsibleContent,
@@ -13,6 +14,8 @@ interface ExternalServicesSectionProps {
 }
 
 export function ExternalServicesSection({ services }: ExternalServicesSectionProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const [expanded, setExpanded] = useState(false);
 
   if (!services || !Object.values(services).some(arr => arr && arr.length > 0)) {

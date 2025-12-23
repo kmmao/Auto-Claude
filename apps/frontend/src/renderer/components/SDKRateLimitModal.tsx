@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { AlertCircle, ExternalLink, Clock, RefreshCw, User, ChevronDown, Check, Star, Zap, FileText, ListTodo, Map, Lightbulb, Plus } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -53,6 +54,8 @@ function getSourceIcon(source: SDKRateLimitInfo['source']) {
 }
 
 export function SDKRateLimitModal() {
+  const { t } = useTranslation(['common', 'settings']);
+
   const { isSDKModalOpen, sdkRateLimitInfo, hideSDKRateLimitModal, clearPendingRateLimit } = useRateLimitStore();
   const { profiles, isSwitching, setSwitching } = useClaudeProfileStore();
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
@@ -383,9 +386,7 @@ export function SDKRateLimitModal() {
                       </>
                     ) : (
                       <>
-                        <RefreshCw className="h-4 w-4" />
-                        Retry
-                      </>
+                        <RefreshCw className="h-4 w-4" />{t("common:buttons.retry")}</>
                     )}
                   </Button>
                 </div>
@@ -474,12 +475,11 @@ export function SDKRateLimitModal() {
             </Button>
           </div>
 
-          {/* Info about what was interrupted */}
           <div className="text-xs text-muted-foreground bg-muted/30 rounded-lg p-3">
             <p className="font-medium mb-1">What happened:</p>
             <p>
               The {sourceName.toLowerCase()} operation was stopped because your Claude account
-              ({currentProfile?.name || 'Default'}) reached its usage limit.
+              ({currentProfile?.name || t("settings:appearance.colorTheme.default")}) reached its usage limit.
               {hasMultipleProfiles
                 ? ' You can switch to another account and retry, or add more accounts above.'
                 : ' Add another Claude account above to continue working, or wait for the limit to reset.'}
@@ -488,9 +488,7 @@ export function SDKRateLimitModal() {
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={hideSDKRateLimitModal}>
-            Close
-          </Button>
+          <Button variant="outline" onClick={hideSDKRateLimitModal}>{t("common:buttons.close")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

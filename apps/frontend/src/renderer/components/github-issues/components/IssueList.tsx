@@ -3,6 +3,7 @@ import { ScrollArea } from '../../ui/scroll-area';
 import { IssueListItem } from './IssueListItem';
 import { EmptyState } from './EmptyStates';
 import type { IssueListProps } from '../types';
+import { useTranslation } from 'react-i18next';
 
 export function IssueList({
   issues,
@@ -12,6 +13,8 @@ export function IssueList({
   onSelectIssue,
   onInvestigate
 }: IssueListProps) {
+  const { t } = useTranslation(['common', 'settings', 'github']);
+
   if (error) {
     return (
       <div className="p-4 bg-destructive/10 border-b border-destructive/30">
@@ -32,7 +35,7 @@ export function IssueList({
   }
 
   if (issues.length === 0) {
-    return <EmptyState message="No issues found" />;
+    return <EmptyState message={t('github:list.emptyMessage')} />;
   }
 
   return (

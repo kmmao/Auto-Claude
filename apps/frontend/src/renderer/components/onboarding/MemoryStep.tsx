@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation, Trans } from 'react-i18next';
 import {
   Brain,
   Database,
@@ -36,12 +37,12 @@ const EMBEDDING_PROVIDERS: Array<{
   description: string;
   requiresApiKey: boolean;
 }> = [
-  { id: 'ollama', name: 'Ollama (Local)', description: 'Free, local embeddings', requiresApiKey: false },
-  { id: 'openai', name: 'OpenAI', description: 'text-embedding-3-small', requiresApiKey: true },
-  { id: 'voyage', name: 'Voyage AI', description: 'voyage-3 (high quality)', requiresApiKey: true },
-  { id: 'google', name: 'Google AI', description: 'text-embedding-004', requiresApiKey: true },
-  { id: 'azure_openai', name: 'Azure OpenAI', description: 'Enterprise deployment', requiresApiKey: true },
-];
+    { id: 'ollama', name: 'Ollama (Local)', description: 'Free, local embeddings', requiresApiKey: false },
+    { id: 'openai', name: 'OpenAI', description: 'text-embedding-3-small', requiresApiKey: true },
+    { id: 'voyage', name: 'Voyage AI', description: 'voyage-3 (high quality)', requiresApiKey: true },
+    { id: 'google', name: 'Google AI', description: 'text-embedding-004', requiresApiKey: true },
+    { id: 'azure_openai', name: 'Azure OpenAI', description: 'Enterprise deployment', requiresApiKey: true },
+  ];
 
 interface MemoryConfig {
   database: string;
@@ -72,6 +73,8 @@ interface MemoryConfig {
  * - Keyword search works as fallback without embeddings
  */
 export function MemoryStep({ onNext, onBack }: MemoryStepProps) {
+  const { t } = useTranslation(['common', 'onboarding', 'settings']);
+
   const { settings, updateSettings } = useSettingsStore();
   const [config, setConfig] = useState<MemoryConfig>({
     database: 'auto_claude_memory',
@@ -164,10 +167,10 @@ export function MemoryStep({ onNext, onBack }: MemoryStepProps) {
         updateSettings(storeUpdate);
         onNext();
       } else {
-        setError(result?.error || 'Failed to save memory configuration');
+        setError(result?.error || t('onboarding:memory.alerts.saveFailed'));
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error occurred');
+      setError(err instanceof Error ? err.message : t('common:status.unknownError'));
     } finally {
       setIsSaving(false);
     }
@@ -185,6 +188,20 @@ export function MemoryStep({ onNext, onBack }: MemoryStepProps) {
     }));
   };
 
+  // Embedding provider configurations
+  const EMBEDDING_PROVIDERS: Array<{
+    id: GraphitiEmbeddingProvider;
+    name: string;
+    description: string;
+    requiresApiKey: boolean;
+  }> = [
+      { id: 'ollama', name: t('onboarding:memory.provider.ollama.name'), description: t('onboarding:memory.provider.ollama.description'), requiresApiKey: false },
+      { id: 'openai', name: t('onboarding:memory.provider.openai.name'), description: t('onboarding:memory.provider.openai.description'), requiresApiKey: true },
+      { id: 'voyage', name: t('onboarding:memory.provider.voyage.name'), description: t('onboarding:memory.provider.voyage.description'), requiresApiKey: true },
+      { id: 'google', name: t('onboarding:memory.provider.google.name'), description: t('onboarding:memory.provider.google.description'), requiresApiKey: true },
+      { id: 'azure_openai', name: t('onboarding:memory.provider.azure.name'), description: t('onboarding:memory.provider.azure.description'), requiresApiKey: true },
+    ];
+
   // Render provider-specific configuration fields
   const renderProviderFields = () => {
     const { embeddingProvider } = config;
@@ -194,7 +211,7 @@ export function MemoryStep({ onNext, onBack }: MemoryStepProps) {
         <div className="space-y-4">
           <div className="space-y-2">
             <Label className="text-sm font-medium text-foreground">
-              Select Embedding Model
+              {t('onboarding:memory.provider.ollama.select')}
             </Label>
             <OllamaModelSelector
               selectedModel={config.ollamaEmbeddingModel}
@@ -210,7 +227,7 @@ export function MemoryStep({ onNext, onBack }: MemoryStepProps) {
       return (
         <div className="space-y-2">
           <Label htmlFor="openai-key" className="text-sm font-medium text-foreground">
-            OpenAI API Key
+            {t('onboarding:memory.provider.openai.label')}
           </Label>
           <div className="relative">
             <Input
@@ -231,10 +248,12 @@ export function MemoryStep({ onNext, onBack }: MemoryStepProps) {
             </button>
           </div>
           <p className="text-xs text-muted-foreground">
-            Get your key from{' '}
-            <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80">
-              OpenAI
-            </a>
+            <Trans
+              i18nKey="settings:project.memory.openai.getKey"
+              components={{
+                1: <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80" />
+              }}
+            />
           </p>
         </div>
       );
@@ -244,7 +263,7 @@ export function MemoryStep({ onNext, onBack }: MemoryStepProps) {
       return (
         <div className="space-y-2">
           <Label htmlFor="voyage-key" className="text-sm font-medium text-foreground">
-            Voyage API Key
+            {t('onboarding:memory.provider.voyage.label')}
           </Label>
           <div className="relative">
             <Input
@@ -265,10 +284,12 @@ export function MemoryStep({ onNext, onBack }: MemoryStepProps) {
             </button>
           </div>
           <p className="text-xs text-muted-foreground">
-            Get your key from{' '}
-            <a href="https://dash.voyageai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80">
-              Voyage AI
-            </a>
+            <Trans
+              i18nKey="settings:project.memory.voyage.getKey"
+              components={{
+                1: <a href="https://dash.voyageai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80" />
+              }}
+            />
           </p>
         </div>
       );
@@ -278,7 +299,7 @@ export function MemoryStep({ onNext, onBack }: MemoryStepProps) {
       return (
         <div className="space-y-2">
           <Label htmlFor="google-key" className="text-sm font-medium text-foreground">
-            Google API Key
+            {t('onboarding:memory.provider.google.label')}
           </Label>
           <div className="relative">
             <Input
@@ -299,10 +320,12 @@ export function MemoryStep({ onNext, onBack }: MemoryStepProps) {
             </button>
           </div>
           <p className="text-xs text-muted-foreground">
-            Get your key from{' '}
-            <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80">
-              Google AI Studio
-            </a>
+            <Trans
+              i18nKey="settings:project.memory.google.getKey"
+              components={{
+                1: <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80" />
+              }}
+            />
           </p>
         </div>
       );
@@ -311,16 +334,16 @@ export function MemoryStep({ onNext, onBack }: MemoryStepProps) {
     if (embeddingProvider === 'azure_openai') {
       return (
         <div className="space-y-3 p-3 rounded-md bg-muted/50">
-          <p className="text-sm font-medium text-foreground">Azure OpenAI Settings</p>
+          <p className="text-sm font-medium text-foreground">{t('settings:project.memory.azure.title')}</p>
           <div className="space-y-2">
-            <Label htmlFor="azure-key" className="text-xs text-muted-foreground">API Key</Label>
+            <Label htmlFor="azure-key" className="text-xs text-muted-foreground">{t('settings:project.memory.azure.apiKey')}</Label>
             <div className="relative">
               <Input
                 id="azure-key"
                 type={showApiKey['azure'] ? 'text' : 'password'}
                 value={config.azureOpenaiApiKey}
                 onChange={(e) => setConfig(prev => ({ ...prev, azureOpenaiApiKey: e.target.value }))}
-                placeholder="Azure API key"
+                placeholder={t('settings:project.memory.azure.apiKeyPlaceholder')}
                 className="pr-10 font-mono text-sm"
                 disabled={isSaving}
               />
@@ -334,7 +357,7 @@ export function MemoryStep({ onNext, onBack }: MemoryStepProps) {
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="azure-url" className="text-xs text-muted-foreground">Base URL</Label>
+            <Label htmlFor="azure-url" className="text-xs text-muted-foreground">{t('settings:project.memory.azure.baseUrl')}</Label>
             <Input
               id="azure-url"
               type="text"
@@ -346,7 +369,7 @@ export function MemoryStep({ onNext, onBack }: MemoryStepProps) {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="azure-embedding-deployment" className="text-xs text-muted-foreground">Embedding Deployment Name</Label>
+            <Label htmlFor="azure-embedding-deployment" className="text-xs text-muted-foreground">{t('settings:project.memory.azure.deployment')}</Label>
             <Input
               id="azure-embedding-deployment"
               type="text"
@@ -375,10 +398,10 @@ export function MemoryStep({ onNext, onBack }: MemoryStepProps) {
             </div>
           </div>
           <h1 className="text-2xl font-bold text-foreground tracking-tight">
-            Memory
+            {t('onboarding:memory.title')}
           </h1>
           <p className="mt-2 text-muted-foreground">
-            Auto Claude Memory helps remember context across your coding sessions
+            {t('onboarding:memory.subtitle')}
           </p>
         </div>
 
@@ -412,11 +435,10 @@ export function MemoryStep({ onNext, onBack }: MemoryStepProps) {
                     <Info className="h-5 w-5 text-info shrink-0 mt-0.5" />
                     <div className="flex-1">
                       <p className="text-sm font-medium text-info">
-                        Database will be created automatically
+                        {t('onboarding:memory.infra.creating')}
                       </p>
                       <p className="text-sm text-info/80 mt-1">
-                        Memory uses an embedded database - no Docker required.
-                        It will be created when you first use memory features.
+                        {t('onboarding:memory.infra.description')}
                       </p>
                     </div>
                   </div>
@@ -431,16 +453,15 @@ export function MemoryStep({ onNext, onBack }: MemoryStepProps) {
                   <Info className="h-5 w-5 text-info shrink-0 mt-0.5" />
                   <div className="flex-1 space-y-3">
                     <p className="text-sm font-medium text-foreground">
-                      What does Memory do?
+                      {t('onboarding:memory.qna.title')}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      Memory stores discoveries, patterns, and insights about your codebase
-                      so future sessions start with context already loaded.
+                      {t('onboarding:memory.qna.description')}
                     </p>
                     <ul className="text-sm text-muted-foreground space-y-1.5 list-disc list-inside">
-                      <li>Remembers patterns across sessions</li>
-                      <li>Understands your codebase over time</li>
-                      <li>Works offline - no cloud required</li>
+                      {(t('onboarding:memory.qna.bullets', { returnObjects: true }) as string[]).map((bullet, idx) => (
+                        <li key={idx}>{bullet}</li>
+                      ))}
                     </ul>
                   </div>
                 </div>
@@ -452,10 +473,10 @@ export function MemoryStep({ onNext, onBack }: MemoryStepProps) {
               <Database className="h-5 w-5 text-muted-foreground" />
               <div>
                 <p className="text-sm font-medium text-foreground">
-                  Memory Database
+                  {t('onboarding:memory.db.title')}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Stored in ~/.auto-claude/memories/
+                  {t('onboarding:memory.db.path')}
                 </p>
               </div>
               {kuzuAvailable && (
@@ -467,7 +488,7 @@ export function MemoryStep({ onNext, onBack }: MemoryStepProps) {
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-foreground">
-                  Embedding Provider (for semantic search)
+                  {t('onboarding:memory.provider.label')}
                 </Label>
                 <Select
                   value={config.embeddingProvider}
@@ -498,7 +519,7 @@ export function MemoryStep({ onNext, onBack }: MemoryStepProps) {
 
             {/* Fallback info */}
             <p className="text-xs text-muted-foreground text-center">
-              No embedding provider? Memory still works with keyword search. Semantic search is an upgrade.
+              {t('onboarding:memory.fallback')}
             </p>
           </div>
         )}
@@ -509,9 +530,7 @@ export function MemoryStep({ onNext, onBack }: MemoryStepProps) {
             variant="ghost"
             onClick={onBack}
             className="text-muted-foreground hover:text-foreground"
-          >
-            Back
-          </Button>
+          >{t("common:buttons.back")}</Button>
           <Button
             onClick={handleContinue}
             disabled={isCheckingInfra || !isConfigValid() || isSaving}
@@ -519,10 +538,10 @@ export function MemoryStep({ onNext, onBack }: MemoryStepProps) {
             {isSaving ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                Saving...
+                {t('onboarding:memory.saving')}
               </>
             ) : (
-              'Save & Continue'
+              t('onboarding:memory.saveAndContinue')
             )}
           </Button>
         </div>

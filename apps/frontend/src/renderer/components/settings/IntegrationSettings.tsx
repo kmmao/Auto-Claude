@@ -19,6 +19,7 @@ import {
   Activity,
   AlertCircle
 } from 'lucide-react';
+import { Trans, useTranslation } from 'react-i18next';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
@@ -38,6 +39,8 @@ interface IntegrationSettingsProps {
  * Integration settings for Claude accounts and API keys
  */
 export function IntegrationSettings({ settings, onSettingsChange, isOpen }: IntegrationSettingsProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   // Password visibility toggle for global API keys
   const [showGlobalOpenAIKey, setShowGlobalOpenAIKey] = useState(false);
 
@@ -291,20 +294,20 @@ export function IntegrationSettings({ settings, onSettingsChange, isOpen }: Inte
 
   return (
     <SettingsSection
-      title="Integrations"
-      description="Manage Claude accounts and API keys"
+      title={t("settings:integrations.claude.title")}
+      description={t("settings:integrations.claude.description")}
     >
       <div className="space-y-6">
         {/* Claude Accounts Section */}
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <Users className="h-4 w-4 text-muted-foreground" />
-            <h4 className="text-sm font-semibold text-foreground">Claude Accounts</h4>
+            <h4 className="text-sm font-semibold text-foreground">{t("settings:integrations.claude.title")}</h4>
           </div>
 
           <div className="rounded-lg bg-muted/30 border border-border p-4">
             <p className="text-sm text-muted-foreground mb-4">
-              Add multiple Claude subscriptions to automatically switch between them when you hit rate limits.
+              {t("settings:integrations.claude.description")}
             </p>
 
             {/* Accounts list */}
@@ -314,7 +317,7 @@ export function IntegrationSettings({ settings, onSettingsChange, isOpen }: Inte
               </div>
             ) : claudeProfiles.length === 0 ? (
               <div className="rounded-lg border border-dashed border-border p-4 text-center mb-4">
-                <p className="text-sm text-muted-foreground">No accounts configured yet</p>
+                <p className="text-sm text-muted-foreground">{t("settings:integrations.claude.noAccounts")}</p>
               </div>
             ) : (
               <div className="space-y-2 mb-4">
@@ -376,22 +379,22 @@ export function IntegrationSettings({ settings, onSettingsChange, isOpen }: Inte
                               <div className="flex items-center gap-2 flex-wrap">
                                 <span className="text-sm font-medium text-foreground">{profile.name}</span>
                                 {profile.isDefault && (
-                                  <span className="text-xs bg-muted px-1.5 py-0.5 rounded">Default</span>
+                                  <span className="text-xs bg-muted px-1.5 py-0.5 rounded">{t("settings:integrations.claude.status.default")}</span>
                                 )}
                                 {profile.id === activeProfileId && (
                                   <span className="text-xs bg-primary/20 text-primary px-1.5 py-0.5 rounded flex items-center gap-1">
                                     <Star className="h-3 w-3" />
-                                    Active
+                                    {t("settings:integrations.claude.status.active")}
                                   </span>
                                 )}
                                 {(profile.oauthToken || (profile.isDefault && profile.configDir)) ? (
                                   <span className="text-xs bg-success/20 text-success px-1.5 py-0.5 rounded flex items-center gap-1">
                                     <Check className="h-3 w-3" />
-                                    Authenticated
+                                    {t("settings:integrations.claude.status.authenticated")}
                                   </span>
                                 ) : (
                                   <span className="text-xs bg-warning/20 text-warning px-1.5 py-0.5 rounded">
-                                    Needs Auth
+                                    {t("settings:integrations.claude.status.needsAuth")}
                                   </span>
                                 )}
                               </div>
@@ -419,7 +422,7 @@ export function IntegrationSettings({ settings, onSettingsChange, isOpen }: Inte
                               ) : (
                                 <LogIn className="h-3 w-3" />
                               )}
-                              Authenticate
+                              {t("settings:integrations.claude.actions.authenticate")}
                             </Button>
                           ) : (
                             /* Re-authenticate button for already authenticated profiles */
@@ -429,7 +432,7 @@ export function IntegrationSettings({ settings, onSettingsChange, isOpen }: Inte
                               onClick={() => handleAuthenticateProfile(profile.id)}
                               disabled={authenticatingProfileId === profile.id}
                               className="h-7 w-7 text-muted-foreground hover:text-foreground"
-                              title="Re-authenticate profile"
+                              title={t("settings:integrations.claude.actions.reauthenticate")}
                             >
                               {authenticatingProfileId === profile.id ? (
                                 <Loader2 className="h-3 w-3 animate-spin" />
@@ -446,7 +449,7 @@ export function IntegrationSettings({ settings, onSettingsChange, isOpen }: Inte
                               className="gap-1 h-7 text-xs"
                             >
                               <Check className="h-3 w-3" />
-                              Set Active
+                              {t("settings:integrations.claude.actions.setActive")}
                             </Button>
                           )}
                           {/* Toggle token entry button */}
@@ -455,7 +458,7 @@ export function IntegrationSettings({ settings, onSettingsChange, isOpen }: Inte
                             size="icon"
                             onClick={() => toggleTokenEntry(profile.id)}
                             className="h-7 w-7 text-muted-foreground hover:text-foreground"
-                            title={expandedTokenProfileId === profile.id ? "Hide token entry" : "Enter token manually"}
+                            title={expandedTokenProfileId === profile.id ? t("settings:integrations.claude.actions.hideToken") : t("settings:integrations.claude.actions.manualToken")}
                           >
                             {expandedTokenProfileId === profile.id ? (
                               <ChevronDown className="h-3 w-3" />
@@ -468,7 +471,7 @@ export function IntegrationSettings({ settings, onSettingsChange, isOpen }: Inte
                             size="icon"
                             onClick={() => startEditingProfile(profile)}
                             className="h-7 w-7 text-muted-foreground hover:text-foreground"
-                            title="Rename profile"
+                            title={t("settings:integrations.claude.actions.rename")}
                           >
                             <Pencil className="h-3 w-3" />
                           </Button>
@@ -479,7 +482,7 @@ export function IntegrationSettings({ settings, onSettingsChange, isOpen }: Inte
                               onClick={() => handleDeleteProfile(profile.id)}
                               disabled={deletingProfileId === profile.id}
                               className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10"
-                              title="Delete profile"
+                              title={t("settings:integrations.claude.actions.delete")}
                             >
                               {deletingProfileId === profile.id ? (
                                 <Loader2 className="h-3 w-3 animate-spin" />
@@ -498,10 +501,13 @@ export function IntegrationSettings({ settings, onSettingsChange, isOpen }: Inte
                         <div className="bg-muted/30 rounded-lg p-3 mt-3 space-y-3">
                           <div className="flex items-center justify-between">
                             <Label className="text-xs font-medium text-muted-foreground">
-                              Manual Token Entry
+                              {t("settings:integrations.claude.actions.manualTokenEntry")}
                             </Label>
                             <span className="text-xs text-muted-foreground">
-                              Run <code className="px-1 py-0.5 bg-muted rounded font-mono text-xs">claude setup-token</code> to get your token
+                              <Trans
+                                i18nKey="settings:integrations.claude.actions.manualTokenHint"
+                                components={{ 1: <code className="px-1 py-0.5 bg-muted rounded font-mono text-xs" /> }}
+                              />
                             </span>
                           </div>
 
@@ -525,7 +531,7 @@ export function IntegrationSettings({ settings, onSettingsChange, isOpen }: Inte
 
                             <Input
                               type="email"
-                              placeholder="Email (optional, for display)"
+                              placeholder={t("common:common.email")}
                               value={manualTokenEmail}
                               onChange={(e) => setManualTokenEmail(e.target.value)}
                               className="text-xs h-8"
@@ -538,9 +544,7 @@ export function IntegrationSettings({ settings, onSettingsChange, isOpen }: Inte
                               size="sm"
                               onClick={() => toggleTokenEntry(profile.id)}
                               className="h-7 text-xs"
-                            >
-                              Cancel
-                            </Button>
+                            >{t("common:buttons.cancel")}</Button>
                             <Button
                               size="sm"
                               onClick={() => handleSaveManualToken(profile.id)}
@@ -552,7 +556,7 @@ export function IntegrationSettings({ settings, onSettingsChange, isOpen }: Inte
                               ) : (
                                 <Check className="h-3 w-3" />
                               )}
-                              Save Token
+                              {t("settings:integrations.claude.actions.saveToken")}
                             </Button>
                           </div>
                         </div>
@@ -566,7 +570,7 @@ export function IntegrationSettings({ settings, onSettingsChange, isOpen }: Inte
             {/* Add new account */}
             <div className="flex items-center gap-2">
               <Input
-                placeholder="Account name (e.g., Work, Personal)"
+                placeholder={t("settings:integrations.claude.actions.addPlaceholder")}
                 value={newProfileName}
                 onChange={(e) => setNewProfileName(e.target.value)}
                 className="flex-1 h-8 text-sm"
@@ -587,7 +591,7 @@ export function IntegrationSettings({ settings, onSettingsChange, isOpen }: Inte
                 ) : (
                   <Plus className="h-3 w-3" />
                 )}
-                Add
+                {t("settings:integrations.claude.actions.add")}
               </Button>
             </div>
           </div>
@@ -598,21 +602,20 @@ export function IntegrationSettings({ settings, onSettingsChange, isOpen }: Inte
           <div className="space-y-4 pt-6 border-t border-border">
             <div className="flex items-center gap-2">
               <RefreshCw className="h-4 w-4 text-muted-foreground" />
-              <h4 className="text-sm font-semibold text-foreground">Automatic Account Switching</h4>
+              <h4 className="text-sm font-semibold text-foreground">{t("settings:integrations.claude.autoSwitch.title")}</h4>
             </div>
 
             <div className="rounded-lg bg-muted/30 border border-border p-4 space-y-4">
               <p className="text-sm text-muted-foreground">
-                Automatically switch between Claude accounts to avoid interruptions.
-                Configure proactive monitoring to switch before hitting limits.
+                {t("settings:integrations.claude.autoSwitch.description")}
               </p>
 
               {/* Master toggle */}
               <div className="flex items-center justify-between">
                 <div>
-                  <Label className="text-sm font-medium">Enable automatic switching</Label>
+                  <Label className="text-sm font-medium">{t("settings:integrations.claude.autoSwitch.enable")}</Label>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Master switch for all auto-swap features
+                    {t("settings:integrations.claude.autoSwitch.enableDesc")}
                   </p>
                 </div>
                 <Switch
@@ -630,10 +633,10 @@ export function IntegrationSettings({ settings, onSettingsChange, isOpen }: Inte
                       <div>
                         <Label className="text-sm font-medium flex items-center gap-2">
                           <Activity className="h-3.5 w-3.5" />
-                          Proactive Monitoring
+                          {t("settings:integrations.claude.autoSwitch.proactive.title")}
                         </Label>
                         <p className="text-xs text-muted-foreground mt-1">
-                          Check usage regularly and swap before hitting limits
+                          {t("settings:integrations.claude.autoSwitch.proactive.description")}
                         </p>
                       </div>
                       <Switch
@@ -647,24 +650,24 @@ export function IntegrationSettings({ settings, onSettingsChange, isOpen }: Inte
                       <>
                         {/* Check interval */}
                         <div className="space-y-2">
-                          <Label className="text-sm">Check usage every</Label>
+                          <Label className="text-sm">{t("settings:integrations.claude.autoSwitch.proactive.interval")}</Label>
                           <select
                             className="w-full px-3 py-2 bg-background border border-input rounded-md text-sm"
                             value={autoSwitchSettings?.usageCheckInterval ?? 30000}
                             onChange={(e) => handleUpdateAutoSwitch({ usageCheckInterval: parseInt(e.target.value) })}
                             disabled={isLoadingAutoSwitch}
                           >
-                            <option value={15000}>15 seconds</option>
-                            <option value={30000}>30 seconds (recommended)</option>
-                            <option value={60000}>1 minute</option>
-                            <option value={0}>Disabled</option>
+                            <option value={15000}>{t("settings:integrations.claude.autoSwitch.proactive.intervals.15s")}</option>
+                            <option value={30000}>{t("settings:integrations.claude.autoSwitch.proactive.intervals.30s")}</option>
+                            <option value={60000}>{t("settings:integrations.claude.autoSwitch.proactive.intervals.1m")}</option>
+                            <option value={0}>{t("settings:integrations.claude.autoSwitch.proactive.intervals.disabled")}</option>
                           </select>
                         </div>
 
                         {/* Session threshold */}
                         <div className="space-y-2">
                           <div className="flex items-center justify-between">
-                            <Label className="text-sm">Session usage threshold</Label>
+                            <Label className="text-sm">{t("settings:integrations.claude.autoSwitch.proactive.session")}</Label>
                             <span className="text-sm font-mono">{autoSwitchSettings?.sessionThreshold ?? 95}%</span>
                           </div>
                           <input
@@ -678,14 +681,14 @@ export function IntegrationSettings({ settings, onSettingsChange, isOpen }: Inte
                             className="w-full"
                           />
                           <p className="text-xs text-muted-foreground">
-                            Switch when session usage reaches this level (recommended: 95%)
+                            {t("settings:integrations.claude.autoSwitch.proactive.sessionDesc")}
                           </p>
                         </div>
 
                         {/* Weekly threshold */}
                         <div className="space-y-2">
                           <div className="flex items-center justify-between">
-                            <Label className="text-sm">Weekly usage threshold</Label>
+                            <Label className="text-sm">{t("settings:integrations.claude.autoSwitch.proactive.weekly")}</Label>
                             <span className="text-sm font-mono">{autoSwitchSettings?.weeklyThreshold ?? 99}%</span>
                           </div>
                           <input
@@ -699,7 +702,7 @@ export function IntegrationSettings({ settings, onSettingsChange, isOpen }: Inte
                             className="w-full"
                           />
                           <p className="text-xs text-muted-foreground">
-                            Switch when weekly usage reaches this level (recommended: 99%)
+                            {t("settings:integrations.claude.autoSwitch.proactive.weeklyDesc")}
                           </p>
                         </div>
                       </>
@@ -712,10 +715,10 @@ export function IntegrationSettings({ settings, onSettingsChange, isOpen }: Inte
                       <div>
                         <Label className="text-sm font-medium flex items-center gap-2">
                           <AlertCircle className="h-3.5 w-3.5" />
-                          Reactive Recovery
+                          {t("settings:integrations.claude.autoSwitch.reactive.title")}
                         </Label>
                         <p className="text-xs text-muted-foreground mt-1">
-                          Auto-swap when unexpected rate limit is hit
+                          {t("settings:integrations.claude.autoSwitch.reactive.description")}
                         </p>
                       </div>
                       <Switch
@@ -735,14 +738,14 @@ export function IntegrationSettings({ settings, onSettingsChange, isOpen }: Inte
         <div className="space-y-4 pt-4 border-t border-border">
           <div className="flex items-center gap-2">
             <Key className="h-4 w-4 text-muted-foreground" />
-            <h4 className="text-sm font-semibold text-foreground">API Keys</h4>
+            <h4 className="text-sm font-semibold text-foreground">{t("settings:integrations.apiKeys.title")}</h4>
           </div>
 
           <div className="rounded-lg bg-info/10 border border-info/30 p-3">
             <div className="flex items-start gap-2">
               <Info className="h-4 w-4 text-info shrink-0 mt-0.5" />
               <p className="text-xs text-muted-foreground">
-                Keys set here are used as defaults. Individual projects can override these in their settings.
+                {t("settings:integrations.apiKeys.hint")}
               </p>
             </div>
           </div>
@@ -750,10 +753,10 @@ export function IntegrationSettings({ settings, onSettingsChange, isOpen }: Inte
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="globalOpenAIKey" className="text-sm font-medium text-foreground">
-                OpenAI API Key
+                {t("settings:integrations.apiKeys.openai.title")}
               </Label>
               <p className="text-xs text-muted-foreground">
-                Required for Graphiti memory backend (embeddings)
+                {t("settings:integrations.apiKeys.openai.description")}
               </p>
               <div className="relative max-w-lg">
                 <Input

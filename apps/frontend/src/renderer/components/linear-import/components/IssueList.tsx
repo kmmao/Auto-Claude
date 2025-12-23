@@ -3,6 +3,7 @@
  */
 
 import { Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { ScrollArea } from '../../ui/scroll-area';
 import { IssueCard } from './IssueCard';
 import type { LinearIssue } from '../types';
@@ -26,6 +27,8 @@ export function IssueList({
   filterState,
   onToggleIssue
 }: IssueListProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   if (isLoadingIssues) {
     return (
       <ScrollArea className="flex-1 -mx-6 px-6 min-h-0">

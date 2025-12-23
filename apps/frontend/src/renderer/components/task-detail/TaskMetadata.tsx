@@ -13,6 +13,7 @@ import {
   Clock
 } from 'lucide-react';
 import { Badge } from '../ui/badge';
+import { useTranslation } from 'react-i18next';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { cn, formatRelativeTime, sanitizeMarkdownForDisplay } from '../../lib/utils';
 import {
@@ -46,6 +47,8 @@ interface TaskMetadataProps {
 }
 
 export function TaskMetadata({ task }: TaskMetadataProps) {
+  const { t } = useTranslation(['common', 'taskDetail']);
+
   const hasClassification = task.metadata && (
     task.metadata.category ||
     task.metadata.priority ||
@@ -72,7 +75,7 @@ export function TaskMetadata({ task }: TaskMetadataProps) {
                   const Icon = CategoryIcon[task.metadata.category!];
                   return <Icon className="h-3 w-3 mr-1" />;
                 })()}
-                {TASK_CATEGORY_LABELS[task.metadata.category]}
+                {t(`taskDetail:labels.${task.metadata.category}`)}
               </Badge>
             )}
             {/* Priority */}
@@ -81,7 +84,7 @@ export function TaskMetadata({ task }: TaskMetadataProps) {
                 variant="outline"
                 className={cn('text-xs', TASK_PRIORITY_COLORS[task.metadata.priority])}
               >
-                {TASK_PRIORITY_LABELS[task.metadata.priority]}
+                {t(`taskDetail:labels.${task.metadata.priority}`)}
               </Badge>
             )}
             {/* Complexity */}
@@ -90,7 +93,7 @@ export function TaskMetadata({ task }: TaskMetadataProps) {
                 variant="outline"
                 className={cn('text-xs', TASK_COMPLEXITY_COLORS[task.metadata.complexity])}
               >
-                {TASK_COMPLEXITY_LABELS[task.metadata.complexity]}
+                {t(`taskDetail:labels.${task.metadata.complexity}`)}
               </Badge>
             )}
             {/* Impact */}
@@ -99,7 +102,7 @@ export function TaskMetadata({ task }: TaskMetadataProps) {
                 variant="outline"
                 className={cn('text-xs', TASK_IMPACT_COLORS[task.metadata.impact])}
               >
-                {TASK_IMPACT_LABELS[task.metadata.impact]}
+                {t(`taskDetail:labels.${task.metadata.impact}`)}
               </Badge>
             )}
             {/* Security Severity */}
@@ -109,7 +112,7 @@ export function TaskMetadata({ task }: TaskMetadataProps) {
                 className={cn('text-xs', TASK_IMPACT_COLORS[task.metadata.securitySeverity])}
               >
                 <Shield className="h-3 w-3 mr-1" />
-                {task.metadata.securitySeverity}
+                {t(`taskDetail:metadata.securitySeverity`)}: {task.metadata.securitySeverity}
               </Badge>
             )}
             {/* Source Type */}
@@ -117,7 +120,7 @@ export function TaskMetadata({ task }: TaskMetadataProps) {
               <Badge variant="secondary" className="text-xs">
                 {task.metadata.sourceType === 'ideation' && task.metadata.ideationType
                   ? IDEATION_TYPE_LABELS[task.metadata.ideationType] || task.metadata.ideationType
-                  : task.metadata.sourceType}
+                  : t(`taskDetail:sourceType.${task.metadata.sourceType}`)}
               </Badge>
             )}
           </div>
@@ -127,10 +130,10 @@ export function TaskMetadata({ task }: TaskMetadataProps) {
         <div className="flex items-center gap-4 text-xs text-muted-foreground">
           <span className="flex items-center gap-1.5">
             <Clock className="h-3 w-3" />
-            Created {formatRelativeTime(task.createdAt)}
+            {t('taskDetail:metadata.created')} {formatRelativeTime(task.createdAt)}
           </span>
           <span className="text-border">•</span>
-          <span>Updated {formatRelativeTime(task.updatedAt)}</span>
+          <span>{t('taskDetail:metadata.updated')} {formatRelativeTime(task.updatedAt)}</span>
         </div>
       </div>
 
@@ -151,7 +154,7 @@ export function TaskMetadata({ task }: TaskMetadataProps) {
             <div>
               <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
                 <Lightbulb className="h-3 w-3 text-warning" />
-                Rationale
+                {t('taskDetail:metadata.rationale')}
               </h3>
               <p className="text-sm text-foreground/80">{task.metadata.rationale}</p>
             </div>
@@ -162,7 +165,7 @@ export function TaskMetadata({ task }: TaskMetadataProps) {
             <div>
               <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
                 <Target className="h-3 w-3 text-success" />
-                Problem Solved
+                {t('taskDetail:metadata.problemSolved')}
               </h3>
               <p className="text-sm text-foreground/80">{task.metadata.problemSolved}</p>
             </div>
@@ -173,7 +176,7 @@ export function TaskMetadata({ task }: TaskMetadataProps) {
             <div>
               <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
                 <Users className="h-3 w-3 text-info" />
-                Target Audience
+                {t('taskDetail:metadata.targetAudience')}
               </h3>
               <p className="text-sm text-foreground/80">{task.metadata.targetAudience}</p>
             </div>
@@ -184,7 +187,7 @@ export function TaskMetadata({ task }: TaskMetadataProps) {
             <div>
               <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
                 <GitBranch className="h-3 w-3 text-purple-400" />
-                Dependencies
+                {t('taskDetail:metadata.dependencies')}
               </h3>
               <ul className="text-sm text-foreground/80 list-disc list-inside space-y-0.5">
                 {task.metadata.dependencies.map((dep, idx) => (
@@ -199,7 +202,7 @@ export function TaskMetadata({ task }: TaskMetadataProps) {
             <div>
               <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
                 <ListChecks className="h-3 w-3 text-success" />
-                Acceptance Criteria
+                {t('taskDetail:metadata.acceptanceCriteria')}
               </h3>
               <ul className="text-sm text-foreground/80 list-disc list-inside space-y-0.5">
                 {task.metadata.acceptanceCriteria.map((criteria, idx) => (
@@ -214,7 +217,7 @@ export function TaskMetadata({ task }: TaskMetadataProps) {
             <div>
               <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
                 <FileCode className="h-3 w-3" />
-                Affected Files
+                {t('taskDetail:metadata.affectedFiles')}
               </h3>
               <div className="flex flex-wrap gap-1">
                 {task.metadata.affectedFiles.map((file, idx) => (

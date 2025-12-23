@@ -4,6 +4,7 @@ import {
   Users,
   FileCode
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Badge } from '../../ui/badge';
 import { UIUX_CATEGORY_LABELS } from '../../../../shared/constants';
 import type { UIUXImprovementIdea } from '../../../../shared/types';
@@ -13,6 +14,8 @@ interface UIUXDetailsProps {
 }
 
 export function UIUXDetails({ idea }: UIUXDetailsProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   return (
     <>
       {/* Category */}

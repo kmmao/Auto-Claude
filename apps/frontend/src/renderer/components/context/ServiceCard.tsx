@@ -5,6 +5,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { cn } from '../../lib/utils';
 import type { ServiceInfo } from '../../../shared/types';
 import { serviceTypeIcons, serviceTypeColors } from './constants';
+import { useTranslation } from 'react-i18next';
 import {
   EnvironmentSection,
   APIRoutesSection,
@@ -20,6 +21,8 @@ interface ServiceCardProps {
 }
 
 export function ServiceCard({ name, service }: ServiceCardProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const Icon = serviceTypeIcons[service.type || 'unknown'];
   const colorClass = serviceTypeColors[service.type || 'unknown'];
 

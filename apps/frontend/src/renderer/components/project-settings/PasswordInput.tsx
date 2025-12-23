@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { Input } from '../ui/input';
+import { useTranslation } from 'react-i18next';
 
 interface PasswordInputProps {
   value: string;
@@ -10,6 +11,8 @@ interface PasswordInputProps {
 }
 
 export function PasswordInput({ value, onChange, placeholder, className }: PasswordInputProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const [showPassword, setShowPassword] = useState(false);
 
   return (

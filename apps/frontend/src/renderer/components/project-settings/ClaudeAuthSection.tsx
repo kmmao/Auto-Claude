@@ -5,6 +5,7 @@ import { PasswordInput } from './PasswordInput';
 import { Button } from '../ui/button';
 import { Label } from '../ui/label';
 import type { ProjectEnvConfig } from '../../../shared/types';
+import { useTranslation } from 'react-i18next';
 
 interface ClaudeAuthSectionProps {
   isExpanded: boolean;
@@ -29,6 +30,8 @@ export function ClaudeAuthSection({
   onClaudeSetup,
   onUpdateConfig,
 }: ClaudeAuthSectionProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const badge = authStatus === 'authenticated' ? (
     <StatusBadge status="success" label="Connected" />
   ) : authStatus === 'not_authenticated' ? (

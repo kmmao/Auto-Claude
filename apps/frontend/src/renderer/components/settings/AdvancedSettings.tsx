@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   RefreshCw,
   CheckCircle2,
@@ -71,6 +72,8 @@ interface AdvancedSettingsProps {
  * Advanced settings for updates and notifications
  */
 export function AdvancedSettings({ settings, onSettingsChange, section, version }: AdvancedSettingsProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   // Auto Claude source update state
   const [sourceUpdateCheck, setSourceUpdateCheck] = useState<AutoBuildSourceUpdateCheck | null>(null);
   const [isCheckingSourceUpdate, setIsCheckingSourceUpdate] = useState(false);
@@ -203,8 +206,8 @@ export function AdvancedSettings({ settings, onSettingsChange, section, version 
   if (section === 'updates') {
     return (
       <SettingsSection
-        title="Updates"
-        description="Manage Auto Claude updates"
+        title={t("settings:updates.title")}
+        description={t("settings:updates.description")}
       >
         <div className="space-y-6">
           {/* Electron App Update Section */}
@@ -212,20 +215,20 @@ export function AdvancedSettings({ settings, onSettingsChange, section, version 
             <div className="rounded-lg border-2 border-info/50 bg-info/5 p-5 space-y-4">
               <div className="flex items-center gap-2 text-info">
                 <Sparkles className="h-5 w-5" />
-                <h3 className="font-semibold">App Update Ready</h3>
+                <h3 className="font-semibold">{t("settings:updates.app.ready")}</h3>
               </div>
 
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-                    New Version
+                    {t("settings:updates.app.newVersion")}
                   </p>
                   <p className="text-base font-medium text-foreground">
                     {appUpdateInfo?.version || 'Unknown'}
                   </p>
                   {appUpdateInfo?.releaseDate && (
                     <p className="text-xs text-muted-foreground mt-1">
-                      Released {new Date(appUpdateInfo.releaseDate).toLocaleDateString()}
+                      {t("settings:updates.app.released", { date: new Date(appUpdateInfo.releaseDate).toLocaleDateString() })}
                     </p>
                   )}
                 </div>
@@ -249,7 +252,7 @@ export function AdvancedSettings({ settings, onSettingsChange, section, version 
               {isDownloadingAppUpdate && appDownloadProgress && (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Downloading...</span>
+                    <span className="text-muted-foreground">{t("settings:updates.app.downloading")}</span>
                     <span className="text-foreground font-medium">
                       {Math.round(appDownloadProgress.percent)}%
                     </span>
@@ -265,7 +268,7 @@ export function AdvancedSettings({ settings, onSettingsChange, section, version 
               {isAppUpdateDownloaded && (
                 <div className="flex items-center gap-3 text-sm text-success bg-success/10 border border-success/30 rounded-lg p-3">
                   <CheckCircle2 className="h-5 w-5 shrink-0" />
-                  <span>Update downloaded! Click Install to restart and apply the update.</span>
+                  <span>{t("settings:updates.app.success")}</span>
                 </div>
               )}
 
@@ -274,7 +277,7 @@ export function AdvancedSettings({ settings, onSettingsChange, section, version 
                 {isAppUpdateDownloaded ? (
                   <Button onClick={handleInstallAppUpdate}>
                     <RefreshCw className="mr-2 h-4 w-4" />
-                    Install and Restart
+                    {t("settings:updates.app.install")}
                   </Button>
                 ) : (
                   <Button
@@ -284,12 +287,12 @@ export function AdvancedSettings({ settings, onSettingsChange, section, version 
                     {isDownloadingAppUpdate ? (
                       <>
                         <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                        Downloading...
+                        {t("settings:updates.app.downloading")}
                       </>
                     ) : (
                       <>
                         <Download className="mr-2 h-4 w-4" />
-                        Download Update
+                        {t("settings:updates.app.download")}
                       </>
                     )}
                   </Button>
@@ -302,7 +305,7 @@ export function AdvancedSettings({ settings, onSettingsChange, section, version 
           <div className="rounded-lg border border-border bg-muted/50 p-5 space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Version</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">{t("common:common.version")}</p>
                 <p className="text-base font-medium text-foreground">
                   {displayVersion || 'Loading...'}
                 </p>
@@ -319,13 +322,13 @@ export function AdvancedSettings({ settings, onSettingsChange, section, version 
             {/* Update status */}
             {isCheckingSourceUpdate ? (
               <p className="text-sm text-muted-foreground">
-                Checking for updates...
+                {t("settings:updates.source.checking")}
               </p>
             ) : sourceUpdateCheck ? (
               <>
                 {sourceUpdateCheck.latestVersion && sourceUpdateCheck.updateAvailable && (
                   <p className="text-sm text-info">
-                    New version available: {sourceUpdateCheck.latestVersion}
+                    {t("settings:updates.source.available", { version: sourceUpdateCheck.latestVersion })}
                   </p>
                 )}
 
@@ -335,7 +338,7 @@ export function AdvancedSettings({ settings, onSettingsChange, section, version 
 
                 {!sourceUpdateCheck.updateAvailable && !sourceUpdateCheck.error && (
                   <p className="text-sm text-muted-foreground">
-                    You&apos;re running the latest version.
+                    {t("settings:updates.source.latest")}
                   </p>
                 )}
 
@@ -353,7 +356,7 @@ export function AdvancedSettings({ settings, onSettingsChange, section, version 
                         className="inline-flex items-center gap-1.5 text-sm text-info hover:text-info/80 hover:underline transition-colors"
                       >
                         <ExternalLink className="h-3.5 w-3.5" />
-                        View full release on GitHub
+                        {t("settings:updates.source.viewGitHub")}
                       </button>
                     )}
 
@@ -361,7 +364,7 @@ export function AdvancedSettings({ settings, onSettingsChange, section, version 
                       <div className="space-y-3">
                         <div className="flex items-center gap-3 text-sm">
                           <RefreshCw className="h-4 w-4 animate-spin" />
-                          <span>{downloadProgress?.message || 'Downloading...'}</span>
+                          <span>{downloadProgress?.message || t("settings:updates.source.checking")}</span>
                         </div>
                         {downloadProgress?.percent !== undefined && (
                           <Progress value={downloadProgress.percent} className="h-2" />
@@ -380,7 +383,7 @@ export function AdvancedSettings({ settings, onSettingsChange, section, version 
                     ) : (
                       <Button onClick={handleDownloadSourceUpdate}>
                         <CloudDownload className="mr-2 h-4 w-4" />
-                        Download Update
+                        {t("settings:updates.source.download")}
                       </Button>
                     )}
                   </div>
@@ -388,7 +391,7 @@ export function AdvancedSettings({ settings, onSettingsChange, section, version 
               </>
             ) : (
               <p className="text-sm text-muted-foreground">
-                Unable to check for updates
+                {t("settings:updates.source.unable")}
               </p>
             )}
 
@@ -400,16 +403,16 @@ export function AdvancedSettings({ settings, onSettingsChange, section, version 
                 disabled={isCheckingSourceUpdate}
               >
                 <RefreshCw className={cn('mr-2 h-4 w-4', isCheckingSourceUpdate && 'animate-spin')} />
-                Check for Updates
+                {t("settings:updates.source.check")}
               </Button>
             </div>
           </div>
 
           <div className="flex items-center justify-between p-4 rounded-lg border border-border">
             <div className="space-y-1">
-              <Label className="font-medium text-foreground">Auto-Update Projects</Label>
+              <Label className="font-medium text-foreground">{t("settings:updates.source.autoUpdate.title")}</Label>
               <p className="text-sm text-muted-foreground">
-                Automatically update Auto Claude in projects when a new version is available
+                {t("settings:updates.source.autoUpdate.description")}
               </p>
             </div>
             <Switch
@@ -422,9 +425,9 @@ export function AdvancedSettings({ settings, onSettingsChange, section, version 
 
           <div className="flex items-center justify-between p-4 rounded-lg border border-border">
             <div className="space-y-1">
-              <Label className="font-medium text-foreground">Beta Updates</Label>
+              <Label className="font-medium text-foreground">{t("settings:updates.source.beta.title")}</Label>
               <p className="text-sm text-muted-foreground">
-                Receive pre-release beta versions with new features (may be less stable)
+                {t("settings:updates.source.beta.description")}
               </p>
             </div>
             <Switch
@@ -442,8 +445,8 @@ export function AdvancedSettings({ settings, onSettingsChange, section, version 
   // notifications section
   return (
     <SettingsSection
-      title="Notifications"
-      description="Configure default notification preferences"
+      title={t("settings:notifications.title")}
+      description={t("settings:notifications.description")}
     >
       <div className="space-y-4">
         {[
@@ -454,8 +457,8 @@ export function AdvancedSettings({ settings, onSettingsChange, section, version 
         ].map((item) => (
           <div key={item.key} className="flex items-center justify-between p-4 rounded-lg border border-border">
             <div className="space-y-1">
-              <Label className="font-medium text-foreground">{item.label}</Label>
-              <p className="text-sm text-muted-foreground">{item.description}</p>
+              <Label className="font-medium text-foreground">{t(`settings:notifications.${item.key}.label`)}</Label>
+              <p className="text-sm text-muted-foreground">{t(`settings:notifications.${item.key}.description`)}</p>
             </div>
             <Switch
               checked={settings.notifications[item.key as keyof typeof settings.notifications]}

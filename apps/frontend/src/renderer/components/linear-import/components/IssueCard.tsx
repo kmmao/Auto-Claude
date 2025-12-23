@@ -3,6 +3,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   CheckSquare,
   Square,
@@ -21,6 +22,8 @@ interface IssueCardProps {
 }
 
 export function IssueCard({ issue, isSelected, onToggle }: IssueCardProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (

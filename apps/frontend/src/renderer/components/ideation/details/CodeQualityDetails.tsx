@@ -7,6 +7,7 @@ import {
   BookOpen,
   Clock
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Badge } from '../../ui/badge';
 import { Card } from '../../ui/card';
 import {
@@ -21,6 +22,8 @@ interface CodeQualityDetailsProps {
 }
 
 export function CodeQualityDetails({ idea }: CodeQualityDetailsProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   return (
     <>
       {/* Metrics */}

@@ -1,4 +1,5 @@
 import { Monitor, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
+import { Trans, useTranslation } from 'react-i18next';
 import { cn } from '../../lib/utils';
 import { Label } from '../ui/label';
 import { SettingsSection } from './SettingsSection';
@@ -11,19 +12,21 @@ interface DisplaySettingsProps {
   onSettingsChange: (settings: AppSettings) => void;
 }
 
-// Preset scale values (100%, 125%, 150%)
-const SCALE_PRESETS = [
-  { value: UI_SCALE_DEFAULT, label: '100%', description: 'Default' },
-  { value: 125, label: '125%', description: 'Comfortable' },
-  { value: 150, label: '150%', description: 'Large' }
-] as const;
-
 /**
  * Display settings section for UI scale/zoom control
  * Provides preset buttons (100%, 125%, 150%) and a fine-tune slider (75-200%)
  * Changes apply immediately for live preview (like theme), saved on "Save Settings"
  */
 export function DisplaySettings({ settings, onSettingsChange }: DisplaySettingsProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
+  // Preset scale values (100%, 125%, 150%)
+  const SCALE_PRESETS = [
+    { value: UI_SCALE_DEFAULT, label: '100%', description: t("settings:display.scale.compact") },
+    { value: 125, label: '125%', description: t("settings:display.scale.comfortable") },
+    { value: 150, label: '150%', description: t("settings:display.scale.spacious") }
+  ] as const;
+
   const updateStoreSettings = useSettingsStore((state) => state.updateSettings);
 
   const currentScale = settings.uiScale ?? UI_SCALE_DEFAULT;
@@ -45,15 +48,15 @@ export function DisplaySettings({ settings, onSettingsChange }: DisplaySettingsP
 
   return (
     <SettingsSection
-      title="Display"
-      description="Adjust the size of UI elements"
+      title={t("settings:display.title")}
+      description={t("settings:display.scale.description")}
     >
       <div className="space-y-6">
         {/* Preset Buttons */}
         <div className="space-y-3">
-          <Label className="text-sm font-medium text-foreground">Scale Presets</Label>
+          <Label className="text-sm font-medium text-foreground">{t("settings:display.scale.presets")}</Label>
           <p className="text-sm text-muted-foreground">
-            Quick scale options for common preferences
+            {t("settings:display.scale.presetsDesc")}
           </p>
           <div className="grid grid-cols-3 gap-3 max-w-md pt-1">
             {SCALE_PRESETS.map((preset) => {
@@ -84,7 +87,7 @@ export function DisplaySettings({ settings, onSettingsChange }: DisplaySettingsP
         {/* Fine-tune Slider */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label className="text-sm font-medium text-foreground">Fine-tune Scale</Label>
+            <Label className="text-sm font-medium text-foreground">{t("settings:display.scale.finetune")}</Label>
             <div className="flex items-center gap-2">
               <span className="text-sm font-mono text-muted-foreground">
                 {currentScale}%
@@ -97,7 +100,7 @@ export function DisplaySettings({ settings, onSettingsChange }: DisplaySettingsP
                     'hover:bg-accent text-muted-foreground hover:text-foreground',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
                   )}
-                  title="Reset to default (100%)"
+                  title={t("settings:display.scale.reset")}
                 >
                   <RotateCcw className="h-3.5 w-3.5" />
                 </button>
@@ -105,7 +108,7 @@ export function DisplaySettings({ settings, onSettingsChange }: DisplaySettingsP
             </div>
           </div>
           <p className="text-sm text-muted-foreground">
-            Adjust from {UI_SCALE_MIN}% to {UI_SCALE_MAX}% in {UI_SCALE_STEP}% increments
+            {t("settings:display.scale.rangeDesc", { min: UI_SCALE_MIN, max: UI_SCALE_MAX, step: UI_SCALE_STEP })}
           </p>
 
           {/* Slider with icons */}
@@ -154,7 +157,10 @@ export function DisplaySettings({ settings, onSettingsChange }: DisplaySettingsP
         {/* Preview hint */}
         <div className="rounded-lg bg-muted/50 border border-border p-4 text-sm">
           <p className="text-muted-foreground">
-            Changes preview immediately. Click <strong className="text-foreground">Save Settings</strong> to persist your preferences.
+            <Trans
+              i18nKey="settings:display.scale.previewHint"
+              components={{ 1: <strong className="text-foreground" /> }}
+            />
           </p>
         </div>
       </div>

@@ -4,6 +4,7 @@ import { CheckCircle, AlertTriangle, XCircle, AlertCircle } from 'lucide-react';
  * Returns the appropriate icon component based on conflict severity level
  */
 export function getSeverityIcon(severity: string) {
+
   switch (severity) {
     case 'none':
     case 'low':

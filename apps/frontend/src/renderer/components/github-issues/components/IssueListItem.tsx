@@ -1,6 +1,7 @@
 import { User, MessageCircle, Tag, Sparkles } from 'lucide-react';
 import { Badge } from '../../ui/badge';
 import { Button } from '../../ui/button';
+import { useTranslation } from 'react-i18next';
 import {
   GITHUB_ISSUE_STATE_COLORS,
   GITHUB_ISSUE_STATE_LABELS
@@ -8,13 +9,14 @@ import {
 import type { IssueListItemProps } from '../types';
 
 export function IssueListItem({ issue, isSelected, onClick, onInvestigate }: IssueListItemProps) {
+  const { t } = useTranslation(['common', 'settings', 'github']);
+
   return (
     <div
-      className={`group p-3 rounded-lg cursor-pointer transition-colors ${
-        isSelected
+      className={`group p-3 rounded-lg cursor-pointer transition-colors ${isSelected
           ? 'bg-accent/50 border border-accent'
           : 'hover:bg-muted/50 border border-transparent'
-      }`}
+        }`}
       onClick={onClick}
     >
       <div className="flex items-start gap-3">

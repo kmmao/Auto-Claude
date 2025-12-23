@@ -12,8 +12,11 @@ import { useRoadmapData, useFeatureActions, useRoadmapGeneration, useRoadmapSave
 import { getCompetitorInsightsForFeature } from './roadmap/utils';
 import type { RoadmapFeature } from '../../shared/types';
 import type { RoadmapProps } from './roadmap/types';
+import { useTranslation } from 'react-i18next';
 
 export function Roadmap({ projectId, onGoToTask }: RoadmapProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   // State management
   const [selectedFeature, setSelectedFeature] = useState<RoadmapFeature | null>(null);
   const [activeTab, setActiveTab] = useState('kanban');

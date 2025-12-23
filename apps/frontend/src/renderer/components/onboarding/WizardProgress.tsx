@@ -1,5 +1,6 @@
 import { Check } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { useTranslation } from 'react-i18next';
 
 export interface WizardStep {
   id: string;
@@ -18,6 +19,8 @@ interface WizardProgressProps {
  * for completed, current, and upcoming steps.
  */
 export function WizardProgress({ currentStep, steps }: WizardProgressProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   return (
     <div className="flex items-center justify-center">
       {steps.map((step, index) => {

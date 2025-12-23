@@ -1,5 +1,6 @@
 import { ListTodo, Plus, X, ChevronDown, Loader2 } from 'lucide-react';
 import type { Task } from '../../../shared/types';
+import { useTranslation } from 'react-i18next';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,6 +28,8 @@ export function TaskSelector({
   onClearTask,
   onNewTaskClick,
 }: TaskSelectorProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const executionPhase = associatedTask?.executionProgress?.phase || 'idle';
   const phaseConfig = PHASE_CONFIG[executionPhase];
   const PhaseIcon = phaseConfig.icon;

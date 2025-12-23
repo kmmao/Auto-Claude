@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation, Trans } from 'react-i18next';
 import {
   RefreshCw,
   Database,
@@ -36,6 +37,8 @@ export function MemoriesTab({
   searchLoading,
   onSearch
 }: MemoriesTabProps) {
+  const { t } = useTranslation(['common', 'context']);
+
   const [localSearchQuery, setLocalSearchQuery] = useState('');
 
   const handleSearch = () => {
@@ -59,17 +62,17 @@ export function MemoriesTab({
             <div className="flex items-center justify-between">
               <CardTitle className="text-base flex items-center gap-2">
                 <Database className="h-4 w-4" />
-                Graph Memory Status
+                {t('context:memories.status.title')}
               </CardTitle>
               {memoryStatus?.available ? (
                 <Badge variant="outline" className="bg-success/10 text-success border-success/30">
                   <CheckCircle className="h-3 w-3 mr-1" />
-                  Connected
+                  {t('context:memories.status.connected')}
                 </Badge>
               ) : (
                 <Badge variant="outline" className="bg-muted text-muted-foreground">
                   <XCircle className="h-3 w-3 mr-1" />
-                  Not Available
+                  {t('context:memories.status.notAvailable')}
                 </Badge>
               )}
             </div>
@@ -78,23 +81,23 @@ export function MemoriesTab({
             {memoryStatus?.available ? (
               <>
                 <div className="grid gap-3 sm:grid-cols-3 text-sm">
-                  <InfoItem label="Database" value={memoryStatus.database || 'auto_claude_memory'} />
-                  <InfoItem label="Path" value={memoryStatus.dbPath || '~/.auto-claude/graphs'} />
+                  <InfoItem label={t('context:memories.status.database')} value={memoryStatus.database || 'auto_claude_memory'} />
+                  <InfoItem label={t('context:memories.status.path')} value={memoryStatus.dbPath || '~/.auto-claude/graphs'} />
                   {memoryState && (
-                    <InfoItem label="Episodes" value={memoryState.episode_count.toString()} />
+                    <InfoItem label={t('context:memories.status.episodes')} value={memoryState.episode_count.toString()} />
                   )}
                 </div>
                 {memoryState?.last_session && (
                   <p className="text-xs text-muted-foreground">
-                    Last session: #{memoryState.last_session}
+                    {t('context:memories.status.lastSession', { id: memoryState.last_session })}
                   </p>
                 )}
               </>
             ) : (
               <div className="text-sm text-muted-foreground">
-                <p>{memoryStatus?.reason || 'Graphiti memory is not configured'}</p>
+                <p>{memoryStatus?.reason || t('context:memories.status.notConfigured')}</p>
                 <p className="mt-2 text-xs">
-                  To enable graph memory, set <code className="bg-muted px-1 py-0.5 rounded">GRAPHITI_ENABLED=true</code> in project settings.
+                  <Trans i18nKey="context:memories.status.enableHint" components={{ 1: <code className="bg-muted px-1 py-0.5 rounded" /> }} />
                 </p>
               </div>
             )}
@@ -104,11 +107,11 @@ export function MemoriesTab({
         {/* Search */}
         <div className="space-y-4">
           <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-            Search Memories
+            {t('context:memories.search.title')}
           </h3>
           <div className="flex gap-2">
             <Input
-              placeholder="Search for patterns, insights, gotchas..."
+              placeholder={t('context:memories.search.placeholder')}
               value={localSearchQuery}
               onChange={(e) => setLocalSearchQuery(e.target.value)}
               onKeyDown={handleSearchKeyDown}
@@ -122,7 +125,7 @@ export function MemoriesTab({
           {searchResults.length > 0 && (
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground">
-                {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} found
+                {t('context:memories.search.results', { count: searchResults.length })}
               </p>
               {searchResults.map((result, idx) => (
                 <Card key={idx} className="bg-muted/50">
@@ -132,7 +135,7 @@ export function MemoriesTab({
                         {result.type.replace('_', ' ')}
                       </Badge>
                       <span className="text-xs text-muted-foreground">
-                        Score: {result.score.toFixed(2)}
+                        {t('context:memories.search.score', { score: result.score.toFixed(2) })}
                       </span>
                     </div>
                     <pre className="text-xs text-muted-foreground whitespace-pre-wrap font-mono max-h-40 overflow-auto">
@@ -148,7 +151,7 @@ export function MemoriesTab({
         {/* Recent Memories */}
         <div className="space-y-4">
           <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-            Recent Memories
+            {t('context:memories.recent.title')}
           </h3>
 
           {memoriesLoading && (
@@ -161,7 +164,7 @@ export function MemoriesTab({
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <Brain className="h-10 w-10 text-muted-foreground mb-3" />
               <p className="text-sm text-muted-foreground">
-                No memories recorded yet. Memories are created during AI agent sessions.
+                {t('context:memories.recent.empty')}
               </p>
             </div>
           )}

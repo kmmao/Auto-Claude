@@ -4,6 +4,7 @@ import { Step3SuccessScreen } from './Step3SuccessScreen';
 import { useImageUpload } from './hooks/useImageUpload';
 import { getSummaryInfo } from './utils';
 import { useProjectStore } from '../../stores/project-store';
+import { useTranslation } from 'react-i18next';
 import type {
   ChangelogFormat,
   ChangelogAudience,
@@ -50,6 +51,8 @@ interface Step2ConfigureGenerateProps {
 }
 
 export function Step2ConfigureGenerate(props: Step2ConfigureGenerateProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const {
     sourceMode,
     selectedTaskIds,

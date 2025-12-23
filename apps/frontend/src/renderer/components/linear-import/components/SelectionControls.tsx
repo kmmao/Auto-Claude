@@ -3,7 +3,7 @@
  */
 
 import { CheckSquare, Square, Minus, RefreshCw } from 'lucide-react';
-
+import { useTranslation } from 'react-i18next';
 interface SelectionControlsProps {
   isAllSelected: boolean;
   isSomeSelected: boolean;
@@ -25,6 +25,8 @@ export function SelectionControls({
   onDeselectAll,
   onRefresh
 }: SelectionControlsProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   return (
     <div className="flex items-center justify-between py-2 border-b border-border shrink-0">
       <div className="flex items-center gap-3">
@@ -51,9 +53,7 @@ export function SelectionControls({
         className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
         disabled={isLoadingIssues}
       >
-        <RefreshCw className={`h-3 w-3 ${isLoadingIssues ? 'animate-spin' : ''}`} />
-        Refresh
-      </button>
+        <RefreshCw className={`h-3 w-3 ${isLoadingIssues ? 'animate-spin' : ''}`} />{t("common:buttons.refresh")}</button>
     </div>
   );
 }

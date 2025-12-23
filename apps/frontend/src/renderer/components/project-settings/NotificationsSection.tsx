@@ -1,6 +1,7 @@
 import { Label } from '../ui/label';
 import { Switch } from '../ui/switch';
 import type { ProjectSettings } from '../../../shared/types';
+import { useTranslation } from 'react-i18next';
 
 interface NotificationsSectionProps {
   settings: ProjectSettings;
@@ -8,6 +9,8 @@ interface NotificationsSectionProps {
 }
 
 export function NotificationsSection({ settings, onUpdateSettings }: NotificationsSectionProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   return (
     <section className="space-y-4">
       <h3 className="text-sm font-semibold text-foreground">Notifications</h3>

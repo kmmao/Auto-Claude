@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Route, ChevronDown, ChevronRight, Lock } from 'lucide-react';
 import { Badge } from '../../ui/badge';
+import { useTranslation } from 'react-i18next';
 import {
   Collapsible,
   CollapsibleContent,
@@ -13,6 +14,8 @@ interface APIRoutesSectionProps {
 }
 
 export function APIRoutesSection({ api }: APIRoutesSectionProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const [expanded, setExpanded] = useState(false);
 
   if (!api || api.total_routes === 0) {

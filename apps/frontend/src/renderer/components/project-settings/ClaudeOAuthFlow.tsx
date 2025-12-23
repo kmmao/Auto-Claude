@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Key,
   Loader2,
@@ -20,6 +21,8 @@ interface ClaudeOAuthFlowProps {
  * Guides users through authenticating with Claude using claude setup-token
  */
 export function ClaudeOAuthFlow({ onSuccess, onCancel }: ClaudeOAuthFlowProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const [status, setStatus] = useState<'ready' | 'authenticating' | 'success' | 'error'>('ready');
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState<string | undefined>();
@@ -227,13 +230,9 @@ export function ClaudeOAuthFlow({ onSuccess, onCancel }: ClaudeOAuthFlowProps) {
           </Card>
 
           <div className="flex justify-center gap-3">
-            <Button onClick={handleRetry} variant="outline">
-              Retry
-            </Button>
+            <Button onClick={handleRetry} variant="outline">{t("common:buttons.retry")}</Button>
             {onCancel && (
-              <Button onClick={onCancel} variant="ghost">
-                Cancel
-              </Button>
+              <Button onClick={onCancel} variant="ghost">{t("common:buttons.cancel")}</Button>
             )}
           </div>
         </div>

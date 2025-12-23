@@ -11,6 +11,7 @@ import { Switch } from '../ui/switch';
 import { Separator } from '../ui/separator';
 import { Button } from '../ui/button';
 import type { ProjectEnvConfig, GitHubSyncStatus } from '../../../shared/types';
+import { useTranslation } from 'react-i18next';
 
 interface GitHubIntegrationSectionProps {
   isExpanded: boolean;
@@ -31,6 +32,8 @@ export function GitHubIntegrationSection({
   isCheckingGitHub,
   projectName,
 }: GitHubIntegrationSectionProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const [showOAuthFlow, setShowOAuthFlow] = useState(false);
 
   const badge = envConfig.githubEnabled ? (

@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Separator } from '../ui/separator';
 import { Button } from '../ui/button';
 import type { ProjectEnvConfig, ProjectSettings, InfrastructureStatus as InfrastructureStatusType } from '../../../shared/types';
+import { useTranslation } from 'react-i18next';
 
 interface OllamaEmbeddingModel {
   name: string;
@@ -43,6 +44,8 @@ export function MemoryBackendSection({
   infrastructureStatus,
   isCheckingInfrastructure,
 }: MemoryBackendSectionProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   // Ollama model detection state
   const [ollamaModels, setOllamaModels] = useState<OllamaEmbeddingModel[]>([]);
   const [ollamaStatus, setOllamaStatus] = useState<'idle' | 'checking' | 'connected' | 'disconnected'>('idle');

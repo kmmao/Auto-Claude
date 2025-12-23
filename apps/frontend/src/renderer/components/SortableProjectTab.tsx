@@ -3,6 +3,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { cn } from '../lib/utils';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import type { Project } from '../../shared/types';
+import { useTranslation } from 'react-i18next';
 
 interface SortableProjectTabProps {
   project: Project;
@@ -25,6 +26,8 @@ export function SortableProjectTab({
   onSelect,
   onClose
 }: SortableProjectTabProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   // Build tooltip with keyboard shortcut hint (only for tabs 1-9)
   const shortcutHint = tabIndex < 9 ? `${modKey}${tabIndex + 1}` : '';
   const closeShortcut = `${modKey}W`;

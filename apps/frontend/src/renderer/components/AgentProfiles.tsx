@@ -3,6 +3,7 @@ import { cn } from '../lib/utils';
 import { DEFAULT_AGENT_PROFILES, AVAILABLE_MODELS, THINKING_LEVELS } from '../../shared/constants';
 import { useSettingsStore, saveSettings } from '../stores/settings-store';
 import type { AgentProfile } from '../../shared/types/settings';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Icon mapping for agent profile icons
@@ -18,6 +19,8 @@ const iconMap: Record<string, React.ElementType> = {
  * Displays preset agent profiles for quick model/thinking level configuration
  */
 export function AgentProfiles() {
+  const { t } = useTranslation(['common', 'settings']);
+
   const settings = useSettingsStore((state) => state.settings);
   const selectedProfileId = settings.selectedAgentProfile || 'auto';
 

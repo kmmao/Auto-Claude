@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Key, ChevronDown, ChevronRight } from 'lucide-react';
 import { Badge } from '../../ui/badge';
+import { useTranslation } from 'react-i18next';
 import {
   Collapsible,
   CollapsibleContent,
@@ -13,6 +14,8 @@ interface EnvironmentSectionProps {
 }
 
 export function EnvironmentSection({ environment }: EnvironmentSectionProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const [expanded, setExpanded] = useState(false);
 
   if (!environment || environment.detected_count === 0) {

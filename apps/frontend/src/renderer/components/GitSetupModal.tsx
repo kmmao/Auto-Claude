@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { GitBranch, Terminal, CheckCircle2, AlertCircle, Loader2, FolderGit2 } from 'lucide-react';
 import { Button } from './ui/button';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -28,6 +29,8 @@ export function GitSetupModal({
   onGitInitialized,
   onSkip
 }: GitSetupModalProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const [isInitializing, setIsInitializing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [step, setStep] = useState<'info' | 'initializing' | 'success'>('info');

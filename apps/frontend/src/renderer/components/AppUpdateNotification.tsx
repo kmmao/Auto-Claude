@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Download,
   RefreshCw,
@@ -62,6 +63,8 @@ function ReleaseNotesRenderer({ markdown }: { markdown: string }) {
  * Shows when a new app version is available and handles download/install workflow
  */
 export function AppUpdateNotification() {
+  const { t } = useTranslation(['common', 'settings']);
+
   const [isOpen, setIsOpen] = useState(false);
   const [updateInfo, setUpdateInfo] = useState<AppUpdateAvailableEvent | null>(null);
   const [downloadProgress, setDownloadProgress] = useState<AppUpdateProgress | null>(null);

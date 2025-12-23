@@ -3,6 +3,7 @@ import { Archive, RefreshCw, CheckCircle, AlertCircle } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import type { ChangelogTask } from '../../../shared/types';
+import { useTranslation } from 'react-i18next';
 
 interface ArchiveTasksCardProps {
   projectId: string;
@@ -17,6 +18,8 @@ export function ArchiveTasksCard({
   selectedTaskIds,
   selectedTasks
 }: ArchiveTasksCardProps) {
+  const { t } = useTranslation(['common', 'settings', 'changelog']);
+
   const [isArchiving, setIsArchiving] = useState(false);
   const [archiveSuccess, setArchiveSuccess] = useState(false);
   const [archiveError, setArchiveError] = useState<string | null>(null);
@@ -43,7 +46,7 @@ export function ArchiveTasksCard({
       <CardHeader className="pb-3">
         <div className="flex items-center gap-2">
           <Archive className="h-5 w-5" />
-          <CardTitle className="text-base">Archive Completed Tasks</CardTitle>
+          <CardTitle className="text-base">{t('changelog:success.archiveTasks.title')}</CardTitle>
         </div>
       </CardHeader>
       <CardContent>
@@ -51,15 +54,13 @@ export function ArchiveTasksCard({
           <div className="flex items-center gap-2 text-success">
             <CheckCircle className="h-4 w-4" />
             <span className="text-sm">
-              {selectedTasks.length} task{selectedTasks.length !== 1 ? 's' : ''} archived!
+              {t('changelog:success.archiveTasks.success', { count: selectedTasks.length })}
             </span>
           </div>
         ) : (
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              Archive {selectedTasks.length} task{selectedTasks.length !== 1 ? 's' : ''} to
-              clean up your Kanban board. Archived tasks can be viewed using the "Show
-              Archived" toggle.
+              {t('changelog:success.archiveTasks.description', { count: selectedTasks.length })}
             </p>
             {archiveError && (
               <div className="flex items-start gap-2 text-destructive text-sm">
@@ -76,12 +77,12 @@ export function ArchiveTasksCard({
               {isArchiving ? (
                 <>
                   <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                  Archiving...
+                  {t('changelog:success.archiveTasks.archiving')}
                 </>
               ) : (
                 <>
                   <Archive className="mr-2 h-4 w-4" />
-                  Archive {selectedTasks.length} Task{selectedTasks.length !== 1 ? 's' : ''}
+                  {t('changelog:success.archiveTasks.button', { count: selectedTasks.length })}
                 </>
               )}
             </Button>

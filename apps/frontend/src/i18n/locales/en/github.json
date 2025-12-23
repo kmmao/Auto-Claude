@@ -1,0 +1,54 @@
+{
+  "header": {
+    "title": "GitHub Issues",
+    "openIssues_one": "{{count}} open",
+    "openIssues_other": "{{count}} open",
+    "searchPlaceholder": "Search issues..."
+  },
+  "filters": {
+    "open": "Open",
+    "closed": "Closed",
+    "all": "All"
+  },
+  "list": {
+    "emptySearch": "No issues match your search",
+    "emptyMessage": "No issues found",
+    "loading": "Loading...",
+    "notConnected": {
+      "title": "GitHub Not Connected",
+      "description": "Configure your GitHub token and repository in project settings to sync issues.",
+      "button": "Open Settings"
+    }
+  },
+  "detail": {
+    "comments": "{{count}} comments",
+    "labels": "Labels",
+    "milestone": "Milestone",
+    "assignees": "Assignees",
+    "noDescription": "No description provided.",
+    "viewTask": "View Task",
+    "createTask": "Create Task",
+    "taskLinked": "Task Linked",
+    "taskId": "Task ID: {{id}}",
+    "selectToView": "Select an issue to view details"
+  },
+  "investigation": {
+    "title": "Create Task from Issue",
+    "issueTitle": "Issue #{{number}}: {{title}}",
+    "description": "Create a task from this GitHub issue. The task will be added to your Kanban board in the Backlog column.",
+    "selectComments": "Select Comments to Include ({{selected}}/{{total}})",
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All",
+    "failedToLoadComments": "Failed to load comments",
+    "noComments": "No comments (this issue has no comments)",
+    "taskIncludes": "The task will include:",
+    "includeTitle": "Issue title and description",
+    "includeLink": "Link back to the GitHub issue",
+    "includeMetadata": "Labels and metadata from the issue",
+    "loading": "Creating...",
+    "success": "Task created! View it in your Kanban board.",
+    "done": "Done",
+    "cancel": "Cancel",
+    "create": "Create Task"
+  }
+}

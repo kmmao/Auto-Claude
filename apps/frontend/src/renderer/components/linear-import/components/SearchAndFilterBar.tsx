@@ -2,7 +2,9 @@
  * Search input and state filter dropdown
  */
 
+
 import { Search, Filter } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Input } from '../../ui/input';
 import {
   Select,
@@ -27,6 +29,8 @@ export function SearchAndFilterBar({
   onSearchChange,
   onFilterChange
 }: SearchAndFilterBarProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   return (
     <div className="flex gap-3 items-center shrink-0">
       <div className="flex-1 relative">

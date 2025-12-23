@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, type DragEvent } from 'react';
 import { ChevronRight, ChevronDown, Folder, File, FileCode, FileJson, FileText, FileImage, Loader2 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import type { FileNode } from '../../shared/types';
+import { useTranslation } from 'react-i18next';
 
 interface FileTreeItemProps {
   node: FileNode;
@@ -70,6 +71,8 @@ export function FileTreeItem({
   isLoading,
   onToggle,
 }: FileTreeItemProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const [isDragging, setIsDragging] = useState(false);
   const dragImageRef = useRef<HTMLDivElement | null>(null);
 

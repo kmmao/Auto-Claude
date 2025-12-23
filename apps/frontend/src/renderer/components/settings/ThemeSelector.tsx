@@ -4,6 +4,7 @@ import { Label } from '../ui/label';
 import { COLOR_THEMES } from '../../../shared/constants';
 import { useSettingsStore } from '../../stores/settings-store';
 import type { ColorTheme, AppSettings } from '../../../shared/types';
+import { useTranslation } from 'react-i18next';
 
 interface ThemeSelectorProps {
   settings: AppSettings;
@@ -18,6 +19,8 @@ interface ThemeSelectorProps {
  * require saving to take effect.
  */
 export function ThemeSelector({ settings, onSettingsChange }: ThemeSelectorProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const updateStoreSettings = useSettingsStore((state) => state.updateSettings);
 
   const currentColorTheme = settings.colorTheme || 'default';
@@ -54,8 +57,8 @@ export function ThemeSelector({ settings, onSettingsChange }: ThemeSelectorProps
     <div className="space-y-6">
       {/* Mode Toggle */}
       <div className="space-y-3">
-        <Label className="text-sm font-medium text-foreground">Appearance Mode</Label>
-        <p className="text-sm text-muted-foreground">Choose light, dark, or system preference</p>
+        <Label className="text-sm font-medium text-foreground">{t("settings:appearance.mode.title")}</Label>
+        <p className="text-sm text-muted-foreground">{t("settings:appearance.mode.description")}</p>
         <div className="grid grid-cols-3 gap-3 max-w-md pt-1">
           {(['system', 'light', 'dark'] as const).map((mode) => (
             <button
@@ -70,7 +73,7 @@ export function ThemeSelector({ settings, onSettingsChange }: ThemeSelectorProps
               )}
             >
               {getModeIcon(mode)}
-              <span className="text-sm font-medium capitalize">{mode}</span>
+              <span className="text-sm font-medium">{t(`settings:appearance.mode.${mode}`)}</span>
             </button>
           ))}
         </div>
@@ -78,8 +81,8 @@ export function ThemeSelector({ settings, onSettingsChange }: ThemeSelectorProps
 
       {/* Color Theme Grid */}
       <div className="space-y-3">
-        <Label className="text-sm font-medium text-foreground">Color Theme</Label>
-        <p className="text-sm text-muted-foreground">Select a color palette for the interface</p>
+        <Label className="text-sm font-medium text-foreground">{t("settings:appearance.colorTheme.title")}</Label>
+        <p className="text-sm text-muted-foreground">{t("settings:appearance.colorTheme.description")}</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-1">
           {COLOR_THEMES.map((theme) => {
             const isSelected = currentColorTheme === theme.id;
@@ -125,8 +128,8 @@ export function ThemeSelector({ settings, onSettingsChange }: ThemeSelectorProps
 
                 {/* Theme info */}
                 <div className="space-y-1">
-                  <p className="font-medium text-sm text-foreground">{theme.name}</p>
-                  <p className="text-xs text-muted-foreground line-clamp-2">{theme.description}</p>
+                  <p className="font-medium text-sm text-foreground">{t(`settings:appearance.colorTheme.${theme.id}`)}</p>
+                  <p className="text-xs text-muted-foreground line-clamp-2">{t(`settings:appearance.colorTheme.${theme.id}Desc`)}</p>
                 </div>
               </button>
             );

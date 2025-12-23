@@ -1,0 +1,124 @@
+{
+  "header": {
+    "title": "更新日志生成器",
+    "step1": "步骤 1：选择要包含的已完成任务",
+    "step2": "步骤 2：配置并生成更新日志",
+    "step3": "步骤 3：发布和归档任务",
+    "steps": {
+      "select": "选择",
+      "generate": "生成",
+      "release": "发布"
+    }
+  },
+  "noProject": {
+    "title": "未选择项目",
+    "description": "从侧边栏选择一个项目以生成更新日志。"
+  },
+  "filters": {
+    "source": {
+      "label": "更新日志来源",
+      "tasks": {
+        "label": "已完成任务",
+        "description": "使用看板中已完成的任务"
+      },
+      "gitHistory": {
+        "label": "Git 历史",
+        "description": "从提交信息生成"
+      },
+      "branchDiff": {
+        "label": "分支差异",
+        "description": "比较分支之间的更改"
+      }
+    },
+    "git": {
+      "title": "Git 历史选项",
+      "historyType": "历史类型",
+      "commitCount": "提交数量",
+      "sinceDate": "起始日期",
+      "fromTag": "起始标签",
+      "toTag": "结束标签（可选）",
+      "lastVersion": "上个版本",
+      "lastVersionDesc": "将包含自此版本以来的所有提交",
+      "includeMerge": "包含合并提交",
+      "loadCommits": "加载提交"
+    },
+    "diff": {
+      "title": "分支比较",
+      "baseBranch": "基础分支",
+      "baseBranchDesc": "你要合并到的分支",
+      "compareBranch": "比较分支",
+      "compareBranchDesc": "包含你更改的分支",
+      "sameBranchError": "分支必须不同"
+    }
+  },
+  "list": {
+    "taskSummary": "已选 {{selected}}/{{total}} 个任务",
+    "selectAll": "全选",
+    "clear": "清除",
+    "noTasks": {
+      "title": "没有已完成的任务",
+      "description": "在看板中完成任务并将其标记为“完成”以将其包含在更新日志中。"
+    },
+    "commitSummary": "找到 {{count}} 个提交",
+    "loadingCommits": "正在加载提交...",
+    "noCommits": {
+      "title": "未找到提交",
+      "gitDesc": "配置历史选项并点击“加载提交”进行预览。",
+      "diffDesc": "选择两个分支并点击“加载提交”查看更改。"
+    },
+    "continue": "继续"
+  },
+  "config": {
+    "back": "返回选择",
+    "summary": "包含 {{count}} 个{{type}}",
+    "releaseInfo": "发布信息",
+    "date": "日期",
+    "previousVersion": "上个版本：{{version}}",
+    "outputStyle": "输出样式",
+    "format": "格式",
+    "audience": "受众",
+    "emojis": "表情符号",
+    "advanced": "高级选项",
+    "instructions": "自定义指令",
+    "instructionsPlaceholder": "为 AI 添加任何特殊指令...",
+    "instructionsDesc": "可选。指导 AI 的语气、包含的具体细节等。",
+    "generate": "生成更新日志",
+    "generating": "正在生成..."
+  },
+  "preview": {
+    "title": "预览",
+    "markdown": "Markdown",
+    "copied": "已复制！",
+    "copy": "复制",
+    "saved": "已保存！",
+    "save": "保存到 CHANGELOG.md",
+    "dropImages": "拖放图片到此处以添加到更新日志",
+    "pasteImages": "将图片粘贴到描述中以将其保存到更新日志",
+    "placeholder": "生成的更新日志将显示在这里...",
+    "empty": "点击“生成更新日志”以创建发布说明。"
+  },
+  "success": {
+    "title": "更新日志已保存！",
+    "description": "版本 {{version}} 已添加到 CHANGELOG.md",
+    "done": "完成",
+    "githubRelease": {
+      "title": "创建 GitHub 发布",
+      "success": "发布创建成功！",
+      "view": "在 GitHub 上查看发布",
+      "description": "在 GitHub 上创建新版本 {{version}}，并将更新日志作为发布说明。",
+      "button": "创建发布 {{version}}",
+      "creating": "正在创建发布..."
+    },
+    "archiveTasks": {
+      "title": "归档已完成任务",
+      "success": "已归档 {{count}} 个任务！",
+      "description": "归档 {{count}} 个任务以清理看板。可以使用“显示已归档”开关查看已归档的任务。",
+      "button": "归档 {{count}} 个任务",
+      "archiving": "正在归档..."
+    }
+  },
+  "entry": {
+    "hasSpecs": "包含规格",
+    "filesChanged": "{{count}} 个文件"
+  }
+}

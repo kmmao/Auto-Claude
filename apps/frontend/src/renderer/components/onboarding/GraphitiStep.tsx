@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Brain,
   Database,
@@ -109,6 +110,8 @@ interface ValidationStatus {
  * Allows users to configure Graphiti memory backend with multiple provider options.
  */
 export function GraphitiStep({ onNext, onBack, onSkip }: GraphitiStepProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const { settings, updateSettings } = useSettingsStore();
   const [config, setConfig] = useState<GraphitiConfig>({
     enabled: false,
@@ -1036,17 +1039,13 @@ export function GraphitiStep({ onNext, onBack, onSkip }: GraphitiStepProps) {
             variant="ghost"
             onClick={onBack}
             className="text-muted-foreground hover:text-foreground"
-          >
-            Back
-          </Button>
+          >{t("common:buttons.back")}</Button>
           <div className="flex gap-4">
             <Button
               variant="ghost"
               onClick={onSkip}
               className="text-muted-foreground hover:text-foreground"
-            >
-              Skip
-            </Button>
+            >{t("common:buttons.skip")}</Button>
             <Button
               onClick={handleContinue}
               disabled={isCheckingInfra || (config.enabled && !!getRequiredApiKey() && !success) || isSaving || isValidating}

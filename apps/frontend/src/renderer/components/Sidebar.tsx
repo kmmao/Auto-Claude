@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Plus,
   Settings,
@@ -64,19 +65,20 @@ interface NavItem {
   shortcut?: string;
 }
 
-const projectNavItems: NavItem[] = [
-  { id: 'kanban', label: 'Kanban Board', icon: LayoutGrid, shortcut: 'K' },
-  { id: 'terminals', label: 'Agent Terminals', icon: Terminal, shortcut: 'A' },
-  { id: 'insights', label: 'Insights', icon: Sparkles, shortcut: 'N' },
-  { id: 'roadmap', label: 'Roadmap', icon: Map, shortcut: 'D' },
-  { id: 'ideation', label: 'Ideation', icon: Lightbulb, shortcut: 'I' },
-  { id: 'changelog', label: 'Changelog', icon: FileText, shortcut: 'L' },
-  { id: 'context', label: 'Context', icon: BookOpen, shortcut: 'C' }
+// Navigation items - labels will be translated dynamically
+const getProjectNavItems = (t: (key: string) => string): NavItem[] => [
+  { id: 'kanban', label: t('sidebar:navigation.kanban'), icon: LayoutGrid, shortcut: 'K' },
+  { id: 'terminals', label: t('sidebar:navigation.terminals'), icon: Terminal, shortcut: 'A' },
+  { id: 'insights', label: t('sidebar:navigation.insights'), icon: Sparkles, shortcut: 'N' },
+  { id: 'roadmap', label: t('sidebar:navigation.roadmap'), icon: Map, shortcut: 'D' },
+  { id: 'ideation', label: t('sidebar:navigation.ideation'), icon: Lightbulb, shortcut: 'I' },
+  { id: 'changelog', label: t('sidebar:navigation.changelog'), icon: FileText, shortcut: 'L' },
+  { id: 'context', label: t('sidebar:navigation.context'), icon: BookOpen, shortcut: 'C' }
 ];
 
-const toolsNavItems: NavItem[] = [
-  { id: 'github-issues', label: 'GitHub Issues', icon: Github, shortcut: 'G' },
-  { id: 'worktrees', label: 'Worktrees', icon: GitBranch, shortcut: 'W' }
+const getToolsNavItems = (t: (key: string) => string): NavItem[] => [
+  { id: 'github-issues', label: t('sidebar:navigation.githubIssues'), icon: Github, shortcut: 'G' },
+  { id: 'worktrees', label: t('sidebar:navigation.worktrees'), icon: GitBranch, shortcut: 'W' }
 ];
 
 export function Sidebar({
@@ -85,10 +87,15 @@ export function Sidebar({
   activeView = 'kanban',
   onViewChange
 }: SidebarProps) {
+  const { t } = useTranslation(['sidebar', 'common']);
   const projects = useProjectStore((state) => state.projects);
   const selectedProjectId = useProjectStore((state) => state.selectedProjectId);
   const selectProject = useProjectStore((state) => state.selectProject);
   const settings = useSettingsStore((state) => state.settings);
+
+  // Get translated navigation items
+  const projectNavItems = getProjectNavItems(t);
+  const toolsNavItems = getToolsNavItems(t);
 
   const [showAddProjectModal, setShowAddProjectModal] = useState(false);
   const [showInitDialog, setShowInitDialog] = useState(false);
@@ -298,7 +305,7 @@ export function Sidebar({
             {/* Project Section */}
             <div className="mb-6">
               <h3 className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Project
+                {t('sidebar:sections.project')}
               </h3>
               <nav className="space-y-1">
                 {projectNavItems.map(renderNavItem)}
@@ -308,7 +315,7 @@ export function Sidebar({
             {/* Tools Section */}
             <div>
               <h3 className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Tools
+                {t('sidebar:sections.tools')}
               </h3>
               <nav className="space-y-1">
                 {toolsNavItems.map(renderNavItem)}
@@ -335,10 +342,10 @@ export function Sidebar({
                   onClick={onSettingsClick}
                 >
                   <Settings className="h-4 w-4" />
-                  Settings
+                  {t('sidebar:buttons.settings')}
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="top">Application Settings</TooltipContent>
+              <TooltipContent side="top">{t('sidebar:tooltips.settings')}</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -350,7 +357,7 @@ export function Sidebar({
                   <HelpCircle className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="top">Help & Feedback</TooltipContent>
+              <TooltipContent side="top">{t('sidebar:tooltips.help')}</TooltipContent>
             </Tooltip>
           </div>
 
@@ -361,11 +368,11 @@ export function Sidebar({
             disabled={!selectedProjectId || !selectedProject?.autoBuildPath}
           >
             <Plus className="mr-2 h-4 w-4" />
-            New Task
+            {t('sidebar:buttons.newTask')}
           </Button>
           {selectedProject && !selectedProject.autoBuildPath && (
             <p className="mt-2 text-xs text-muted-foreground text-center">
-              Initialize Auto Claude to create tasks
+              {t('sidebar:messages.initializeRequired')}
             </p>
           )}
         </div>
@@ -382,19 +389,19 @@ export function Sidebar({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Download className="h-5 w-5" />
-              Initialize Auto Claude
+              {t('sidebar:dialogs.initialize.title')}
             </DialogTitle>
             <DialogDescription>
-              This project doesn't have Auto Claude initialized. Would you like to set it up now?
+              {t('sidebar:dialogs.initialize.description')}
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
             <div className="rounded-lg bg-muted p-4 text-sm">
-              <p className="font-medium mb-2">This will:</p>
+              <p className="font-medium mb-2">{t('sidebar:dialogs.initialize.willDo')}</p>
               <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                <li>Create a <code className="text-xs bg-background px-1 py-0.5 rounded">.auto-claude</code> folder in your project</li>
-                <li>Copy the Auto Claude framework files</li>
-                <li>Set up the specs directory for your tasks</li>
+                <li>{t('sidebar:dialogs.initialize.step1')}</li>
+                <li>{t('sidebar:dialogs.initialize.step2')}</li>
+                <li>{t('sidebar:dialogs.initialize.step3')}</li>
               </ul>
             </div>
             {!settings.autoBuildPath && (
@@ -402,9 +409,9 @@ export function Sidebar({
                 <div className="flex items-start gap-2">
                   <AlertCircle className="h-4 w-4 text-warning mt-0.5 shrink-0" />
                   <div>
-                    <p className="font-medium text-warning">Source path not configured</p>
+                    <p className="font-medium text-warning">{t('sidebar:dialogs.initialize.warning.title')}</p>
                     <p className="text-muted-foreground mt-1">
-                      Please set the Auto Claude source path in App Settings before initializing.
+                      {t('sidebar:dialogs.initialize.warning.message')}
                     </p>
                   </div>
                 </div>
@@ -413,7 +420,7 @@ export function Sidebar({
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={handleSkipInit} disabled={isInitializing}>
-              Skip
+              {t('common:buttons.skip')}
             </Button>
             <Button
               onClick={handleInitialize}
@@ -422,12 +429,12 @@ export function Sidebar({
               {isInitializing ? (
                 <>
                   <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                  Initializing...
+                  {t('sidebar:dialogs.initialize.initializing')}
                 </>
               ) : (
                 <>
                   <Download className="mr-2 h-4 w-4" />
-                  Initialize
+                  {t('sidebar:dialogs.initialize.initializeButton')}
                 </>
               )}
             </Button>
@@ -449,7 +456,7 @@ export function Sidebar({
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowUpdateDialog(false)}>
-              Close
+              {t('common:buttons.close')}
             </Button>
           </DialogFooter>
         </DialogContent>

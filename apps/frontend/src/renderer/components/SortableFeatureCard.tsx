@@ -4,6 +4,7 @@ import { cn } from '../lib/utils';
 import { Card } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
+import { useTranslation } from 'react-i18next';
 import {
   Tooltip,
   TooltipContent,
@@ -33,6 +34,8 @@ export function SortableFeatureCard({
   onConvertToSpec,
   onGoToTask
 }: SortableFeatureCardProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const {
     attributes,
     listeners,

@@ -8,6 +8,7 @@
  * Used in TaskCreationWizard and TaskEditDialog.
  */
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Brain, Scale, Zap, Sliders, Sparkles, ChevronDown, ChevronUp, Pencil } from 'lucide-react';
 import { Label } from './ui/label';
 import {
@@ -80,6 +81,15 @@ export function AgentProfileSelector({
   onPhaseThinkingChange,
   disabled
 }: AgentProfileSelectorProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
+  const PHASE_KEYS: Record<keyof PhaseModelConfig, string> = {
+    spec: 'settings:agent.profile.phaseConfig.spec',
+    planning: 'settings:agent.profile.phaseConfig.planning',
+    coding: 'settings:agent.profile.phaseConfig.coding',
+    qa: 'settings:agent.profile.phaseConfig.qa'
+  };
+
   const [showPhaseDetails, setShowPhaseDetails] = useState(false);
 
   const isCustom = profileId === 'custom';
@@ -137,23 +147,23 @@ export function AgentProfileSelector({
     if (isCustom) {
       return {
         icon: Sliders,
-        label: 'Custom Configuration',
-        description: 'Choose model & thinking level'
+        label: t('settings:agent.profile.selector.custom.name'),
+        description: t('settings:agent.profile.selector.custom.description')
       };
     }
     const profile = DEFAULT_AGENT_PROFILES.find(p => p.id === profileId);
     if (profile) {
       return {
         icon: iconMap[profile.icon || 'Scale'] || Scale,
-        label: profile.name,
-        description: profile.description
+        label: t(`settings:agent.profiles.${profile.id}.name`),
+        description: t(`settings:agent.profiles.${profile.id}.description`)
       };
     }
     // Default to auto profile (the actual default)
     return {
       icon: Sparkles,
-      label: 'Auto (Optimized)',
-      description: 'Uses Opus across all phases with optimized thinking levels'
+      label: t('settings:agent.profiles.auto.name'),
+      description: t('settings:agent.profiles.auto.description')
     };
   };
 
@@ -164,7 +174,7 @@ export function AgentProfileSelector({
       {/* Agent Profile Selection */}
       <div className="space-y-2">
         <Label htmlFor="agent-profile" className="text-sm font-medium text-foreground">
-          Agent Profile
+          {t('settings:agent.profile.selector.label')}
         </Label>
         <Select
           value={profileId}
@@ -183,16 +193,17 @@ export function AgentProfileSelector({
             {DEFAULT_AGENT_PROFILES.map((profile) => {
               const ProfileIcon = iconMap[profile.icon || 'Scale'] || Scale;
               const modelLabel = AVAILABLE_MODELS.find(m => m.value === profile.model)?.label;
+              const thinkingLabel = t(`settings:agent.thinking.${profile.thinkingLevel}.label`);
               return (
                 <SelectItem key={profile.id} value={profile.id}>
                   <div className="flex items-center gap-2">
                     <ProfileIcon className="h-4 w-4 shrink-0" />
                     <div>
-                      <span className="font-medium">{profile.name}</span>
+                      <span className="font-medium">{t(`settings:agent.profiles.${profile.id}.name`)}</span>
                       <span className="ml-2 text-xs text-muted-foreground">
                         {profile.isAutoProfile
-                          ? '(per-phase optimization)'
-                          : `(${modelLabel} + ${profile.thinkingLevel})`
+                          ? `(${t('settings:agent.profile.selector.perPhase')})`
+                          : `(${modelLabel} + ${thinkingLabel})`
                         }
                       </span>
                     </div>
@@ -204,9 +215,9 @@ export function AgentProfileSelector({
               <div className="flex items-center gap-2">
                 <Sliders className="h-4 w-4 shrink-0" />
                 <div>
-                  <span className="font-medium">Custom</span>
+                  <span className="font-medium">{t('settings:agent.profile.selector.custom.name')}</span>
                   <span className="ml-2 text-xs text-muted-foreground">
-                    (Choose model & thinking level)
+                    ({t('settings:agent.profile.selector.custom.description')})
                   </span>
                 </div>
               </div>
@@ -233,11 +244,11 @@ export function AgentProfileSelector({
             disabled={disabled}
           >
             <div className="flex items-center gap-2">
-              <span className="font-medium text-sm text-foreground">Phase Configuration</span>
+              <span className="font-medium text-sm text-foreground">{t('settings:agent.profile.phaseConfig.title')}</span>
               {!showPhaseDetails && (
                 <span className="flex items-center gap-1 text-xs text-muted-foreground">
                   <Pencil className="h-3 w-3" />
-                  <span>Click to customize</span>
+                  <span>{t('settings:agent.profile.selector.clickToCustomize')}</span>
                 </span>
               )}
             </div>
@@ -252,11 +263,11 @@ export function AgentProfileSelector({
           {!showPhaseDetails && (
             <div className="px-4 pb-4 -mt-1">
               <div className="grid grid-cols-2 gap-2 text-xs">
-                {(Object.keys(PHASE_LABELS) as Array<keyof PhaseModelConfig>).map((phase) => {
+                {(Object.keys(PHASE_KEYS) as Array<keyof PhaseModelConfig>).map((phase) => {
                   const modelLabel = AVAILABLE_MODELS.find(m => m.value === currentPhaseModels[phase])?.label?.replace('Claude ', '') || currentPhaseModels[phase];
                   return (
                     <div key={phase} className="flex items-center justify-between rounded bg-background/50 px-2 py-1">
-                      <span className="text-muted-foreground">{PHASE_LABELS[phase].label}:</span>
+                      <span className="text-muted-foreground">{t(`${PHASE_KEYS[phase]}.label`)}:</span>
                       <span className="font-medium">{modelLabel}</span>
                     </div>
                   );
@@ -268,19 +279,19 @@ export function AgentProfileSelector({
           {/* Detailed Phase Configuration */}
           {showPhaseDetails && (
             <div className="px-4 pb-4 space-y-4 border-t border-border pt-4">
-              {(Object.keys(PHASE_LABELS) as Array<keyof PhaseModelConfig>).map((phase) => (
+              {(Object.keys(PHASE_KEYS) as Array<keyof PhaseModelConfig>).map((phase) => (
                 <div key={phase} className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label className="text-xs font-medium text-foreground">
-                      {PHASE_LABELS[phase].label}
+                      {t(`${PHASE_KEYS[phase]}.label`)}
                     </Label>
                     <span className="text-[10px] text-muted-foreground">
-                      {PHASE_LABELS[phase].description}
+                      {t(`${PHASE_KEYS[phase]}.description`)}
                     </span>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <div className="space-y-1">
-                      <Label className="text-[10px] text-muted-foreground">Model</Label>
+                      <Label className="text-[10px] text-muted-foreground">{t('settings:agent.profile.model')}</Label>
                       <Select
                         value={currentPhaseModels[phase]}
                         onValueChange={(value) => handlePhaseModelChange(phase, value as ModelType)}
@@ -299,7 +310,7 @@ export function AgentProfileSelector({
                       </Select>
                     </div>
                     <div className="space-y-1">
-                      <Label className="text-[10px] text-muted-foreground">Thinking</Label>
+                      <Label className="text-[10px] text-muted-foreground">{t('settings:agent.profile.thinkingLevel')}</Label>
                       <Select
                         value={currentPhaseThinking[phase]}
                         onValueChange={(value) => handlePhaseThinkingChange(phase, value as ThinkingLevel)}
@@ -311,7 +322,7 @@ export function AgentProfileSelector({
                         <SelectContent>
                           {THINKING_LEVELS.map((level) => (
                             <SelectItem key={level.value} value={level.value}>
-                              {level.label}
+                              {t(`settings:agent.thinking.${level.value}.label`)}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -331,7 +342,7 @@ export function AgentProfileSelector({
           {/* Model Selection */}
           <div className="space-y-2">
             <Label htmlFor="custom-model" className="text-xs font-medium text-muted-foreground">
-              Model
+              {t('settings:agent.profile.model')}
             </Label>
             <Select
               value={model}
@@ -339,7 +350,7 @@ export function AgentProfileSelector({
               disabled={disabled}
             >
               <SelectTrigger id="custom-model" className="h-9">
-                <SelectValue placeholder="Select model" />
+                <SelectValue placeholder={t('settings:agent.profile.selector.custom.placeholder')} />
               </SelectTrigger>
               <SelectContent>
                 {AVAILABLE_MODELS.map((m) => (
@@ -354,7 +365,7 @@ export function AgentProfileSelector({
           {/* Thinking Level Selection */}
           <div className="space-y-2">
             <Label htmlFor="custom-thinking" className="text-xs font-medium text-muted-foreground">
-              Thinking Level
+              {t('settings:agent.profile.thinkingLevel')}
             </Label>
             <Select
               value={thinkingLevel}
@@ -362,15 +373,15 @@ export function AgentProfileSelector({
               disabled={disabled}
             >
               <SelectTrigger id="custom-thinking" className="h-9">
-                <SelectValue placeholder="Select thinking level" />
+                <SelectValue placeholder={t('settings:agent.profile.selector.custom.thinkingPlaceholder')} />
               </SelectTrigger>
               <SelectContent>
                 {THINKING_LEVELS.map((level) => (
                   <SelectItem key={level.value} value={level.value}>
                     <div className="flex items-center gap-2">
-                      <span>{level.label}</span>
+                      <span>{t(`settings:agent.thinking.${level.value}.label`)}</span>
                       <span className="text-xs text-muted-foreground">
-                        - {level.description}
+                        - {t(`settings:agent.thinking.${level.value}.description`)}
                       </span>
                     </div>
                   </SelectItem>

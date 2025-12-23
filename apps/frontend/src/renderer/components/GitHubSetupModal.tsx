@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Github,
   GitBranch,
@@ -63,6 +64,8 @@ export function GitHubSetupModal({
   onComplete,
   onSkip
 }: GitHubSetupModalProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const [step, setStep] = useState<SetupStep>('github-auth');
   const [githubToken, setGithubToken] = useState<string | null>(null);
   const [githubRepo, setGithubRepo] = useState<string | null>(null);

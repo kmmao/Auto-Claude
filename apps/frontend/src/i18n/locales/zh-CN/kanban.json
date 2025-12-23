@@ -1,0 +1,48 @@
+{
+    "columns": {
+        "planning": "规划中",
+        "inProgress": "进行中",
+        "aiReview": "AI 审查",
+        "humanReview": "人工审查",
+        "done": "已完成"
+    },
+    "emptyStates": {
+        "planning": "没有规划中的任务",
+        "planningDesc": "添加一个任务开始",
+        "inProgress": "没有进行中的任务",
+        "inProgressDesc": "开始一个任务",
+        "aiReview": "没有待审查的任务",
+        "aiReviewDesc": "完成的任务将出现在这里",
+        "humanReview": "没有待审查的任务",
+        "humanReviewDesc": "需要您审查的任务将出现在这里",
+        "done": "没有已完成的任务",
+        "doneDesc": "完成的任务将出现在这里"
+    },
+    "taskCard": {
+        "progress": "进度",
+        "justNow": "刚刚",
+        "archive": "归档",
+        "showArchived": "显示已归档",
+        "hideArchived": "隐藏已归档"
+    },
+    "categories": {
+        "feature": "功能",
+        "bug": "错误",
+        "refactor": "重构",
+        "docs": "文档",
+        "test": "测试",
+        "chore": "杂项"
+    },
+    "complexity": {
+        "low": "低",
+        "medium": "中",
+        "high": "高"
+    },
+    "status": {
+        "planning": "规划中",
+        "inProgress": "进行中",
+        "review": "审查中",
+        "completed": "已完成",
+        "archived": "已归档"
+    }
+}

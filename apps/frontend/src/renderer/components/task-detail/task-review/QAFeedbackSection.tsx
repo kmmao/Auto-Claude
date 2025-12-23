@@ -1,6 +1,7 @@
 import { AlertCircle, RotateCcw, Loader2 } from 'lucide-react';
 import { Button } from '../../ui/button';
 import { Textarea } from '../../ui/textarea';
+import { useTranslation } from 'react-i18next';
 
 interface QAFeedbackSectionProps {
   feedback: string;
@@ -18,17 +19,19 @@ export function QAFeedbackSection({
   onFeedbackChange,
   onReject
 }: QAFeedbackSectionProps) {
+  const { t } = useTranslation(['common', 'taskDetail']);
+
   return (
     <div className="rounded-xl border border-warning/30 bg-warning/10 p-4">
       <h3 className="font-medium text-sm text-foreground mb-2 flex items-center gap-2">
         <AlertCircle className="h-4 w-4 text-warning" />
-        Request Changes
+        {t('taskDetail:feedback.title')}
       </h3>
       <p className="text-sm text-muted-foreground mb-3">
-        Found issues? Describe what needs to be fixed and the AI will continue working on it.
+        {t('taskDetail:feedback.description')}
       </p>
       <Textarea
-        placeholder="Describe the issues or changes needed..."
+        placeholder={t('taskDetail:feedback.placeholder')}
         value={feedback}
         onChange={(e) => onFeedbackChange(e.target.value)}
         className="mb-3"
@@ -43,12 +46,12 @@ export function QAFeedbackSection({
         {isSubmitting ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Submitting...
+            {t('taskDetail:feedback.submitting')}
           </>
         ) : (
           <>
             <RotateCcw className="mr-2 h-4 w-4" />
-            Request Changes
+            {t('taskDetail:feedback.submit')}
           </>
         )}
       </Button>

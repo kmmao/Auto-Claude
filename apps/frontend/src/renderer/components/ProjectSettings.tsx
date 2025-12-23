@@ -6,6 +6,7 @@ import { Button } from './ui/button';
 import { Separator } from './ui/separator';
 import { updateProjectSettings, initializeProject, updateProjectAutoBuild, checkProjectVersion } from '../stores/project-store';
 import type { Project } from '../../shared/types';
+import { useTranslation } from 'react-i18next';
 
 // Import custom hooks
 import { useProjectSettings } from '../hooks/useProjectSettings';
@@ -31,6 +32,8 @@ interface ProjectSettingsProps {
 }
 
 export function ProjectSettings({ project, open, onOpenChange }: ProjectSettingsProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -278,9 +281,7 @@ export function ProjectSettings({ project, open, onOpenChange }: ProjectSettings
         </div>
 
         <DialogFooter className="shrink-0">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>{t("common:buttons.cancel")}</Button>
           <Button onClick={handleSave} disabled={isSaving || isSavingEnv}>
             {isSaving || isSavingEnv ? (
               <>

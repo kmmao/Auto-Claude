@@ -1,0 +1,53 @@
+{
+  "title": "洞察",
+  "subtitle": "针对您的代码库提出问题",
+  "actions": {
+    "newChat": "新建对话",
+    "hideSidebar": "隐藏侧边栏",
+    "showSidebar": "显示侧边栏",
+    "createTask": "创建任务",
+    "creating": "创建中...",
+    "taskCreated": "任务已创建"
+  },
+  "emptyState": {
+    "title": "开始一段对话",
+    "description": "针对您的代码库提出问题，获取改进建议，或讨论您想要实现的功能。",
+    "suggestions": {
+      "architecture": "这个项目的架构是什么?",
+      "quality": "针对代码质量提出改进建议",
+      "features": "接下来我可以添加什么功能?",
+      "security": "有什么安全隐患吗?"
+    }
+  },
+  "input": {
+    "placeholder": "询问关于您的代码库...",
+    "hint": "按 Enter 发送，Shift+Enter 换行"
+  },
+  "roles": {
+    "user": "您",
+    "assistant": "助手"
+  },
+  "cards": {
+    "suggestedTask": "建议任务"
+  },
+  "status": {
+    "thinking": "思考中...",
+    "toolsUsed": "使用了 {{count}} 个工具",
+    "toolUsed": "使用了 1 个工具"
+  },
+  "tools": {
+    "read": "读取文件",
+    "glob": "搜索文件",
+    "grep": "搜索代码",
+    "reading": "正在读取文件",
+    "searchingFiles": "正在搜索文件",
+    "searchingCode": "正在搜索代码"
+  },
+  "chatHistory": {
+    "today": "今天",
+    "yesterday": "昨天",
+    "daysAgo": "{{count}} 天前",
+    "messageCount": "{{count}} 条消息",
+    "messageCount_plural": "{{count}} 条消息"
+  }
+}

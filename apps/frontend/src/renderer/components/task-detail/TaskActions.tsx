@@ -1,5 +1,6 @@
 import { Play, Square, CheckCircle2, RotateCcw, Trash2, Loader2, AlertTriangle } from 'lucide-react';
 import { Button } from '../ui/button';
+import { useTranslation } from 'react-i18next';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,6 +42,8 @@ export function TaskActions({
   onDelete,
   onShowDeleteDialog
 }: TaskActionsProps) {
+  const { t } = useTranslation(['common', 'taskDetail']);
+
   return (
     <>
       <div className="p-4">
@@ -54,12 +57,12 @@ export function TaskActions({
             {isRecovering ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Recovering...
+                {t('taskDetail:actions.recovering')}
               </>
             ) : (
               <>
                 <RotateCcw className="mr-2 h-4 w-4" />
-                Recover Task
+                {t('taskDetail:actions.recover')}
               </>
             )}
           </Button>
@@ -70,7 +73,7 @@ export function TaskActions({
             onClick={onStartStop}
           >
             <Play className="mr-2 h-4 w-4" />
-            Resume Task
+            {t('taskDetail:actions.resume')}
           </Button>
         ) : (task.status === 'backlog' || task.status === 'in_progress') && (
           <Button
@@ -81,12 +84,12 @@ export function TaskActions({
             {isRunning ? (
               <>
                 <Square className="mr-2 h-4 w-4" />
-                Stop Task
+                {t('taskDetail:actions.stop')}
               </>
             ) : (
               <>
                 <Play className="mr-2 h-4 w-4" />
-                Start Task
+                {t('taskDetail:actions.start')}
               </>
             )}
           </Button>
@@ -94,7 +97,7 @@ export function TaskActions({
         {task.status === 'done' && (
           <div className="completion-state text-sm">
             <CheckCircle2 className="h-5 w-5" />
-            <span className="font-medium">Task completed successfully</span>
+            <span className="font-medium">{t('taskDetail:status.completed')}</span>
           </div>
         )}
 
@@ -107,7 +110,7 @@ export function TaskActions({
           disabled={isRunning && !isStuck}
         >
           <Trash2 className="mr-2 h-4 w-4" />
-          Delete Task
+          {t('taskDetail:actions.delete')}
         </Button>
       </div>
 
@@ -117,15 +120,15 @@ export function TaskActions({
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-destructive" />
-              Delete Task
+              {t('taskDetail:deleteDialog.title')}
             </AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="text-sm text-muted-foreground space-y-3">
                 <p>
-                  Are you sure you want to delete <strong className="text-foreground">"{task.title}"</strong>?
+                  {t('taskDetail:deleteDialog.description', { title: task.title })}
                 </p>
                 <p className="text-destructive">
-                  This action cannot be undone. All task files, including the spec, implementation plan, and any generated code will be permanently deleted from the project.
+                  {t('taskDetail:deleteDialog.warning')}
                 </p>
                 {deleteError && (
                   <p className="text-destructive bg-destructive/10 px-3 py-2 rounded-lg text-sm">
@@ -136,7 +139,7 @@ export function TaskActions({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>{t('taskDetail:deleteDialog.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
@@ -148,12 +151,12 @@ export function TaskActions({
               {isDeleting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Deleting...
+                  {t('taskDetail:actions.deleting')}
                 </>
               ) : (
                 <>
                   <Trash2 className="mr-2 h-4 w-4" />
-                  Delete Permanently
+                  {t('taskDetail:actions.deletePermanently')}
                 </>
               )}
             </AlertDialogAction>

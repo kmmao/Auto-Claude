@@ -1,4 +1,5 @@
 import { Separator } from '../ui/separator';
+import { useTranslation } from 'react-i18next';
 
 interface SettingsSectionProps {
   title: string;
@@ -11,6 +12,8 @@ interface SettingsSectionProps {
  * Provides consistent layout and styling
  */
 export function SettingsSection({ title, description, children }: SettingsSectionProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   return (
     <div className="space-y-6">
       <div>

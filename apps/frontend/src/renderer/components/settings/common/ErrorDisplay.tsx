@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 interface ErrorDisplayProps {
   error: string | null;
   envError?: string | null;
@@ -8,6 +10,8 @@ interface ErrorDisplayProps {
  * Combines general errors and environment configuration errors.
  */
 export function ErrorDisplay({ error, envError }: ErrorDisplayProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const displayError = error || envError;
 
   if (!displayError) {

@@ -6,6 +6,7 @@ import { cn } from '../../lib/utils';
 import { STATUS_COLORS } from './types';
 import { TerminalTitle } from './TerminalTitle';
 import { TaskSelector } from './TaskSelector';
+import { useTranslation } from 'react-i18next';
 
 interface TerminalHeaderProps {
   terminalId: string;
@@ -36,6 +37,8 @@ export function TerminalHeader({
   onClearTask,
   onNewTaskClick,
 }: TerminalHeaderProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const backlogTasks = tasks.filter((t) => t.status === 'backlog');
 
   return (

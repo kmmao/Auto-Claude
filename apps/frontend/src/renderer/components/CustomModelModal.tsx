@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -28,6 +29,8 @@ interface CustomModelModalProps {
 }
 
 export function CustomModelModal({ currentConfig, onSave, onClose, open = true }: CustomModelModalProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const [model, setModel] = useState<ModelType>(
     currentConfig?.model || 'sonnet'
   );
@@ -101,9 +104,7 @@ export function CustomModelModal({ currentConfig, onSave, onClose, open = true }
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
+          <Button variant="outline" onClick={onClose}>{t("common:buttons.cancel")}</Button>
           <Button onClick={handleSave}>
             Apply
           </Button>

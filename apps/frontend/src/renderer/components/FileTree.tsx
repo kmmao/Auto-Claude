@@ -4,6 +4,7 @@ import { FileTreeItem } from './FileTreeItem';
 import { useFileExplorerStore } from '../stores/file-explorer-store';
 import { useVirtualizedTree } from '../hooks/useVirtualizedTree';
 import { Loader2, AlertCircle, FolderOpen } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface FileTreeProps {
   rootPath: string;
@@ -15,6 +16,8 @@ const ITEM_HEIGHT = 28;
 const OVERSCAN = 10;
 
 export function FileTree({ rootPath }: FileTreeProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   const parentRef = useRef<HTMLDivElement>(null);
 
   const {

@@ -8,6 +8,7 @@ import { ErrorDisplay } from './common/ErrorDisplay';
 import { SectionRouter } from './sections/SectionRouter';
 import { createHookProxy } from './utils/hookProxyFactory';
 import type { Project } from '../../../shared/types';
+import { useTranslation } from 'react-i18next';
 
 export type ProjectSettingsSection = 'general' | 'claude' | 'linear' | 'github' | 'memory';
 
@@ -28,12 +29,14 @@ export function ProjectSettingsContent({
   isOpen,
   onHookReady
 }: ProjectSettingsContentProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   // Show empty state if no project selected
   if (!project) {
     return (
       <SettingsSection
-        title="No Project Selected"
-        description="Select a project from the dropdown above to configure its settings"
+        title={t("settings:project.empty.title")}
+        description={t("settings:project.empty.description")}
       >
         <EmptyProjectState />
       </SettingsSection>

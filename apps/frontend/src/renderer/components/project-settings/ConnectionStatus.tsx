@@ -1,4 +1,5 @@
 import { Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface ConnectionStatusProps {
   isChecking: boolean;
@@ -17,6 +18,8 @@ export function ConnectionStatus({
   errorMessage,
   additionalInfo,
 }: ConnectionStatusProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   return (
     <div className="rounded-lg border border-border bg-muted/30 p-3">
       <div className="flex items-center justify-between">

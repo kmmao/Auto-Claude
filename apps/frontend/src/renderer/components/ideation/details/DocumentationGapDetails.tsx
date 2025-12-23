@@ -4,6 +4,7 @@ import {
   CheckCircle2,
   FileCode
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Badge } from '../../ui/badge';
 import { Card } from '../../ui/card';
 import {
@@ -18,6 +19,8 @@ interface DocumentationGapDetailsProps {
 }
 
 export function DocumentationGapDetails({ idea }: DocumentationGapDetailsProps) {
+  const { t } = useTranslation(['common', 'settings']);
+
   return (
     <>
       {/* Metrics */}
