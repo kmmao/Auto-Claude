@@ -20,22 +20,40 @@ export function calculateProgress(subtasks: { status: string }[]): number {
 }
 
 /**
- * Format a date as a relative time string
+ * Format a date as a relative time string using browser's locale
  * @param date Date to format
- * @returns Relative time string (e.g., "2 hours ago")
+ * @param locale Optional locale code (defaults to navigator.language or 'zh-CN')
+ * @returns Relative time string (e.g., "2小时前" in Chinese or "2 hours ago" in English)
  */
-export function formatRelativeTime(date: Date): string {
+export function formatRelativeTime(date: Date, locale?: string): string {
   const now = new Date();
   const diffMs = now.getTime() - new Date(date).getTime();
-  const diffMins = Math.floor(diffMs / 60000);
+  const diffSecs = Math.floor(diffMs / 1000);
+  const diffMins = Math.floor(diffSecs / 60);
   const diffHours = Math.floor(diffMins / 60);
   const diffDays = Math.floor(diffHours / 24);
 
-  if (diffMins < 1) return 'just now';
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays < 7) return `${diffDays}d ago`;
-  return new Date(date).toLocaleDateString();
+  // Use browser's locale or default to zh-CN
+  const effectiveLocale = locale || (typeof navigator !== 'undefined' ? navigator.language : 'zh-CN');
+
+  try {
+    const rtf = new Intl.RelativeTimeFormat(effectiveLocale, { numeric: 'auto' });
+
+    if (diffSecs < 60) return rtf.format(-diffSecs, 'second');
+    if (diffMins < 60) return rtf.format(-diffMins, 'minute');
+    if (diffHours < 24) return rtf.format(-diffHours, 'hour');
+    if (diffDays < 7) return rtf.format(-diffDays, 'day');
+
+    // For older dates, use localized date format
+    return new Date(date).toLocaleDateString(effectiveLocale);
+  } catch {
+    // Fallback for browsers without Intl.RelativeTimeFormat support
+    if (diffMins < 1) return 'just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return new Date(date).toLocaleDateString();
+  }
 }
 
 /**
