@@ -14,7 +14,8 @@
     "renameTerminal": "Rename Terminal",
     "duplicateTerminal": "Duplicate Terminal",
     "invokeClaudeAll": "Invoke Claude All",
-    "restoreSessions": "Restore sessions from..."
+    "restoreSessions": "Restore sessions from...",
+    "history": "History"
   },
   "session": "session",
   "sessions": "sessions",

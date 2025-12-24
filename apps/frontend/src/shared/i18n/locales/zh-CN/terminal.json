@@ -14,7 +14,8 @@
     "renameTerminal": "重命名终端",
     "duplicateTerminal": "复制终端",
     "invokeClaudeAll": "全部调用 Claude",
-    "restoreSessions": "恢复会话..."
+    "restoreSessions": "恢复会话...",
+    "history": "历史"
   },
   "session": "会话",
   "sessions": "会话",

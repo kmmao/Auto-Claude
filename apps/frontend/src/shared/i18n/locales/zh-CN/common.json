@@ -21,7 +21,8 @@
         "add": "添加",
         "gotIt": "知道了",
         "continue": "继续",
-        "saving": "保存中..."
+        "saving": "保存中...",
+        "files": "文件"
     },
     "labels": {
         "loading": "加载中...",
@@ -45,6 +46,14 @@
         "networkError": "网络错误",
         "notFound": "未找到",
         "unauthorized": "未授权"
+    },
+    "messages": {
+        "noConversations": "暂无对话"
+    },
+    "dialogs": {
+        "deleteConversation": "删除对话?",
+        "deleteConversationDesc": "这将永久删除此对话及其所有消息。",
+        "cannotUndo": "此操作无法撤销。"
     },
     "notification": {
         "accountSwitched": "账户已切换",
@@ -92,5 +101,8 @@
             "titleGenerator": "标题生成器",
             "claude": "Claude"
         }
+    },
+    "sidebar": {
+        "chatHistory": "聊天历史"
     }
 }

@@ -327,7 +327,7 @@ export function TerminalGrid({ projectPath, onNewTaskClick, isActive = false }: 
                     ) : (
                       <History className="h-3 w-3" />
                     )}
-                    {t('common:common.history')}
+                    {t('terminal:actions.history')}
                     <ChevronDown className="h-3 w-3" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -384,7 +384,7 @@ export function TerminalGrid({ projectPath, onNewTaskClick, isActive = false }: 
                 onClick={toggleFileExplorer}
               >
                 <FolderTree className="h-3 w-3" />
-                {t('common:common.files')}
+                {t('common:buttons.files')}
               </Button>
             )}
           </div>

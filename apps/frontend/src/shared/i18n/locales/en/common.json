@@ -19,7 +19,8 @@
         "retry": "Retry",
         "rename": "Rename",
         "newChat": "New Chat",
-        "saveSettings": "Save Settings"
+        "saveSettings": "Save Settings",
+        "files": "Files"
     },
     "status": {
         "loading": "Loading...",
