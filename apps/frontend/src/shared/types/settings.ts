@@ -92,6 +92,8 @@ export interface PythonInterpreter {
 export interface AppSettings {
   theme: 'light' | 'dark' | 'system';
   colorTheme?: ColorTheme;
+  /** Interface language preference (e.g., 'en', 'zh-CN', 'fr') */
+  language?: string;
   defaultModel: string;
   agentFramework: string;
   pythonPath?: string;
