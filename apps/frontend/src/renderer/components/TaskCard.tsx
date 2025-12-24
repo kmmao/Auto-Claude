@@ -40,7 +40,7 @@ interface TaskCardProps {
 }
 
 export function TaskCard({ task, onClick }: TaskCardProps) {
-  const { t } = useTranslation(['common', 'settings']);
+  const { t } = useTranslation(['common', 'settings', 'kanban', 'tasks']);
 
   const [isStuck, setIsStuck] = useState(false);
   const [isRecovering, setIsRecovering] = useState(false);
@@ -139,15 +139,15 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
   const getStatusLabel = (status: string) => {
     switch (status) {
       case 'in_progress':
-        return 'Running';
+        return t('kanban:taskCard.status.running');
       case 'ai_review':
-        return 'AI Review';
+        return t('kanban:taskCard.status.aiReview');
       case 'human_review':
-        return 'Needs Review';
+        return t('kanban:taskCard.status.needsReview');
       case 'done':
-        return 'Complete';
+        return t('kanban:taskCard.status.complete');
       default:
-        return 'Pending';
+        return t('kanban:taskCard.status.pending');
     }
   };
 
@@ -155,13 +155,13 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
     if (!reason) return null;
     switch (reason) {
       case 'completed':
-        return { label: 'Completed', variant: 'success' };
+        return { label: t('kanban:taskCard.reviewReason.completed'), variant: 'success' };
       case 'errors':
-        return { label: 'Has Errors', variant: 'destructive' };
+        return { label: t('kanban:taskCard.reviewReason.hasErrors'), variant: 'destructive' };
       case 'qa_rejected':
-        return { label: 'QA Issues', variant: 'warning' };
+        return { label: t('kanban:taskCard.reviewReason.qaIssues'), variant: 'warning' };
       case 'plan_review':
-        return { label: 'Approve Plan', variant: 'warning' };
+        return { label: t('kanban:taskCard.reviewReason.approvePlan'), variant: 'warning' };
       default:
         return null;
     }
@@ -198,7 +198,7 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
                 className="text-[10px] px-1.5 py-0.5 flex items-center gap-1 bg-warning/10 text-warning border-warning/30 badge-priority-urgent"
               >
                 <AlertTriangle className="h-2.5 w-2.5" />
-                Stuck
+                {t('kanban:taskCard.status.stuck')}
               </Badge>
             )}
             {/* Incomplete indicator - task in human_review but no subtasks completed */}
@@ -208,7 +208,7 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
                 className="text-[10px] px-1.5 py-0.5 flex items-center gap-1 bg-orange-500/10 text-orange-400 border-orange-500/30"
               >
                 <AlertTriangle className="h-2.5 w-2.5" />
-                Incomplete
+                {t('kanban:taskCard.status.incomplete')}
               </Badge>
             )}
             {/* Archived indicator - task has been released */}
@@ -218,7 +218,7 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
                 className="text-[10px] px-1.5 py-0.5 flex items-center gap-1 bg-muted text-muted-foreground border-border"
               >
                 <Archive className="h-2.5 w-2.5" />
-                Archived
+                {t('kanban:taskCard.status.archived')}
               </Badge>
             )}
             {/* Execution phase badge - shown when actively running */}
@@ -231,7 +231,7 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
                 )}
               >
                 <Loader2 className="h-2.5 w-2.5 animate-spin" />
-                {EXECUTION_PHASE_LABELS[executionPhase]}
+                {t(`kanban:taskCard.phase.${executionPhase}`, { defaultValue: EXECUTION_PHASE_LABELS[executionPhase] })}
               </Badge>
             )}
             {/* Status badge - hide when execution phase badge is showing */}
@@ -240,7 +240,7 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
                 variant={isStuck ? 'warning' : isIncomplete ? 'warning' : getStatusBadgeVariant(task.status)}
                 className="text-[10px] px-1.5 py-0.5"
               >
-                {isStuck ? 'Needs Recovery' : isIncomplete ? 'Needs Resume' : getStatusLabel(task.status)}
+                {isStuck ? t('kanban:taskCard.status.needsRecovery') : isIncomplete ? t('kanban:taskCard.status.needsResume') : getStatusLabel(task.status)}
               </Badge>
             )}
             {/* Review reason badge - explains why task needs human review */}
@@ -277,7 +277,7 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
                     return <Icon className="h-2.5 w-2.5 mr-0.5" />;
                   })()
                 )}
-                {TASK_CATEGORY_LABELS[task.metadata.category]}
+                {t(`tasks:category.${task.metadata.category}`, { defaultValue: TASK_CATEGORY_LABELS[task.metadata.category] })}
               </Badge>
             )}
             {/* Impact badge - high visibility for important tasks */}
@@ -286,7 +286,7 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
                 variant="outline"
                 className={cn('text-[10px] px-1.5 py-0', TASK_IMPACT_COLORS[task.metadata.impact])}
               >
-                {TASK_IMPACT_LABELS[task.metadata.impact]}
+                {t(`tasks:impact.${task.metadata.impact}`, { defaultValue: TASK_IMPACT_LABELS[task.metadata.impact] })}
               </Badge>
             )}
             {/* Complexity badge */}
@@ -295,7 +295,7 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
                 variant="outline"
                 className={cn('text-[10px] px-1.5 py-0', TASK_COMPLEXITY_COLORS[task.metadata.complexity])}
               >
-                {TASK_COMPLEXITY_LABELS[task.metadata.complexity]}
+                {t(`tasks:complexity.${task.metadata.complexity}`, { defaultValue: TASK_COMPLEXITY_LABELS[task.metadata.complexity] })}
               </Badge>
             )}
             {/* Priority badge - only show urgent/high */}
@@ -304,7 +304,7 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
                 variant="outline"
                 className={cn('text-[10px] px-1.5 py-0', TASK_PRIORITY_COLORS[task.metadata.priority])}
               >
-                {TASK_PRIORITY_LABELS[task.metadata.priority]}
+                {t(`tasks:priority.${task.metadata.priority}`, { defaultValue: TASK_PRIORITY_LABELS[task.metadata.priority] })}
               </Badge>
             )}
             {/* Security severity - always show */}
@@ -350,12 +350,12 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
               {isRecovering ? (
                 <>
                   <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
-                  Recovering...
+                  {t('kanban:taskCard.actions.recovering')}
                 </>
               ) : (
                 <>
                   <RotateCcw className="mr-1.5 h-3 w-3" />
-                  Recover
+                  {t('kanban:taskCard.actions.recover')}
                 </>
               )}
             </Button>
@@ -367,7 +367,7 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
               onClick={handleStartStop}
             >
               <Play className="mr-1.5 h-3 w-3" />
-              Resume
+              {t('kanban:taskCard.actions.resume')}
             </Button>
           ) : task.status === 'done' && !task.metadata?.archivedAt ? (
             <Button
@@ -375,10 +375,10 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
               size="sm"
               className="h-7 px-2.5 hover:bg-muted-foreground/10"
               onClick={handleArchive}
-              title="Archive task"
+              title={t('kanban:taskCard.archive')}
             >
               <Archive className="mr-1.5 h-3 w-3" />
-              Archive
+              {t('kanban:taskCard.archive')}
             </Button>
           ) : (task.status === 'backlog' || task.status === 'in_progress') && (
             <Button
@@ -390,12 +390,12 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
               {isRunning ? (
                 <>
                   <Square className="mr-1.5 h-3 w-3" />
-                  Stop
+                  {t('kanban:taskCard.actions.stop')}
                 </>
               ) : (
                 <>
                   <Play className="mr-1.5 h-3 w-3" />
-                  Start
+                  {t('kanban:taskCard.actions.start')}
                 </>
               )}
             </Button>

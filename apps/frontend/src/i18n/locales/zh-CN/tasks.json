@@ -32,5 +32,17 @@
     "medium": "中",
     "large": "大",
     "complex": "复杂"
+  },
+  "impact": {
+    "low": "低影响",
+    "medium": "中等影响",
+    "high": "高影响",
+    "critical": "关键影响"
+  },
+  "priority": {
+    "low": "低",
+    "medium": "中",
+    "high": "高",
+    "urgent": "紧急"
   }
 }

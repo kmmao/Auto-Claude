@@ -32,5 +32,17 @@
     "medium": "Medium",
     "large": "Large",
     "complex": "Complex"
+  },
+  "impact": {
+    "low": "Low Impact",
+    "medium": "Medium Impact",
+    "high": "High Impact",
+    "critical": "Critical Impact"
+  },
+  "priority": {
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High",
+    "urgent": "Urgent"
   }
 }

@@ -26,7 +26,41 @@
         "justNow": "just now",
         "archive": "Archive",
         "showArchived": "Show archived",
-        "hideArchived": "Hide archived"
+        "hideArchived": "Hide archived",
+        "status": {
+            "running": "Running",
+            "aiReview": "AI Review",
+            "needsReview": "Needs Review",
+            "complete": "Complete",
+            "pending": "Pending",
+            "stuck": "Stuck",
+            "needsRecovery": "Needs Recovery",
+            "needsResume": "Needs Resume",
+            "incomplete": "Incomplete",
+            "archived": "Archived"
+        },
+        "actions": {
+            "recover": "Recover",
+            "recovering": "Recovering...",
+            "resume": "Resume",
+            "start": "Start",
+            "stop": "Stop"
+        },
+        "reviewReason": {
+            "completed": "Completed",
+            "hasErrors": "Has Errors",
+            "qaIssues": "QA Issues",
+            "approvePlan": "Approve Plan"
+        },
+        "phase": {
+            "idle": "Idle",
+            "planning": "Planning",
+            "coding": "Coding",
+            "qa_review": "AI Review",
+            "qa_fixing": "Fixing Issues",
+            "complete": "Complete",
+            "failed": "Failed"
+        }
     },
     "categories": {
         "feature": "Feature",

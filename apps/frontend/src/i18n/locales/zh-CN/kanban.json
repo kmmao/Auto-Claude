@@ -26,7 +26,41 @@
         "justNow": "刚刚",
         "archive": "归档",
         "showArchived": "显示已归档",
-        "hideArchived": "隐藏已归档"
+        "hideArchived": "隐藏已归档",
+        "status": {
+            "running": "运行中",
+            "aiReview": "AI 审查",
+            "needsReview": "待审查",
+            "complete": "已完成",
+            "pending": "待处理",
+            "stuck": "卡住",
+            "needsRecovery": "需要恢复",
+            "needsResume": "需要继续",
+            "incomplete": "未完成",
+            "archived": "已归档"
+        },
+        "actions": {
+            "recover": "恢复",
+            "recovering": "恢复中...",
+            "resume": "继续",
+            "start": "开始",
+            "stop": "停止"
+        },
+        "reviewReason": {
+            "completed": "已完成",
+            "hasErrors": "有错误",
+            "qaIssues": "QA 问题",
+            "approvePlan": "审批计划"
+        },
+        "phase": {
+            "idle": "空闲",
+            "planning": "计划中",
+            "coding": "编码中",
+            "qa_review": "AI 审查",
+            "qa_fixing": "修复问题",
+            "complete": "完成",
+            "failed": "失败"
+        }
     },
     "categories": {
         "feature": "功能",
