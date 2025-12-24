@@ -6,7 +6,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Switch } from '../ui/switch';
 import { SettingsSection } from './SettingsSection';
 import { AgentProfileSettings } from './AgentProfileSettings';
-import { LanguageSelector } from '../LanguageSelector';
 import {
   AVAILABLE_MODELS,
   THINKING_LEVELS,
@@ -177,10 +176,6 @@ export function GeneralSettings({ settings, onSettingsChange, section }: General
       description={t("settings:paths.description")}
     >
       <div className="space-y-6">
-        {/* Language Selector - First setting */}
-        <div className="space-y-3 pb-6 border-b border-border">
-          <LanguageSelector />
-        </div>
 
         <div className="space-y-3">
           <Label htmlFor="pythonPath" className="text-sm font-medium text-foreground">{t("settings:paths.python.title")}</Label>
