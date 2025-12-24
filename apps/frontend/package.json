@@ -152,7 +152,7 @@
       },
       {
         "from": "../backend",
-        "to": "auto-claude",
+        "to": "backend",
         "filter": [
           "!**/.git",
           "!**/__pycache__",

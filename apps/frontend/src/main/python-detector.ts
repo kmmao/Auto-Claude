@@ -2,6 +2,27 @@ import { execSync } from 'child_process';
 import { existsSync } from 'fs';
 
 /**
+ * Find the first existing Homebrew Python installation.
+ * Checks common Homebrew paths for Python 3.
+ *
+ * @returns The path to Homebrew Python, or null if not found
+ */
+function findHomebrewPython(): string | null {
+  const homebrewPaths = [
+    '/opt/homebrew/bin/python3',  // Apple Silicon (M1/M2/M3)
+    '/usr/local/bin/python3'      // Intel Mac
+  ];
+
+  for (const path of homebrewPaths) {
+    if (existsSync(path)) {
+      return path;
+    }
+  }
+
+  return null;
+}
+
+/**
  * Detect and return the best available Python command.
  * Tries multiple candidates and returns the first one that works with Python 3.
  *
@@ -121,7 +142,10 @@ function validatePythonVersion(pythonCmd: string): {
  * @returns The default Python command for this platform
  */
 export function getDefaultPythonCommand(): string {
-  return process.platform === 'win32' ? 'python' : 'python3';
+  if (process.platform === 'win32') {
+    return 'python';
+  }
+  return findHomebrewPython() || 'python3';
 }
 
 /**

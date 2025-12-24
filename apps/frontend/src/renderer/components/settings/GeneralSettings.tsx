@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Label } from '../ui/label';
 import { Input } from '../ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
@@ -6,7 +7,6 @@ import { Switch } from '../ui/switch';
 import { SettingsSection } from './SettingsSection';
 import { AgentProfileSettings } from './AgentProfileSettings';
 import { LanguageSelector } from '../LanguageSelector';
-import { useTranslation } from 'react-i18next';
 import {
   AVAILABLE_MODELS,
   THINKING_LEVELS,
@@ -70,7 +70,7 @@ export function GeneralSettings({ settings, onSettingsChange, section }: General
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="auto-claude">Auto Claude</SelectItem>
+                  <SelectItem value="auto-claude">{t('settings:agent.framework.autoClaude')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -203,10 +203,6 @@ export function GeneralSettings({ settings, onSettingsChange, section }: General
                   ))}
                 </SelectContent>
               </Select>
-              {/* Fallback input if needed or custom path entry could be added here later */}
-              {/* <div className="text-xs text-muted-foreground">
-                Currently detected: {availablePythonPaths.length} paths
-              </div> */}
             </div>
           ) : (
             <Input
