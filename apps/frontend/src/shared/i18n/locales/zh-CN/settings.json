@@ -1,0 +1,545 @@
+{
+  "appearance": {
+    "title": "外观",
+    "description": "自定义 Auto Claude 的外观",
+    "mode": {
+      "title": "外观模式",
+      "description": "选择亮色、暗色或跟随系统偏好",
+      "system": "系统",
+      "light": "亮色",
+      "dark": "暗色"
+    },
+    "colorTheme": {
+      "title": "颜色主题",
+      "description": "为界面选择调色板",
+      "default": "默认",
+      "defaultDesc": "Oscura 风格的淡黄色调",
+      "dusk": "黄昏",
+      "duskDesc": "略带暖色的深色模式",
+      "lime": "青柠",
+      "limeDesc": "清新活力的紫色调",
+      "ocean": "海洋",
+      "oceanDesc": "沉稳专业的蓝色调",
+      "retro": "复古",
+      "retroDesc": "温暖怀旧的琥珀色调",
+      "neo": "霓虹",
+      "neoDesc": "现代赛博朋克粉红/洋红色",
+      "forest": "森林",
+      "forestDesc": "自然大地的绿色调"
+    }
+  },
+  "display": {
+    "title": "显示",
+    "description": "UI 缩放和布局",
+    "scale": {
+      "title": "界面缩放",
+      "description": "调整整体 UI 大小",
+      "presets": "缩放预设",
+      "finetune": "微调缩放",
+      "compact": "紧凑",
+      "comfortable": "舒适",
+      "spacious": "宽敞",
+      "presetsDesc": "针对常见偏好的快速缩放选项",
+      "reset": "重置为默认 (100%)",
+      "rangeDesc": "以 {{step}}% 为增量，在 {{min}}% 到 {{max}}% 之间调节",
+      "previewHint": "更改将立即预览。点击 <1>保存设置</1> 以应用更改。"
+    }
+  },
+  "agent": {
+    "title": "代理设置",
+    "description": "默认模型和框架",
+    "framework": {
+      "title": "代理框架",
+      "description": "选择 AI 代理使用的框架"
+    },
+    "naming": {
+      "title": "AI 终端命名",
+      "description": "基于命令自动命名终端（使用 Haiku）"
+    },
+    "thinking": {
+      "none": {
+        "label": "无",
+        "description": "无扩展思考"
+      },
+      "low": {
+        "label": "低",
+        "description": "简短考虑"
+      },
+      "medium": {
+        "label": "中",
+        "description": "适度分析"
+      },
+      "high": {
+        "label": "高",
+        "description": "深度思考"
+      },
+      "ultrathink": {
+        "label": "极高",
+        "description": "最大推理深度"
+      }
+    },
+    "profiles": {
+      "auto": {
+        "name": "自动 (已优化)",
+        "description": "在所有阶段使用 Opus，并优化思考级别"
+      },
+      "complex": {
+        "name": "复杂任务",
+        "description": "适用于需要深度分析的复杂多步骤实现"
+      },
+      "balanced": {
+        "name": "均衡",
+        "description": "在大多数任务的速度和质量之间取得良好平衡"
+      },
+      "quick": {
+        "name": "快速编辑",
+        "description": "针对简单更改和快速修复的快速迭代"
+      }
+    },
+    "model": {
+      "title": "功能模型设置",
+      "description": "配置功能生成的模型"
+    },
+    "profile": {
+      "title": "默认代理配置",
+      "description": "为模型和思考级别选择预设配置",
+      "hint": "代理配置为 Claude 模型和思考级别提供预置设置。当您创建一个新任务时，这些设置将作为默认值。您始终可以在任务创建向导中覆盖它们。",
+      "thinking": "{{level}} 思考级别",
+      "phaseConfig": {
+        "title": "阶段配置",
+        "description": "为每个阶段自定义模型和思考级别",
+        "reset": "重置为默认",
+        "hint": "这些设置将作为使用“自动”配置创建新任务时的默认值。您可以在任务创建向导中按任务覆盖它们。",
+        "spec": {
+          "label": "需求创建",
+          "description": "发现、需求、上下文收集"
+        },
+        "planning": {
+          "label": "计划",
+          "description": "实现计划和架构"
+        },
+        "coding": {
+          "label": "编码",
+          "description": "实际代码实现"
+        },
+        "qa": {
+          "label": "QA 评审",
+          "description": "质量保证和验证"
+        }
+      },
+      "model": "模型",
+      "thinkingLevel": "思考级别",
+      "selector": {
+        "label": "代理配置",
+        "perPhase": "各阶段优化",
+        "custom": {
+          "name": "自定义",
+          "description": "选择模型和思考级别",
+          "placeholder": "选择模型",
+          "thinkingPlaceholder": "选择思考级别"
+        },
+        "clickToCustomize": "点击进行自定义"
+      },
+      "customModel": {
+        "title": "自定义模型配置",
+        "description": "配置此对话会话的模型和思考级别。",
+        "apply": "应用"
+      }
+    },
+    "rules": {
+      "title": "全局代理规则",
+      "description": "设置适用于所有代理任务的行为规则（例如：“始终输出中文”，“首选函数式编程”）。",
+      "label": "系统指令",
+      "placeholder": "例如：\n- 始终用中文回答\n- 使用 2 个空格缩进\n- 除非必要，避免使用 try-catch 块",
+      "hint": "这些指令将注入到每个代理任务的系统提示词中。"
+    },
+    "features": {
+      "title": "其他代理设置",
+      "description": "其他代理配置选项",
+      "insights": {
+        "label": "洞察",
+        "description": "任务深度分析"
+      },
+      "ideation": {
+        "label": "构思",
+        "description": "功能想法和头脑风暴"
+      },
+      "roadmap": {
+        "label": "路线图",
+        "description": "Sprint 计划和排序"
+      }
+    }
+  },
+  "paths": {
+    "title": "路径",
+    "description": "Python 和框架路径",
+    "autoBuild": {
+      "title": "Auto Claude 源路径",
+      "description": "Auto Claude 框架的路径",
+      "placeholder": "选择 Auto Claude 目录"
+    },
+    "python": {
+      "title": "Python 路径",
+      "description": "Python 可执行文件的路径",
+      "placeholder": "选择 Python 可执行文件"
+    },
+    "language": {
+      "title": "语言",
+      "description": "选择界面语言"
+    }
+  },
+  "integrations": {
+    "title": "集成",
+    "description": "API 密钥和 Claude 账户",
+    "github": {
+      "title": "GitHub 集成",
+      "description": "连接到 GitHub 进行问题跟踪和任务导入",
+      "enable": "启用 GitHub 问题",
+      "auth": "GitHub 身份验证",
+      "token": "个人访问令牌",
+      "tokenPlaceholder": "ghp_...",
+      "repository": "仓库",
+      "repositoryPlaceholder": "owner/repo"
+    },
+    "linear": {
+      "title": "Linear 集成",
+      "description": "连接到 Linear 以进行问题跟踪和任务同步",
+      "enable": "启用 Linear 同步",
+      "apiKey": "API 密钥",
+      "apiKeyPlaceholder": "lin_api_...",
+      "realtime": "实时同步",
+      "realtimeDesc": "自动从 Linear 导入新问题"
+    },
+    "claude": {
+      "title": "Claude 账号",
+      "description": "添加多个 Claude 订阅，以便在达到速率限制时自动切换。",
+      "noAccounts": "尚未配置账号",
+      "status": {
+        "default": "默认",
+        "active": "激活",
+        "authenticated": "已认证",
+        "needsAuth": "需要认证"
+      },
+      "actions": {
+        "authenticate": "认证",
+        "reauthenticate": "重新认证配置",
+        "setActive": "设为活跃",
+        "rename": "重命名配置",
+        "delete": "删除配置",
+        "hideToken": "隐藏令牌输入",
+        "manualToken": "手动输入令牌",
+        "manualTokenEntry": "手动令牌输入",
+        "manualTokenHint": "运行 <1>claude setup-token</1> 获取您的令牌",
+        "saveToken": "保存令牌",
+        "add": "添加",
+        "addPlaceholder": "账号名称 (例如：工作、个人)"
+      },
+      "autoSwitch": {
+        "title": "自动账号切换",
+        "description": "在 Claude 账号之间自动切换以避免中断。配置主动监控以在达到限制前进行切换。",
+        "enable": "启用自动切换",
+        "enableDesc": "所有自动切换功能的主开关",
+        "proactive": {
+          "title": "主动监控",
+          "description": "定期检查使用情况并在达到限制前进行切换",
+          "interval": "检查周期",
+          "intervals": {
+            "15s": "15 秒",
+            "30s": "30 秒 (推荐)",
+            "1m": "1 分钟",
+            "disabled": "已禁用"
+          },
+          "session": "会话使用阈值",
+          "sessionDesc": "当会话使用量达到此级别时进行切换 (推荐: 95%)",
+          "weekly": "每周使用阈值",
+          "weeklyDesc": "当每周使用量达到此级别时进行切换 (推荐: 99%)"
+        },
+        "reactive": {
+          "title": "响应式恢复",
+          "description": "当遇到意外的速率限制时自动切换"
+        }
+      }
+    },
+    "apiKeys": {
+      "title": "API 密钥",
+      "hint": "此处设置的密钥将作为默认值。单个项目可以在其设置中覆盖这些值。",
+      "openai": {
+        "title": "OpenAI API 密钥",
+        "description": "Graphiti 内存后端 (embeddings) 所需"
+      }
+    }
+  },
+  "updates": {
+    "title": "更新",
+    "description": "Auto Claude 更新",
+    "app": {
+      "ready": "应用更新就绪",
+      "newVersion": "新版本",
+      "released": "发布于 {{date}}",
+      "downloading": "正在下载...",
+      "success": "更新已下载！点击安装以重启并应用更新。",
+      "install": "安装并重启",
+      "download": "下载更新"
+    },
+    "source": {
+      "version": "版本",
+      "checking": "正在检查更新...",
+      "available": "发现新版本：{{version}}",
+      "latest": "您正在运行最新版本。",
+      "viewGitHub": "在 GitHub 上查看完整发布说明",
+      "check": "检查更新",
+      "autoUpdate": {
+        "title": "自动更新项目",
+        "description": "当有新版本可用时，自动在项目中更新 Auto Claude"
+      },
+      "beta": {
+        "title": "Beta 更新",
+        "description": "接收具有新功能的预览版（可能不够稳定）"
+      },
+      "unable": "无法检查更新"
+    }
+  },
+  "notifications": {
+    "title": "通知",
+    "description": "配置默认通知偏好",
+    "onTaskComplete": {
+      "label": "任务完成时",
+      "description": "任务成功完成时发送通知"
+    },
+    "onTaskFailed": {
+      "label": "任务失败时",
+      "description": "任务遇到错误时发送通知"
+    },
+    "onReviewNeeded": {
+      "label": "需要审查时",
+      "description": "当 QA 需要您审查时发送通知"
+    },
+    "sound": {
+      "label": "声音",
+      "description": "发送通知时播放声音"
+    }
+  },
+  "project": {
+    "selector": {
+      "placeholder": "选择一个项目...",
+      "noProjects": "暂无项目",
+      "addProject": "添加项目..."
+    },
+    "empty": {
+      "title": "未选择项目",
+      "description": "从上方下拉菜单中选择一个项目以配置其设置"
+    },
+    "general": {
+      "title": "通用",
+      "description": "为 {{name}} 配置 Auto-Build、代理模型和通知",
+      "autoBuild": {
+        "title": "Auto-Build 集成",
+        "notInitialized": "未初始化",
+        "initializeDesc": "集成 Auto-Build 以使用高级功能",
+        "initialize": "初始化 Auto-Build",
+        "initializing": "正在初始化...",
+        "initialized": "已初始化",
+        "checkingStatus": "正在检查状态...",
+        "initializeFirst": "请先初始化 Auto-Build 以配置 {{feature}}"
+      },
+      "agent": {
+        "title": "代理配置"
+      },
+      "model": "模型",
+      "modelDesc": "用于此项目的 AI 模型"
+    },
+    "claudeAuth": {
+      "title": "Claude 身份验证",
+      "description": "为此项目配置 Claude CLI 身份验证",
+      "connected": "已连接",
+      "notConnected": "未连接",
+      "loading": "正在加载配置...",
+      "globalAuth": {
+        "title": "使用全局身份验证",
+        "description": "Claude 身份验证在 <1>设置 → 集成</1> 中管理。所有项目共享相同的 Claude 账号。"
+      },
+      "activeAccount": "活动账户",
+      "reauthenticate": "重新认证",
+      "status": {
+        "active": "激活",
+        "authenticated": "已认证",
+        "needsAuth": "需要认证",
+        "noActive": "未选择活动账号。请前往 <1>设置 → 集成</1> 选择一个账号。"
+      },
+      "fallbackAccounts": "其他已认证账号 (用于速率限制后的备选):",
+      "noAccounts": {
+        "title": "未配置 Claude 账号",
+        "description": "在全局设置中添加 Claude 账号以使用 Auto-Build。",
+        "button": "打开集成设置"
+      },
+      "account": "活动账户",
+      "selectAccount": "选择账户",
+      "addAccount": "添加新账户"
+    },
+    "linear": {
+      "title": "Linear 集成",
+      "description": "连接到 Linear 进行问题跟踪和任务导入",
+      "enable": "启用 Linear 同步",
+      "enableDesc": "自动创建和更新 Linear 问题",
+      "apiKey": "API 密钥",
+      "apiKeyHint": "从 <1>Linear 设置</1> 获取您的 API 密钥",
+      "status": {
+        "title": "连接状态",
+        "checking": "正在检查...",
+        "connected": "已连接",
+        "connectedTo": "已连接到 {{team}}",
+        "tasksAvailable": "有 {{count}}+ 个任务可供导入",
+        "notConnected": "未连接"
+      },
+      "import": {
+        "title": "导入现有任务",
+        "description": "选择要导入 AutoBuild 作为任务的 Linear 问题。",
+        "button": "从 Linear 导入任务"
+      },
+      "realtime": {
+        "title": "实时同步",
+        "description": "自动导入在 Linear 中创建的新任务",
+        "warning": "启用后，新的 Linear 问题将自动导入 AutoBuild。请确保在下方配置您的团队/项目过滤器，以控制导入哪些问题。"
+      },
+      "ids": {
+        "team": "团队 ID (可选)",
+        "teamPlaceholder": "自动检测",
+        "project": "项目 ID (可选)",
+        "projectPlaceholder": "自动创建"
+      }
+    },
+    "github": {
+      "title": "GitHub 集成",
+      "description": "连接到 GitHub 进行问题跟踪",
+      "enable": "启用 GitHub 问题",
+      "enableDesc": "从 GitHub 同步问题并自动创建任务",
+      "status": {
+        "title": "连接状态",
+        "checking": "正在检查...",
+        "connected": "已连接到 {{repo}}",
+        "notConnected": "未连接",
+        "connectedOAuth": "已通过 GitHub CLI 连接",
+        "authenticatedAs": "已认证为 {{username}}"
+      },
+      "actions": {
+        "useDifferentToken": "使用其他令牌",
+        "useManualToken": "使用手动令牌",
+        "useOAuth": "改用 OAuth",
+        "enterManually": "手动输入"
+      },
+      "auth": {
+        "title": "GitHub 身份验证",
+        "token": "个人访问令牌",
+        "tokenHint": "从 <2>GitHub 设置</2> 创建一个具有 <1>repo</1> 权限的令牌",
+        "repoFormat": "格式：<1>owner/repo</1> (例如：facebook/react)"
+      },
+      "repo": {
+        "title": "版本库",
+        "loading": "正在加载版本库...",
+        "select": "选择一个版本库...",
+        "search": "搜索版本库...",
+        "none": "未发现版本库",
+        "noMatch": "没有匹配的版本库",
+        "selected": "已选择：<1>{{repo}}</1>"
+      },
+      "issues": {
+        "title": "有可用的问题",
+        "description": "从侧边栏访问 GitHub 问题以查看、调查并根据问题创建任务。"
+      },
+      "autoSync": {
+        "title": "加载时自动同步",
+        "description": "项目加载时自动获取问题"
+      },
+      "branch": {
+        "title": "默认分支",
+        "description": "创建任务工作树的基础分支",
+        "loading": "正在加载分支...",
+        "autoDetect": "自动检测 (main/master)",
+        "search": "搜索分支...",
+        "none": "未发现分支",
+        "noMatch": "没有匹配的分支",
+        "hint": "所有新任务都将从 <1>{{branch}}</1> 分支切出"
+      }
+    },
+    "memory": {
+      "title": "内存",
+      "description": "为代理配置持久的跨会话内存",
+      "status": {
+        "enabled": "已启用",
+        "disabled": "已禁用"
+      },
+      "enable": "启用内存",
+      "enableDesc": "使用 LadybugDB (嵌入式数据库) 的持久跨会话内存",
+      "fileBasedDesc": "正在使用基于文件的内存。会话洞察存储在本地 JSON 文件中。启用内存以通过语义搜索实现持久的跨会话上下文。",
+      "enableAccess": "启用代理内存访问",
+      "enableAccessDesc": "允许代理通过 MCP 在知识图中搜索并添加内容",
+      "graphitiUrl": "Graphiti MCP 服务器 URL",
+      "graphitiUrlDesc": "用于代理内存访问的 Graphiti MCP 服务器 URL",
+      "embeddingProvider": "嵌入提供商",
+      "embeddingProviderDesc": "用于语义搜索的提供方 (可选 - 即使不配置，关键词搜索仍可工作)",
+      "providers": {
+        "ollama": "Ollama (本地 - 免费)",
+        "openai": "OpenAI",
+        "voyage": "Voyage AI",
+        "google": "Google AI",
+        "azure_openai": "Azure OpenAI"
+      },
+      "openai": {
+        "title": "OpenAI API 密钥 {{override}}",
+        "override": "(覆盖)",
+        "usingGlobal": "使用全局密钥",
+        "globalHint": "正在使用应用设置中的密钥。在下方输入项目特定的密钥以进行覆盖。",
+        "placeholderOverride": "输入以覆盖全局密钥...",
+        "required": "OpenAI 嵌入所需的密钥",
+        "getKey": "从 <1>OpenAI</1> 获取您的密钥"
+      },
+      "voyage": {
+        "required": "Voyage AI 嵌入所需的密钥",
+        "getKey": "从 <1>Voyage AI</1> 获取您的密钥",
+        "modelOptional": "嵌入模型 (可选)"
+      },
+      "google": {
+        "required": "Google AI 嵌入所需的密钥",
+        "getKey": "从 <1>Google AI Studio</1> 获取您的密钥"
+      },
+      "azure": {
+        "title": "Azure OpenAI 配置",
+        "deployment": "嵌入部署名称"
+      },
+      "ollama": {
+        "title": "Ollama 配置",
+        "select": "选择嵌入模型",
+        "placeholder": "例如：mxbai-embed-large",
+        "hint": "确保 Ollama 正在运行且模型已在本地拉取。"
+      },
+      "database": {
+        "name": "数据库名称",
+        "storedIn": "存储在 ~/.auto-claude/memories/",
+        "path": "数据库路径 (可选)",
+        "customPath": "自定义存储位置。默认值：~/.auto-claude/memories/"
+      },
+      "embeddingModel": "嵌入模型"
+    },
+    "environment": {
+      "title": "环境",
+      "description": "环境变量和配置"
+    },
+    "security": {
+      "title": "安全",
+      "description": "API 密钥和凭据"
+    }
+  },
+  "wizard": {
+    "title": "重新运行向导",
+    "description": "再次启动设置向导"
+  },
+  "nav": {
+    "application": "应用设置",
+    "project": "项目设置",
+    "version": "版本 {{version}}"
+  },
+  "actions": {
+    "save": "保存设置",
+    "saving": "保存中..."
+  }
+}

@@ -19,6 +19,15 @@ import frWelcome from './locales/fr/welcome.json';
 import frOnboarding from './locales/fr/onboarding.json';
 import frDialogs from './locales/fr/dialogs.json';
 
+// Import Chinese (Simplified) translation resources
+import zhCNCommon from './locales/zh-CN/common.json';
+import zhCNNavigation from './locales/zh-CN/navigation.json';
+import zhCNSettings from './locales/zh-CN/settings.json';
+import zhCNTasks from './locales/zh-CN/tasks.json';
+import zhCNWelcome from './locales/zh-CN/welcome.json';
+import zhCNOnboarding from './locales/zh-CN/onboarding.json';
+import zhCNDialogs from './locales/zh-CN/dialogs.json';
+
 export const defaultNS = 'common';
 
 export const resources = {
@@ -39,6 +48,15 @@ export const resources = {
     welcome: frWelcome,
     onboarding: frOnboarding,
     dialogs: frDialogs
+  },
+  'zh-CN': {
+    common: zhCNCommon,
+    navigation: zhCNNavigation,
+    settings: zhCNSettings,
+    tasks: zhCNTasks,
+    welcome: zhCNWelcome,
+    onboarding: zhCNOnboarding,
+    dialogs: zhCNDialogs
   }
 } as const;
 
@@ -59,3 +77,4 @@ i18n
   });
 
 export default i18n;
+
