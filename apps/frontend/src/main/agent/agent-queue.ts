@@ -1,7 +1,9 @@
 import { spawn } from 'child_process';
 import path from 'path';
-import { existsSync, promises as fsPromises } from 'fs';
+import { existsSync, promises as fsPromises, readFileSync } from 'fs';
 import { EventEmitter } from 'events';
+import { app } from 'electron';
+import { readSettingsFile } from '../settings-utils';
 import { AgentState } from './agent-state';
 import { AgentEvents } from './agent-events';
 import { AgentProcessManager } from './agent-process';
@@ -221,10 +223,31 @@ export class AgentQueueManager {
     // 2. combinedEnv (auto-claude/.env for CLI usage)
     // 3. profileEnv (Electron app OAuth token - highest priority)
     // 4. Our specific overrides
+    // Get global agent rules from settings
+    const settings = readSettingsFile();
+    const globalRules = settings?.globalAgentRules ? String(settings.globalAgentRules) : '';
+    let activeGlobalRules = globalRules || process.env.CLAUDE_GLOBAL_RULES || '';
+
+    // Append user's local CLAUDE.md if it exists
+    const userClaudeMdPath = path.join(app.getPath('home'), '.claude', 'CLAUDE.md');
+    if (existsSync(userClaudeMdPath)) {
+      try {
+        const userRules = readFileSync(userClaudeMdPath, 'utf-8');
+        if (userRules.trim()) {
+          activeGlobalRules = activeGlobalRules
+            ? `${activeGlobalRules}\n\n# User Rules (~/.claude/CLAUDE.md)\n${userRules}`
+            : userRules;
+        }
+      } catch (err) {
+        console.error('Failed to read ~/.claude/CLAUDE.md:', err);
+      }
+    }
+
     const finalEnv = {
       ...process.env,
       ...combinedEnv,
       ...profileEnv,
+      CLAUDE_GLOBAL_RULES: activeGlobalRules,
       PYTHONPATH: autoBuildSource || '', // Allow imports from auto-claude directory
       PYTHONUNBUFFERED: '1',
       PYTHONIOENCODING: 'utf-8',
@@ -519,10 +542,31 @@ export class AgentQueueManager {
     // 2. combinedEnv (auto-claude/.env for CLI usage)
     // 3. profileEnv (Electron app OAuth token - highest priority)
     // 4. Our specific overrides
+    // Get global agent rules from settings
+    const settings = readSettingsFile();
+    const globalRules = settings?.globalAgentRules ? String(settings.globalAgentRules) : '';
+    let activeGlobalRules = globalRules || process.env.CLAUDE_GLOBAL_RULES || '';
+
+    // Append user's local CLAUDE.md if it exists
+    const userClaudeMdPath = path.join(app.getPath('home'), '.claude', 'CLAUDE.md');
+    if (existsSync(userClaudeMdPath)) {
+      try {
+        const userRules = readFileSync(userClaudeMdPath, 'utf-8');
+        if (userRules.trim()) {
+          activeGlobalRules = activeGlobalRules
+            ? `${activeGlobalRules}\n\n# User Rules (~/.claude/CLAUDE.md)\n${userRules}`
+            : userRules;
+        }
+      } catch (err) {
+        console.error('Failed to read ~/.claude/CLAUDE.md:', err);
+      }
+    }
+
     const finalEnv = {
       ...process.env,
       ...combinedEnv,
       ...profileEnv,
+      CLAUDE_GLOBAL_RULES: activeGlobalRules,
       PYTHONPATH: autoBuildSource || '', // Allow imports from auto-claude directory
       PYTHONUNBUFFERED: '1',
       PYTHONIOENCODING: 'utf-8',
