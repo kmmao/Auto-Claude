@@ -46,9 +46,37 @@
     }
   },
   "sections": {
+    "appearance": {
+      "title": "外观",
+      "description": "自定义 Auto Claude 的外观"
+    },
+    "display": {
+      "title": "显示",
+      "description": "调整 UI 元素大小"
+    },
     "language": {
       "title": "语言",
       "description": "选择您的首选语言"
+    },
+    "agent": {
+      "title": "代理设置",
+      "description": "默认模型和框架"
+    },
+    "paths": {
+      "title": "路径",
+      "description": "Python 和框架路径"
+    },
+    "integrations": {
+      "title": "集成",
+      "description": "API 密钥和 Claude 账户"
+    },
+    "updates": {
+      "title": "更新",
+      "description": "Auto Claude 更新"
+    },
+    "notifications": {
+      "title": "通知",
+      "description": "提醒偏好"
     }
   },
   "language": {

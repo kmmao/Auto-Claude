@@ -249,8 +249,8 @@ export function AppSettingsDialog({ open, onOpenChange, initialSection, initialP
                           >
                             <Icon className="h-5 w-5 mt-0.5 shrink-0" />
                             <div className="min-w-0">
-                              <div className="font-medium text-sm">{t(`settings:${item.id}.title`)}</div>
-                              <div className="text-xs text-muted-foreground truncate">{t(`settings:${item.id}.description`)}</div>
+                              <div className="font-medium text-sm">{t(`settings:sections.${item.id}.title`)}</div>
+                              <div className="text-xs text-muted-foreground truncate">{t(`settings:sections.${item.id}.description`)}</div>
                             </div>
                           </button>
                         );
