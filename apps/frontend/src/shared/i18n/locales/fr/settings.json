@@ -39,6 +39,7 @@
     }
   },
   "language": {
+    "title": "Langue",
     "label": "Langue de l'interface",
     "description": "Sélectionnez la langue de l'interface de l'application"
   },

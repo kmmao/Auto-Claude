@@ -39,6 +39,7 @@
     }
   },
   "language": {
+    "title": "Language",
     "label": "Interface Language",
     "description": "Select the language for the application interface"
   },
