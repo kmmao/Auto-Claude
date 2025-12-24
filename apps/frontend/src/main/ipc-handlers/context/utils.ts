@@ -49,7 +49,7 @@ export function parseEnvFile(envContent: string): EnvironmentVars {
 
       // Remove quotes if present
       if ((value.startsWith('"') && value.endsWith('"')) ||
-          (value.startsWith("'") && value.endsWith("'"))) {
+        (value.startsWith("'") && value.endsWith("'"))) {
         value = value.slice(1, -1);
       }
 
@@ -108,15 +108,62 @@ export function isGraphitiEnabled(projectEnvVars: EnvironmentVars): boolean {
 }
 
 /**
- * Check if OpenAI API key is available
- * Priority: project .env > global settings > process.env
+ * Get configured Graphiti providers
  */
-export function hasOpenAIKey(projectEnvVars: EnvironmentVars, globalSettings: GlobalSettings): boolean {
-  return !!(
-    projectEnvVars['OPENAI_API_KEY'] ||
-    globalSettings.globalOpenAIApiKey ||
-    process.env.OPENAI_API_KEY
-  );
+export function getGraphitiProviders(projectEnvVars: EnvironmentVars): { llm: string, embedder: string } {
+  const llm = projectEnvVars['GRAPHITI_LLM_PROVIDER'] || process.env.GRAPHITI_LLM_PROVIDER || 'openai';
+  const embedder = projectEnvVars['GRAPHITI_EMBEDDER_PROVIDER'] || process.env.GRAPHITI_EMBEDDER_PROVIDER || 'openai';
+  return { llm, embedder };
+}
+
+/**
+ * Check if the required API keys for selected Graphiti providers are available.
+ * Returns a result indicating availability and a reason if not.
+ */
+export function checkGraphitiAvailability(
+  projectEnvVars: EnvironmentVars,
+  globalSettings: GlobalSettings
+): { available: boolean; reason?: string } {
+  const { embedder } = getGraphitiProviders(projectEnvVars);
+
+  const checkKey = (key: string, globalKey?: string) => {
+    return !!(projectEnvVars[key] || (globalKey && globalSettings[globalKey as keyof GlobalSettings]) || process.env[key]);
+  };
+
+  if (embedder === 'openai') {
+    if (!checkKey('OPENAI_API_KEY', 'globalOpenAIApiKey')) {
+      return { available: false, reason: 'OPENAI_API_KEY not set (required for OpenAI embeddings)' };
+    }
+  } else if (embedder === 'anthropic') {
+    if (!checkKey('ANTHROPIC_API_KEY')) {
+      return { available: false, reason: 'ANTHROPIC_API_KEY not set (required for Anthropic embeddings)' };
+    }
+  } else if (embedder === 'voyage') {
+    if (!checkKey('VOYAGE_API_KEY')) {
+      return { available: false, reason: 'VOYAGE_API_KEY not set (required for Voyage embeddings)' };
+    }
+  } else if (embedder === 'google') {
+    if (!checkKey('GOOGLE_API_KEY')) {
+      return { available: false, reason: 'GOOGLE_API_KEY not set (required for Google embeddings)' };
+    }
+  } else if (embedder === 'azure_openai') {
+    if (!checkKey('AZURE_OPENAI_API_KEY')) {
+      return { available: false, reason: 'AZURE_OPENAI_API_KEY not set (required for Azure OpenAI embeddings)' };
+    }
+    // Could also check for base URL and deployment, but api key is the main one
+  } else if (embedder === 'openrouter') {
+    if (!checkKey('OPENROUTER_API_KEY')) {
+      return { available: false, reason: 'OPENROUTER_API_KEY not set (required for OpenRouter embeddings)' };
+    }
+  } else if (embedder === 'ollama') {
+    // Ollama doesn't need an API key
+    if (!projectEnvVars['OLLAMA_EMBEDDING_MODEL'] && !process.env.OLLAMA_EMBEDDING_MODEL) {
+      return { available: false, reason: 'OLLAMA_EMBEDDING_MODEL not set' };
+    }
+    return { available: true };
+  }
+
+  return { available: true };
 }
 
 /**
@@ -129,12 +176,12 @@ export interface GraphitiDatabaseDetails {
 
 export function getGraphitiDatabaseDetails(projectEnvVars: EnvironmentVars): GraphitiDatabaseDetails {
   const dbPath = projectEnvVars['GRAPHITI_DB_PATH'] ||
-                 process.env.GRAPHITI_DB_PATH ||
-                 require('path').join(require('os').homedir(), '.auto-claude', 'memories');
+    process.env.GRAPHITI_DB_PATH ||
+    require('path').join(require('os').homedir(), '.auto-claude', 'memories');
 
   const database = projectEnvVars['GRAPHITI_DATABASE'] ||
-                   process.env.GRAPHITI_DATABASE ||
-                   'auto_claude_memory';
+    process.env.GRAPHITI_DATABASE ||
+    'auto_claude_memory';
 
   return { dbPath, database };
 }

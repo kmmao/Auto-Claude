@@ -96,9 +96,11 @@ export function MemoriesTab({
             ) : (
               <div className="text-sm text-muted-foreground">
                 <p>{memoryStatus?.reason || t('context:memories.status.notConfigured')}</p>
-                <p className="mt-2 text-xs">
-                  <Trans i18nKey="context:memories.status.enableHint" components={{ 1: <code className="bg-muted px-1 py-0.5 rounded" /> }} />
-                </p>
+                {!memoryStatus?.enabled && (
+                  <p className="mt-2 text-xs">
+                    <Trans i18nKey="context:memories.status.enableHint" components={{ 1: <code className="bg-muted px-1 py-0.5 rounded" /> }} />
+                  </p>
+                )}
               </div>
             )}
           </CardContent>
