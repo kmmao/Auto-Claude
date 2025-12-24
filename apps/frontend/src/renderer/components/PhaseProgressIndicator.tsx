@@ -37,7 +37,7 @@ export function PhaseProgressIndicator({
   isRunning = false,
   className,
 }: PhaseProgressIndicatorProps) {
-  const { t } = useTranslation(['common', 'settings']);
+  const { t } = useTranslation(['common', 'settings', 'kanban']);
 
   // Calculate subtask-based progress (for coding phase)
   const completedSubtasks = subtasks.filter((c) => c.status === 'completed').length;
@@ -69,7 +69,7 @@ export function PhaseProgressIndicator({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="text-xs text-muted-foreground">
-            {isStuck ? 'Interrupted' : showSubtaskProgress ? 'Progress' : config.label}
+            {isStuck ? t('kanban:taskCard.progress.interrupted') : showSubtaskProgress ? t('kanban:taskCard.progress.label') : t(`kanban:taskCard.phase.${phase}`, { defaultValue: config.label })}
           </span>
           {/* Activity indicator dot for non-coding phases */}
           {isRunning && !isStuck && isIndeterminatePhase && (
@@ -213,10 +213,12 @@ function PhaseStepsIndicator({
   currentPhase: ExecutionPhase;
   isStuck: boolean;
 }) {
-  const phases: { key: ExecutionPhase; label: string }[] = [
-    { key: 'planning', label: 'Plan' },
-    { key: 'coding', label: 'Code' },
-    { key: 'qa_review', label: 'QA' },
+  const { t } = useTranslation(['kanban']);
+
+  const phases: { key: ExecutionPhase; labelKey: string }[] = [
+    { key: 'planning', labelKey: 'kanban:taskCard.progress.plan' },
+    { key: 'coding', labelKey: 'kanban:taskCard.progress.code' },
+    { key: 'qa_review', labelKey: 'kanban:taskCard.progress.qa' },
   ];
 
   const getPhaseState = (phaseKey: ExecutionPhase) => {
@@ -264,7 +266,7 @@ function PhaseStepsIndicator({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                 </svg>
               )}
-              {phase.label}
+              {t(phase.labelKey)}
             </motion.div>
             {index < phases.length - 1 && (
               <div

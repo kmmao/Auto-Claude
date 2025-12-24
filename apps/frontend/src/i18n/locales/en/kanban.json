@@ -22,7 +22,13 @@
         "doneDesc": "Approved tasks appear here"
     },
     "taskCard": {
-        "progress": "Progress",
+        "progress": {
+            "label": "Progress",
+            "interrupted": "Interrupted",
+            "plan": "Plan",
+            "code": "Code",
+            "qa": "QA"
+        },
         "justNow": "just now",
         "archive": "Archive",
         "showArchived": "Show archived",

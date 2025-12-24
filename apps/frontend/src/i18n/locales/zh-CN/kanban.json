@@ -22,7 +22,13 @@
         "doneDesc": "已批准的任务将出现在这里"
     },
     "taskCard": {
-        "progress": "进度",
+        "progress": {
+            "label": "进度",
+            "interrupted": "已中断",
+            "plan": "计划",
+            "code": "编码",
+            "qa": "QA"
+        },
         "justNow": "刚刚",
         "archive": "归档",
         "showArchived": "显示已归档",
