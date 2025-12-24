@@ -73,6 +73,22 @@ export interface AgentProfile {
   phaseThinking?: PhaseThinkingConfig;
 }
 
+// Python interpreter detection types
+// Source indicates where the Python interpreter was installed from
+export type PythonInterpreterSource = 'homebrew' | 'system' | 'pyenv' | 'custom' | 'unknown';
+
+// Detected Python interpreter information
+export interface PythonInterpreter {
+  /** Full path to the Python executable */
+  path: string;
+  /** Python version string (e.g., "3.11.5") */
+  version: string;
+  /** Whether this interpreter matches the currently configured pythonPath */
+  isActive: boolean;
+  /** Source/origin of this Python installation */
+  source: PythonInterpreterSource;
+}
+
 export interface AppSettings {
   theme: 'light' | 'dark' | 'system';
   colorTheme?: ColorTheme;
