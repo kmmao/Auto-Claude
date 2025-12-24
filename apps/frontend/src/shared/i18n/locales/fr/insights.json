@@ -1,0 +1,53 @@
+{
+  "title": "Insights",
+  "subtitle": "Ask questions about your codebase",
+  "actions": {
+    "newChat": "New Chat",
+    "hideSidebar": "Hide sidebar",
+    "showSidebar": "Show sidebar",
+    "createTask": "Create Task",
+    "creating": "Creating...",
+    "taskCreated": "Task Created"
+  },
+  "emptyState": {
+    "title": "Start a Conversation",
+    "description": "Ask questions about your codebase, get suggestions for improvements, or discuss features you'd like to implement.",
+    "suggestions": {
+      "architecture": "What is the architecture of this project?",
+      "quality": "Suggest improvements for code quality",
+      "features": "What features could I add next?",
+      "security": "Are there any security concerns?"
+    }
+  },
+  "input": {
+    "placeholder": "Ask about your codebase...",
+    "hint": "Press Enter to send, Shift+Enter for new line"
+  },
+  "roles": {
+    "user": "You",
+    "assistant": "Assistant"
+  },
+  "cards": {
+    "suggestedTask": "Suggested Task"
+  },
+  "status": {
+    "thinking": "Thinking...",
+    "toolsUsed": "{{count}} tools used",
+    "toolUsed": "1 tool used"
+  },
+  "tools": {
+    "read": "Read",
+    "glob": "Glob",
+    "grep": "Grep",
+    "reading": "Reading file",
+    "searchingFiles": "Searching files",
+    "searchingCode": "Searching code"
+  },
+  "chatHistory": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "daysAgo": "{{count}} days ago",
+    "messageCount": "{{count}} message",
+    "messageCount_plural": "{{count}} messages"
+  }
+}

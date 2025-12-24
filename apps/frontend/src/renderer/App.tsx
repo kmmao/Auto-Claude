@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Settings2, Download, RefreshCw, AlertCircle } from 'lucide-react';
-import '../i18n'; // Initialize i18n
+import '../shared/i18n'; // Initialize i18n
 import {
   DndContext,
   DragOverlay,

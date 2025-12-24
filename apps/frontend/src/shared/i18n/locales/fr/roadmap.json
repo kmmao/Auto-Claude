@@ -1,0 +1,178 @@
+{
+  "emptyState": {
+    "title": "No Roadmap Yet",
+    "description": "Generate an AI-powered roadmap that understands your project's target audience and creates a strategic feature plan.",
+    "generate": "Generate Roadmap"
+  },
+  "header": {
+    "competitorAnalysis": {
+      "label": "Competitor Analysis",
+      "tooltipTitle": "Click to view detailed analysis",
+      "tooltipDesc": "Analyzed {{competitors}} competitors with {{painPoints}} pain points identified"
+    },
+    "buttons": {
+      "addFeature": "Add Feature",
+      "addFeatureTooltip": "Add a new feature to the roadmap",
+      "refreshTooltip": "Regenerate Roadmap"
+    },
+    "target": {
+      "label": "Target:",
+      "morePersonas": "+{{count}} more personas",
+      "tooltipTitle": "Secondary Personas:"
+    },
+    "stats": {
+      "features": "features",
+      "phases": "phases"
+    }
+  },
+  "tabs": {
+    "kanban": "Kanban",
+    "phases": "Phases",
+    "features": "All Features",
+    "priorities": "By Priority"
+  },
+  "priorityView": {
+    "features": "features",
+    "impact": "impact",
+    "insight": "Insight"
+  },
+  "progress": {
+    "phases": {
+      "analyzing": {
+        "label": "Analyzing",
+        "description": "Analyzing project structure and codebase..."
+      },
+      "discovering": {
+        "label": "Discovering",
+        "description": "Discovering target audience and user needs..."
+      },
+      "generating": {
+        "label": "Generating",
+        "description": "Generating feature roadmap..."
+      },
+      "complete": {
+        "label": "Complete",
+        "description": "Roadmap generation complete!"
+      },
+      "error": {
+        "label": "Error",
+        "description": "Generation failed"
+      }
+    },
+    "steps": {
+      "analyze": "Analyze",
+      "discover": "Discover",
+      "generate": "Generate"
+    },
+    "progressLabel": "Progress",
+    "stop": "Stop",
+    "stopping": "Stopping...",
+    "stopTooltip": "Stop generation"
+  },
+  "competitorDialog": {
+    "title": "Enable Competitor Analysis?",
+    "description": "Enhance your roadmap with insights from competitor products",
+    "whatItDoes": {
+      "title": "What competitor analysis does:",
+      "item1": "Identifies 3-5 main competitors based on your project type",
+      "item2": "Searches app stores, forums, and social media for user feedback and pain points",
+      "item3": "Suggests features that address gaps in competitor products"
+    },
+    "privacy": {
+      "title": "Web searches will be performed",
+      "description": "This feature will perform web searches to gather competitor information. Your project name and type will be used in search queries. No code or sensitive data is shared."
+    },
+    "optionalInfo": "You can generate a roadmap without competitor analysis if you prefer. The roadmap will still be based on your project structure and best practices.",
+    "buttons": {
+      "skip": "No, Skip Analysis",
+      "enable": "Yes, Enable Analysis"
+    }
+  },
+  "existingCompetitorDialog": {
+    "title": "Competitor Analysis Options",
+    "description": "This project has an existing competitor analysis from {{date}}",
+    "useExisting": {
+      "title": "Use existing analysis",
+      "recommended": "(Recommended)",
+      "description": "Reuse the competitor insights you already have. Faster and no additional web searches."
+    },
+    "runNew": {
+      "title": "Run new analysis",
+      "description": "Perform fresh web searches to get updated competitor information. Takes longer."
+    },
+    "skip": {
+      "title": "Skip competitor analysis",
+      "description": "Generate roadmap without any competitor insights."
+    }
+  },
+  "competitorViewer": {
+    "title": "Competitor Analysis Results",
+    "description": "Analyzed {{competitors}} competitors to identify market gaps and opportunities",
+    "visit": "Visit",
+    "painPointsTitle": "Identified Pain Points ({{count}})",
+    "noPainPoints": "No pain points identified",
+    "source": "Source:",
+    "frequency": "Frequency:",
+    "opportunity": "Opportunity:",
+    "summaryTitle": "Market Insights Summary",
+    "topPainPoints": "Top Pain Points:",
+    "differentiators": "Differentiator Opportunities:",
+    "trends": "Market Trends:"
+  },
+  "addFeatureDialog": {
+    "title": "Add Feature",
+    "description": "Add a new feature to your roadmap. Provide details about what you want to build and how it fits into your product strategy.",
+    "fields": {
+      "title": {
+        "label": "Feature Title",
+        "placeholder": "e.g., User Authentication, Dark Mode Support"
+      },
+      "description": {
+        "label": "Description",
+        "placeholder": "Describe what this feature does and why it's valuable to users."
+      },
+      "rationale": {
+        "label": "Rationale",
+        "placeholder": "Explain why this feature should be built and how it fits the product vision.",
+        "optional": "(optional)"
+      },
+      "phase": {
+        "label": "Phase",
+        "placeholder": "Select phase"
+      },
+      "priority": {
+        "label": "Priority",
+        "placeholder": "Select priority"
+      },
+      "complexity": {
+        "label": "Complexity",
+        "placeholder": "Select complexity",
+        "options": {
+          "low": "Low",
+          "medium": "Medium",
+          "high": "High"
+        }
+      },
+      "impact": {
+        "label": "Impact",
+        "placeholder": "Select impact",
+        "options": {
+          "low": "Low Impact",
+          "medium": "Medium Impact",
+          "high": "High Impact"
+        }
+      }
+    },
+    "errors": {
+      "titleRequired": "Title is required",
+      "descriptionRequired": "Description is required",
+      "phaseRequired": "Please select a phase",
+      "failedToSave": "Failed to save roadmap",
+      "failedToAdd": "Failed to add feature. Please try again."
+    },
+    "buttons": {
+      "adding": "Adding...",
+      "add": "Add Feature"
+    }
+  }
+}

@@ -1,0 +1,347 @@
+{
+    "tabs": {
+        "overview": "Overview",
+        "subtasks": "Subtasks",
+        "logs": "Logs"
+    },
+    "header": {
+        "editTooltip": "Edit task",
+        "editDisabledTooltip": "Cannot edit while task is running"
+    },
+    "status": {
+        "completed": "Task completed",
+        "stuck": "Stuck",
+        "incomplete": "Incomplete",
+        "running": "Running",
+        "review": {
+            "completed": "Completed",
+            "hasErrors": "Has Errors",
+            "approvePlan": "Approve Plan",
+            "qaIssues": "QA Issues"
+        }
+    },
+    "actions": {
+        "recover": "Recover Task",
+        "recovering": "Recovering...",
+        "resume": "Resume Task",
+        "stop": "Stop Task",
+        "start": "Start Task",
+        "delete": "Delete Task",
+        "deleting": "Deleting...",
+        "deletePermanently": "Delete Permanently",
+        "edit": "Edit Task",
+        "close": "Close"
+    },
+    "subtasks": {
+        "count": "{{completed}}/{{total}} subtasks",
+        "label": "Subtasks",
+        "noSubtasks": "No subtasks defined",
+        "planningPending": "Implementation subtasks will appear here after planning",
+        "progressSummary": "{{completed}} of {{total}} completed",
+        "status": {
+            "completed": "Completed",
+            "in_progress": "In Progress",
+            "failed": "Failed",
+            "pending": "Pending"
+        }
+    },
+    "progress": {
+        "title": "Progress",
+        "subtaskPrefix": "Subtask: ",
+        "noSubtasksYet": "No subtasks yet",
+        "completedSummary": "{{completed}}/{{total}} subtasks completed",
+        "phases": {
+            "tooltip": {
+                "planning": "Planning (0-20%)",
+                "coding": "Coding (20-80%)",
+                "review": "AI Review (80-95%)",
+                "complete": "Complete (95-100%)"
+            }
+        }
+    },
+    "deleteDialog": {
+        "title": "Delete Task",
+        "description": "Are you sure you want to delete \"{{title}}\"?",
+        "warning": "This action cannot be undone. All task files, including the spec, implementation plan, and any generated code will be permanently deleted from the project.",
+        "error": "Failed to delete task",
+        "cancel": "Cancel"
+    },
+    "messages": {
+        "stagedSuccess": "Changes staged in main project",
+        "mergeError": "Failed to merge changes",
+        "discardError": "Failed to discard changes",
+        "unknownError": "Unknown error during merge"
+    },
+    "metadata": {
+        "id": "Task ID",
+        "author": "Author",
+        "created": "Created",
+        "updated": "Updated",
+        "complexity": "Complexity",
+        "priority": "Priority",
+        "category": "Category",
+        "impact": "Impact",
+        "sourceType": "Source",
+        "rationale": "Rationale",
+        "problemSolved": "Problem Solved",
+        "targetAudience": "Target Audience",
+        "dependencies": "Dependencies",
+        "acceptanceCriteria": "Acceptance Criteria",
+        "affectedFiles": "Affected Files",
+        "securitySeverity": "Security Severity"
+    },
+    "sourceType": {
+        "ideation": "Ideation",
+        "github": "GitHub",
+        "manual": "Manual"
+    },
+    "labels": {
+        "feature": "Feature",
+        "bug_fix": "Bug Fix",
+        "refactoring": "Refactoring",
+        "documentation": "Docs",
+        "security": "Security",
+        "performance": "Performance",
+        "ui_ux": "UI/UX",
+        "infrastructure": "Infrastructure",
+        "testing": "Testing",
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High",
+        "critical": "Critical",
+        "urgent": "Urgent",
+        "trivial": "Trivial",
+        "small": "Small",
+        "large": "Large",
+        "complex": "Complex"
+    },
+    "review": {
+        "header": "Build Ready for Review",
+        "files": "files",
+        "commits": "commits",
+        "branchDiverged": "Branch Diverged",
+        "aiWillResolve": "AI will resolve",
+        "readyToMerge": "Ready to merge",
+        "conflicts": "{{count}} conflict(s)",
+        "stageOnly": "Stage only (review in IDE before committing)",
+        "checkingConflicts": "Checking for conflicts...",
+        "uncommittedChanges": "{{count}} uncommitted change(s) in main project",
+        "uncommittedWarning": "Commit or stash them before staging to avoid conflicts.",
+        "openTerminal": "Open Terminal",
+        "opening": "Opening...",
+        "mainBranchUpdates": "Main branch has {{count}} new commit(s).",
+        "mergingNeeded": "{{count}} file(s) need merging.",
+        "actions": {
+            "details": "Details",
+            "resolving": "Resolving...",
+            "staging": "Staging...",
+            "merging": "Merging...",
+            "stageWithAI": "Stage with AI Merge",
+            "mergeWithAI": "Merge with AI",
+            "stageChanges": "Stage Changes",
+            "mergeToMain": "Merge to Main",
+            "discardBuild": "Discard build"
+        },
+        "stagedSuccess": {
+            "title": "Changes Staged Successfully",
+            "commitTitle": "AI-generated commit message",
+            "nextSteps": "Next steps:",
+            "step1": "Open your project in your IDE or terminal",
+            "step2": "Review the staged changes with {{status}} and {{diff}}",
+            "step3": "Commit when ready: {{cmd}}",
+            "openTerminal": "Open Project in Terminal",
+            "openingTerminal": "Opening Terminal...",
+            "copy": "Copy",
+            "copied": "Copied!",
+            "editAndCopy": "Edit as needed, then copy and use with {{cmd}}",
+            "pendingMessage": "Commit message..."
+        },
+        "workspace": {
+            "loading": "Loading workspace info...",
+            "notFound": "No Workspace Found",
+            "notFoundDesc": "No isolated workspace was found for this task. The changes may have been made directly in your project.",
+            "markDone": "Mark as Done",
+            "updating": "Updating...",
+            "stagedTitle": "Changes Staged in Project",
+            "stagedDesc": "This task's changes have been staged in your main project on {{date}}.",
+            "stagedStep1": "Review staged changes with {{status}} and {{diff}}",
+            "stagedStep2": "Commit when ready: {{cmd}}",
+            "stagedStep3": "Push to remote when satisfied",
+            "cleanup": "Delete Worktree & Mark Done",
+            "cleaning": "Cleaning up...",
+            "cleanupDesc": "This will delete the isolated workspace and mark the task as complete."
+        }
+    },
+    "discardDialog": {
+        "title": "Discard Changes",
+        "description": "Are you sure you want to discard all changes in this worktree?",
+        "warning": "This action cannot be undone. All uncommitted changes will be lost.",
+        "filesChanged": "Files changed:",
+        "lines": "Lines:",
+        "action": "Discard Changes",
+        "cancel": "Cancel"
+    },
+    "creation": {
+        "title": "Create New Task",
+        "description": "Describe what you want to build. The AI will analyze your request and create a detailed specification.",
+        "draftRestored": "Draft restored",
+        "startFresh": "Start Fresh",
+        "browseFiles": "Browse Files",
+        "hideFiles": "Hide Files"
+    },
+    "feedback": {
+        "title": "Request Changes",
+        "description": "Found issues? Describe what needs to be fixed and the AI will continue working on it.",
+        "placeholder": "Describe the issues or changes needed...",
+        "submit": "Request Changes",
+        "submitting": "Submitting..."
+    },
+    "logs": {
+        "empty": "No logs yet",
+        "loading": "Loading logs...",
+        "pendingMessage": "Logs will appear here when the task runs",
+        "interrupted": "Interrupted",
+        "running": "Running",
+        "complete": "Complete",
+        "entries": "({{count}} entries)",
+        "phases": {
+            "planning": "Planning Phase",
+            "coding": "Coding Phase",
+            "review": "Review Phase",
+            "fixing": "Fixing Phase",
+            "validation": "Validation Phase"
+        },
+        "thinking": {
+            "none": "None",
+            "low": "Low",
+            "medium": "Med",
+            "high": "High",
+            "ultrathink": "Ultra"
+        },
+        "tools": {
+            "reading": "Reading",
+            "searchingFiles": "Searching files",
+            "searchingCode": "Searching code",
+            "editing": "Editing",
+            "writing": "Writing",
+            "running": "Running"
+        },
+        "actions": {
+            "done": "Done",
+            "showOutput": "Show output",
+            "hideOutput": "Hide output",
+            "more": "More",
+            "less": "Less"
+        }
+    },
+    "warnings": {
+        "stuckTitle": "Task Appears Stuck",
+        "stuckDescription": "This task is marked as running but no active process was found. This can happen if the app crashed or the process was terminated unexpectedly.",
+        "recoverRestart": "Recover & Restart Task",
+        "incompleteTitle": "Task Incomplete",
+        "incompleteDescription": "This task has a spec and implementation plan but never completed any subtasks ({{completed}}/{{total}}). The process likely crashed during spec creation. Click Resume to continue implementation."
+    },
+    "editDialog": {
+        "title": "Edit Task",
+        "description": "Update task details including title, description, classification, images, and settings. Changes will be saved to the spec files.",
+        "fields": {
+            "description": {
+                "label": "Description",
+                "placeholder": "Describe the feature, bug fix, or improvement. Be as specific as possible about requirements, constraints, and expected behavior. Type @ to reference files.",
+                "tip": "Tip: Paste screenshots directly with {{mod}}V to add reference images.",
+                "advancedTip": "Files and images can be copy/pasted or dragged & dropped into the description."
+            },
+            "title": {
+                "label": "Task Title",
+                "optional": "(optional)",
+                "placeholder": "Leave empty to auto-generate from description",
+                "hint": "A short, descriptive title will be generated automatically if left empty."
+            },
+            "classification": {
+                "toggle": "Classification (optional)",
+                "hint": "These labels help organize and prioritize tasks. They're optional but useful for filtering.",
+                "category": {
+                    "label": "Category",
+                    "placeholder": "Select category"
+                },
+                "priority": {
+                    "label": "Priority",
+                    "placeholder": "Select priority"
+                },
+                "complexity": {
+                    "label": "Complexity",
+                    "placeholder": "Select complexity"
+                },
+                "impact": {
+                    "label": "Impact",
+                    "placeholder": "Select impact"
+                }
+            },
+            "git": {
+                "toggle": "Git Options (optional)",
+                "branch": {
+                    "label": "Base Branch (optional)",
+                    "placeholder": "Use project default",
+                    "placeholderWithBranch": "Use project default ({{branch}})",
+                    "hint": "Override the branch this task's worktree will be created from. Leave empty to use the project's configured default branch."
+                }
+            },
+            "images": {
+                "toggle": "Reference Images (optional)",
+                "hint": "Attach screenshots, mockups, or diagrams to provide visual context for the AI.",
+                "success": "Image added successfully!"
+            },
+            "review": {
+                "label": "Require human review before coding",
+                "hint": "When enabled, you'll be prompted to review the spec and implementation plan before the coding phase begins. This allows you to approve, request changes, or provide feedback."
+            }
+        },
+        "errors": {
+            "descriptionRequired": "Description is required",
+            "maxImages": "Maximum of {{count}} images allowed",
+            "invalidType": "Invalid image type. Allowed: {{types}}",
+            "pasteFailed": "Failed to process pasted image",
+            "dropFailed": "Failed to process dropped image",
+            "updateFailed": "Failed to update task. Please try again."
+        },
+        "actions": {
+            "save": "Save Changes",
+            "saving": "Saving...",
+            "create": "Create Task",
+            "creating": "Creating..."
+        }
+    },
+    "conflict": {
+        "title": "Merge Conflicts Preview",
+        "detected": "{{count}} potential conflict(s) detected.",
+        "autoMergeable": "{{count}} can be auto-merged.",
+        "noConflicts": "No conflicts detected",
+        "location": "Location:",
+        "reason": "Reason:",
+        "strategy": "Strategy:",
+        "autoMergeBadge": "auto-merge",
+        "stageWithAI": "Stage with AI Merge",
+        "mergeWithAI": "Merge with AI",
+        "branchDiverged": "Branch Diverged - AI Will Resolve",
+        "divergedTitle": "Branch has diverged - AI will resolve",
+        "divergedDesc": "The main branch has {{count}} new commit(s) since this worktree was created. {{files}} file(s) will need intelligent merging:",
+        "aiResolveNote": "AI will automatically merge these conflicts when you click Stage Changes.",
+        "filesToMerge": "Files to merge: {{count}}",
+        "aiWillResolve": "AI will resolve conflicts",
+        "aiResolved": "AI resolved: {{count}}",
+        "manualReview": "Manual review: {{count}}",
+        "readyToMerge": "Ready to merge",
+        "viewDetails": "View Details"
+    },
+    "diff": {
+        "title": "Changed Files",
+        "noChanges": "No changes found",
+        "noFiles": "No changed files found",
+        "status": {
+            "added": "added",
+            "deleted": "deleted",
+            "modified": "modified",
+            "renamed": "renamed"
+        }
+    }
+}

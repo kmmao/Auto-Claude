@@ -1,0 +1,83 @@
+{
+  "tabs": {
+    "index": "Project Index",
+    "memories": "Memories"
+  },
+  "projectIndex": {
+    "title": "Project Structure",
+    "description": "AI-discovered knowledge about your codebase",
+    "tooltip": {
+      "reanalyze": "Re-analyze project structure"
+    },
+    "error": {
+      "loadFailed": "Failed to load project index"
+    },
+    "emptyState": {
+      "title": "No Project Index Found",
+      "description": "Click the Refresh button to analyze your project structure and create an index.",
+      "action": "Analyze Project"
+    },
+    "overview": {
+      "title": "Overview",
+      "services": "{{count}} service",
+      "services_plural": "{{count}} services"
+    },
+    "sections": {
+      "services": "Services",
+      "infrastructure": "Infrastructure",
+      "conventions": "Conventions"
+    },
+    "labels": {
+      "dockerCompose": "Docker Compose",
+      "ci": "CI/CD",
+      "deployment": "Deployment",
+      "dockerServices": "Docker Services",
+      "pythonLinting": "Python Linting",
+      "jsLinting": "JS Linting",
+      "formatting": "Formatting",
+      "gitHooks": "Git Hooks",
+      "typescript": "TypeScript",
+      "enabled": "Enabled"
+    }
+  },
+  "memories": {
+    "status": {
+      "title": "Graph Memory Status",
+      "connected": "Connected",
+      "notAvailable": "Not Available",
+      "database": "Database",
+      "path": "Path",
+      "episodes": "Episodes",
+      "lastSession": "Last session: #{{id}}",
+      "notConfigured": "Graphiti memory is not configured",
+      "enableHint": "To enable graph memory, set <1>GRAPHITI_ENABLED=true</1> in project settings."
+    },
+    "search": {
+      "title": "Search Memories",
+      "placeholder": "Search for patterns, insights, gotchas...",
+      "results": "{{count}} result found",
+      "results_plural": "{{count}} results found",
+      "score": "Score: {{score}}"
+    },
+    "recent": {
+      "title": "Recent Memories",
+      "empty": "No memories recorded yet. Memories are created during AI agent sessions."
+    }
+  },
+  "memoryCard": {
+    "session": "Session #{{number}}",
+    "expand": "Expand",
+    "collapse": "Collapse",
+    "sections": {
+      "whatWorked": "What Worked",
+      "whatFailed": "What Failed",
+      "approach": "Approach",
+      "recommendations": "Recommendations",
+      "patterns": "Patterns",
+      "gotchas": "Gotchas",
+      "changedFiles": "Changed Files",
+      "fileInsights": "File Insights",
+      "subtasks": "Subtasks Completed"
+    }
+  }
+}

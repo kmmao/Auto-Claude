@@ -1,0 +1,62 @@
+{
+    "title": "Auto Claude",
+    "sections": {
+        "project": "Project",
+        "tools": "Tools"
+    },
+    "navigation": {
+        "kanban": "Kanban Board",
+        "terminals": "Agent Terminals",
+        "insights": "Insights",
+        "roadmap": "Roadmap",
+        "ideation": "Ideation",
+        "changelog": "Changelog",
+        "context": "Context",
+        "githubIssues": "GitHub Issues",
+        "worktrees": "Worktrees"
+    },
+    "shortcuts": {
+        "kanban": "K",
+        "terminals": "A",
+        "insights": "N",
+        "roadmap": "D",
+        "ideation": "I",
+        "changelog": "L",
+        "context": "C",
+        "githubIssues": "G",
+        "worktrees": "W"
+    },
+    "buttons": {
+        "newTask": "New Task",
+        "settings": "Settings",
+        "help": "Help & Feedback"
+    },
+    "tooltips": {
+        "settings": "Application Settings",
+        "help": "Help & Feedback"
+    },
+    "messages": {
+        "initializeRequired": "Initialize Auto Claude to create tasks",
+        "noProjectSelected": "No project selected"
+    },
+    "dialogs": {
+        "initialize": {
+            "title": "Initialize Auto Claude",
+            "description": "This project doesn't have Auto Claude initialized. Would you like to set it up now?",
+            "willDo": "This will:",
+            "step1": "Create a .auto-claude folder in your project",
+            "step2": "Copy the Auto Claude framework files",
+            "step3": "Set up the specs directory for your tasks",
+            "warning": {
+                "title": "Source path not configured",
+                "message": "Please set the Auto Claude source path in App Settings before initializing."
+            },
+            "initializeButton": "Initialize",
+            "initializing": "Initializing..."
+        },
+        "update": {
+            "title": "Auto Claude",
+            "description": "Project is initialized."
+        }
+    }
+}
