@@ -39,9 +39,7 @@ import { ChatHistorySidebar } from './ChatHistorySidebar';
 import { InsightsModelSelector } from './InsightsModelSelector';
 import type { InsightsChatMessage, InsightsModelConfig } from '../../shared/types';
 import {
-  TASK_CATEGORY_LABELS,
   TASK_CATEGORY_COLORS,
-  TASK_COMPLEXITY_LABELS,
   TASK_COMPLEXITY_COLORS
 } from '../../shared/constants';
 
@@ -50,7 +48,7 @@ interface InsightsProps {
 }
 
 export function Insights({ projectId }: InsightsProps) {
-  const { t } = useTranslation(['common', 'insights']);
+  const { t } = useTranslation(['common', 'insights', 'tasks']);
 
   const session = useInsightsStore((state) => state.session);
   const sessions = useInsightsStore((state) => state.sessions);
@@ -358,7 +356,7 @@ function MessageBubble({
   isCreatingTask,
   taskCreated
 }: MessageBubbleProps) {
-  const { t } = useTranslation(['insights', 'common']);
+  const { t } = useTranslation(['insights', 'common', 'tasks']);
   const isUser = message.role === 'user';
 
   return (
@@ -414,8 +412,9 @@ function MessageBubble({
                         TASK_CATEGORY_COLORS[message.suggestedTask.metadata.category]
                       )}
                     >
-                      {TASK_CATEGORY_LABELS[message.suggestedTask.metadata.category] ||
-                        message.suggestedTask.metadata.category}
+                      {t(`tasks:category.${message.suggestedTask.metadata.category}`, {
+                        defaultValue: message.suggestedTask.metadata.category
+                      })}
                     </Badge>
                   )}
                   {message.suggestedTask.metadata.complexity && (
@@ -426,8 +425,9 @@ function MessageBubble({
                         TASK_COMPLEXITY_COLORS[message.suggestedTask.metadata.complexity]
                       )}
                     >
-                      {TASK_COMPLEXITY_LABELS[message.suggestedTask.metadata.complexity] ||
-                        message.suggestedTask.metadata.complexity}
+                      {t(`tasks:complexity.${message.suggestedTask.metadata.complexity}`, {
+                        defaultValue: message.suggestedTask.metadata.complexity
+                      })}
                     </Badge>
                   )}
                 </div>

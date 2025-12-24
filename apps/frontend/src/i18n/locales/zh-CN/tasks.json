@@ -14,5 +14,23 @@
     "pause": "暂停",
     "resume": "继续",
     "cancel": "取消"
+  },
+  "category": {
+    "feature": "功能",
+    "bug_fix": "问题修复",
+    "refactoring": "重构",
+    "documentation": "文档",
+    "security": "安全",
+    "performance": "性能",
+    "ui_ux": "界面/体验",
+    "infrastructure": "基础设施",
+    "testing": "测试"
+  },
+  "complexity": {
+    "trivial": "极简",
+    "small": "小",
+    "medium": "中",
+    "large": "大",
+    "complex": "复杂"
   }
 }

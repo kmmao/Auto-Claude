@@ -14,5 +14,23 @@
     "pause": "Pause",
     "resume": "Resume",
     "cancel": "Cancel"
+  },
+  "category": {
+    "feature": "Feature",
+    "bug_fix": "Bug Fix",
+    "refactoring": "Refactoring",
+    "documentation": "Docs",
+    "security": "Security",
+    "performance": "Performance",
+    "ui_ux": "UI/UX",
+    "infrastructure": "Infrastructure",
+    "testing": "Testing"
+  },
+  "complexity": {
+    "trivial": "Trivial",
+    "small": "Small",
+    "medium": "Medium",
+    "large": "Large",
+    "complex": "Complex"
   }
 }
