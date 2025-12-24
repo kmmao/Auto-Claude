@@ -1,86 +1,48 @@
 {
+  "title": "Tasks",
   "status": {
-    "backlog": "Backlog",
-    "todo": "To Do",
-    "in_progress": "In Progress",
-    "review": "Review",
-    "complete": "Complete",
-    "archived": "Archived"
+    "pending": "Pending",
+    "inProgress": "In Progress",
+    "completed": "Completed",
+    "failed": "Failed"
   },
   "actions": {
+    "create": "Create Task",
+    "edit": "Edit Task",
+    "delete": "Delete Task",
     "start": "Start",
-    "stop": "Stop",
-    "recover": "Recover",
+    "pause": "Pause",
     "resume": "Resume",
-    "archive": "Archive",
-    "delete": "Delete",
-    "view": "View Details"
+    "cancel": "Cancel"
   },
-  "labels": {
-    "running": "Running",
-    "aiReview": "AI Review",
-    "needsReview": "Needs Review",
-    "pending": "Pending",
-    "stuck": "Stuck",
-    "incomplete": "Incomplete",
-    "recovering": "Recovering...",
-    "needsRecovery": "Needs Recovery",
-    "needsResume": "Needs Resume"
+  "category": {
+    "feature": "Feature",
+    "bug_fix": "Bug Fix",
+    "refactoring": "Refactoring",
+    "documentation": "Docs",
+    "security": "Security",
+    "performance": "Performance",
+    "ui_ux": "UI/UX",
+    "infrastructure": "Infrastructure",
+    "testing": "Testing"
   },
-  "reviewReason": {
-    "completed": "Completed",
-    "hasErrors": "Has Errors",
-    "qaIssues": "QA Issues",
-    "approvePlan": "Approve Plan"
+  "complexity": {
+    "trivial": "Trivial",
+    "small": "Small",
+    "medium": "Medium",
+    "large": "Large",
+    "complex": "Complex"
   },
-  "tooltips": {
-    "archiveTask": "Archive task",
-    "archiveAllDone": "Archive all done tasks"
+  "impact": {
+    "low": "Low Impact",
+    "medium": "Medium Impact",
+    "high": "High Impact",
+    "critical": "Critical Impact"
   },
-  "creation": {
-    "title": "Create New Task",
-    "description": "Describe what you want to build",
-    "placeholder": "Describe your task..."
-  },
-  "empty": {
-    "title": "No tasks yet",
-    "description": "Create your first task to get started"
-  },
-  "kanban": {
-    "emptyBacklog": "No tasks planned",
-    "emptyBacklogHint": "Add a task to get started",
-    "emptyInProgress": "Nothing running",
-    "emptyInProgressHint": "Start a task from Backlog",
-    "emptyAiReview": "No tasks in review",
-    "emptyAiReviewHint": "AI will review completed tasks",
-    "emptyHumanReview": "Nothing to review",
-    "emptyHumanReviewHint": "Tasks await your approval here",
-    "emptyDone": "No completed tasks",
-    "emptyDoneHint": "Approved tasks appear here",
-    "emptyDefault": "No tasks",
-    "dropHere": "Drop here",
-    "showArchived": "Show archived"
-  },
-  "execution": {
-    "phases": {
-      "idle": "Idle",
-      "planning": "Planning",
-      "coding": "Coding",
-      "reviewing": "Reviewing",
-      "fixing": "Fixing",
-      "complete": "Complete",
-      "failed": "Failed"
-    },
-    "labels": {
-      "interrupted": "Interrupted",
-      "progress": "Progress",
-      "entry": "entry",
-      "entries": "entries"
-    },
-    "shortPhases": {
-      "plan": "Plan",
-      "code": "Code",
-      "qa": "QA"
-    }
+  "priority": {
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High",
+    "urgent": "Urgent"
   }
 }
