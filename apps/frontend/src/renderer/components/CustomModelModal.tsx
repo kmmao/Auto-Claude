@@ -58,15 +58,15 @@ export function CustomModelModal({ currentConfig, onSave, onClose, open = true }
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Custom Model Configuration</DialogTitle>
+          <DialogTitle>{t('settings:agent.customModel.title')}</DialogTitle>
           <DialogDescription>
-            Configure the model and thinking level for this chat session.
+            {t('settings:agent.customModel.description')}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="model-select">Model</Label>
+            <Label htmlFor="model-select">{t('settings:agent.profile.model')}</Label>
             <Select value={model} onValueChange={(v) => setModel(v as ModelType)}>
               <SelectTrigger id="model-select">
                 <SelectValue />
@@ -82,7 +82,7 @@ export function CustomModelModal({ currentConfig, onSave, onClose, open = true }
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="thinking-select">Thinking Level</Label>
+            <Label htmlFor="thinking-select">{t('settings:agent.profile.thinkingLevel')}</Label>
             <Select value={thinkingLevel} onValueChange={(v) => setThinkingLevel(v as ThinkingLevel)}>
               <SelectTrigger id="thinking-select">
                 <SelectValue />
@@ -91,9 +91,9 @@ export function CustomModelModal({ currentConfig, onSave, onClose, open = true }
                 {THINKING_LEVELS.map((level) => (
                   <SelectItem key={level.value} value={level.value}>
                     <div className="flex items-center gap-2">
-                      <span className="font-medium">{level.label}</span>
+                      <span className="font-medium">{t(`settings:agent.thinking.${level.value}.label`)}</span>
                       <span className="text-xs text-muted-foreground">
-                        {level.description}
+                        {t(`settings:agent.thinking.${level.value}.description`)}
                       </span>
                     </div>
                   </SelectItem>
@@ -106,7 +106,7 @@ export function CustomModelModal({ currentConfig, onSave, onClose, open = true }
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>{t("common:buttons.cancel")}</Button>
           <Button onClick={handleSave}>
-            Apply
+            {t('settings:agent.customModel.apply')}
           </Button>
         </DialogFooter>
       </DialogContent>

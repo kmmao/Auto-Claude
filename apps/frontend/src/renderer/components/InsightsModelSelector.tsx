@@ -71,9 +71,10 @@ export function InsightsModelSelector({
   const getDisplayText = () => {
     if (selectedProfileId === 'custom' && currentConfig) {
       const modelLabel = AVAILABLE_MODELS.find(m => m.value === currentConfig.model)?.label || currentConfig.model;
-      return `${modelLabel} + ${currentConfig.thinkingLevel}`;
+      const thinkingLabel = t(`settings:agent.thinking.${currentConfig.thinkingLevel}.label`);
+      return `${modelLabel} + ${thinkingLabel}`;
     }
-    return profile?.name || 'Balanced';
+    return profile ? t(`settings:agent.profiles.${profile.id}.name`) : t('settings:agent.profiles.balanced.name');
   };
 
   return (
@@ -94,11 +95,12 @@ export function InsightsModelSelector({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-64">
-          <DropdownMenuLabel>Agent Profile</DropdownMenuLabel>
+          <DropdownMenuLabel>{t('settings:agent.profile.selector.label')}</DropdownMenuLabel>
           {DEFAULT_AGENT_PROFILES.filter(p => !p.isAutoProfile).map((p) => {
             const ProfileIcon = iconMap[p.icon || 'Brain'];
             const isSelected = selectedProfileId === p.id;
             const modelLabel = AVAILABLE_MODELS.find(m => m.value === p.model)?.label;
+            const thinkingLabel = t(`settings:agent.thinking.${p.thinkingLevel}.label`);
             return (
               <DropdownMenuItem
                 key={p.id}
@@ -107,9 +109,9 @@ export function InsightsModelSelector({
               >
                 <ProfileIcon className="h-4 w-4 shrink-0" />
                 <div className="min-w-0 flex-1">
-                  <div className="font-medium">{p.name}</div>
+                  <div className="font-medium">{t(`settings:agent.profiles.${p.id}.name`)}</div>
                   <div className="truncate text-xs text-muted-foreground">
-                    {modelLabel} + {p.thinkingLevel}
+                    {modelLabel} + {thinkingLabel}
                   </div>
                 </div>
                 {isSelected && (
@@ -125,9 +127,9 @@ export function InsightsModelSelector({
           >
             <Sliders className="h-4 w-4 shrink-0" />
             <div className="flex-1">
-              <div className="font-medium">Custom...</div>
+              <div className="font-medium">{t('settings:agent.profile.selector.custom.name')}</div>
               <div className="text-xs text-muted-foreground">
-                Choose model & thinking level
+                {t('settings:agent.profile.selector.custom.description')}
               </div>
             </div>
             {selectedProfileId === 'custom' && (

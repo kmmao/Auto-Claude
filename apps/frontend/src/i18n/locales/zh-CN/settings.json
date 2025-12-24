@@ -139,6 +139,11 @@
           "thinkingPlaceholder": "选择思考级别"
         },
         "clickToCustomize": "点击进行自定义"
+      },
+      "customModel": {
+        "title": "自定义模型配置",
+        "description": "配置此对话会话的模型和思考级别。",
+        "apply": "应用"
       }
     },
     "rules": {

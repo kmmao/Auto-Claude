@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from 'fs';
 import { app } from 'electron';
 import { getProfileEnv } from '../rate-limit-detector';
 import { findPythonCommand } from '../python-detector';
+import { readSettingsFile } from '../settings-utils';
 
 /**
  * Configuration manager for insights service
@@ -85,7 +86,7 @@ export class InsightsConfig {
           let value = trimmed.substring(eqIndex + 1).trim();
 
           if ((value.startsWith('"') && value.endsWith('"')) ||
-              (value.startsWith("'") && value.endsWith("'"))) {
+            (value.startsWith("'") && value.endsWith("'"))) {
             value = value.slice(1, -1);
           }
 
@@ -107,7 +108,11 @@ export class InsightsConfig {
     const autoBuildEnv = this.loadAutoBuildEnv();
     const profileEnv = getProfileEnv();
 
-    return {
+    // Read global agent rules from settings
+    const settings = readSettingsFile();
+    const globalRules = settings?.globalAgentRules as string | undefined;
+
+    const env: Record<string, string> = {
       ...process.env as Record<string, string>,
       ...autoBuildEnv,
       ...profileEnv,
@@ -115,5 +120,11 @@ export class InsightsConfig {
       PYTHONIOENCODING: 'utf-8',
       PYTHONUTF8: '1'
     };
+
+    if (globalRules) {
+      env.CLAUDE_GLOBAL_RULES = globalRules;
+    }
+
+    return env;
   }
 }

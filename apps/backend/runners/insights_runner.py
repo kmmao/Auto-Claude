@@ -102,16 +102,32 @@ def load_project_context(project_dir: str) -> str:
     )
 
 
+import os
+
+def _get_global_rules() -> str:
+    """Get global rules from environment variable."""
+    rules = os.environ.get("CLAUDE_GLOBAL_RULES", "")
+    if rules:
+        return f"""
+## GLOBAL AGENT RULES
+The user has defined the following global rules that MUST be followed:
+
+{rules}
+"""
+    return ""
+
+
 def build_system_prompt(project_dir: str) -> str:
     """Build the system prompt for the insights agent."""
     context = load_project_context(project_dir)
+    global_rules = _get_global_rules()
 
     return f"""You are an AI assistant helping developers understand and work with their codebase.
 You have access to the following project context:
 
 {context}
 
-{self._get_global_rules()}
+{global_rules}
 
 Your capabilities:
 1. Answer questions about the codebase structure, patterns, and architecture
