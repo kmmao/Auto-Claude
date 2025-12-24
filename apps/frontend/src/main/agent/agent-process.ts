@@ -171,13 +171,31 @@ export class AgentProcessManager {
     const settings = readSettingsFile();
     const globalRules = settings?.globalAgentRules ? String(settings.globalAgentRules) : '';
 
+    // Only override environment global rules if settings are explicitly set
+    let activeGlobalRules = globalRules || process.env.CLAUDE_GLOBAL_RULES || '';
+
+    // Append user's local CLAUDE.md if it exists
+    const userClaudeMdPath = path.join(app.getPath('home'), '.claude', 'CLAUDE.md');
+    if (existsSync(userClaudeMdPath)) {
+      try {
+        const userRules = readFileSync(userClaudeMdPath, 'utf-8');
+        if (userRules.trim()) {
+          activeGlobalRules = activeGlobalRules
+            ? `${activeGlobalRules}\n\n# User Rules (~/.claude/CLAUDE.md)\n${userRules}`
+            : userRules;
+        }
+      } catch (err) {
+        console.error('Failed to read ~/.claude/CLAUDE.md:', err);
+      }
+    }
+
     const childProcess = spawn(pythonCommand, [...pythonBaseArgs, ...args], {
       cwd,
       env: {
         ...process.env,
         ...extraEnv,
         ...profileEnv, // Include active Claude profile config
-        CLAUDE_GLOBAL_RULES: globalRules, // Inject global rules
+        CLAUDE_GLOBAL_RULES: activeGlobalRules,
         PYTHONUNBUFFERED: '1', // Ensure real-time output
         PYTHONIOENCODING: 'utf-8', // Ensure UTF-8 encoding on Windows
         PYTHONUTF8: '1' // Force Python UTF-8 mode on Windows (Python 3.7+)

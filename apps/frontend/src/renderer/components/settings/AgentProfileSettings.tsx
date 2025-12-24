@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Brain, Scale, Zap, Check, Sparkles, ChevronDown, ChevronUp, RotateCcw } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useTranslation } from 'react-i18next';
@@ -7,7 +7,8 @@ import {
   AVAILABLE_MODELS,
   THINKING_LEVELS,
   DEFAULT_PHASE_MODELS,
-  DEFAULT_PHASE_THINKING
+  DEFAULT_PHASE_THINKING,
+  IPC_CHANNELS
 } from '../../../shared/constants';
 import { useSettingsStore, saveSettings } from '../../stores/settings-store';
 import { SettingsSection } from './SettingsSection';
@@ -38,6 +39,61 @@ const PHASE_LABELS: Record<keyof PhaseModelConfig, { label: string; description:
   coding: { label: 'Coding', description: 'Actual code implementation' },
   qa: { label: 'QA Review', description: 'Quality assurance and validation' }
 };
+
+/**
+ * Display info about ~/.claude/CLAUDE.md if active
+ */
+function ClaudeMdInfo() {
+  const { t } = useTranslation(['settings']);
+  const [data, setData] = useState<{ exists: boolean; content: string; path: string } | null>(null);
+
+  useEffect(() => {
+    const checkFile = async () => {
+      try {
+        const result = await (window as any).electronAPI.getClaudeMd();
+        if (result.success && result.data.exists) {
+          setData(result.data);
+        }
+      } catch (err) {
+        console.error('Failed to check CLAUDE.md:', err);
+      }
+    };
+    checkFile();
+  }, []);
+
+  if (!data?.exists) return null;
+
+  return (
+    <div className="mt-4 rounded-md border border-blue-200 bg-blue-50 p-3 dark:border-blue-900 dark:bg-blue-900/20">
+      <div className="flex items-start gap-2">
+        <div className="mt-0.5 text-blue-600 dark:text-blue-400">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" x2="12" y1="16" y2="12" /><line x1="12" x2="12.01" y1="8" y2="8" /></svg>
+        </div>
+        <div className="flex-1">
+          <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100">
+            {t('agent.rules.claudeMdDetected', 'Global Rules Detected')}
+          </h4>
+          <p className="mt-1 text-xs text-blue-700 dark:text-blue-300">
+            {t('agent.rules.claudeMdDescription', 'Content from your local configuration file is being automatically appended to the global rules.')}
+          </p>
+          <div className="mt-2 text-xs text-muted-foreground">
+            <code className="rounded bg-black/5 px-1 py-0.5 font-mono dark:bg-white/10">{data.path}</code>
+          </div>
+          {data.content && (
+            <div className="mt-2 text-xs text-muted-foreground/80">
+              <details>
+                <summary className="cursor-pointer hover:underline">Preview content</summary>
+                <pre className="mt-2 whitespace-pre-wrap rounded bg-black/5 p-2 font-mono text-[10px] dark:bg-white/5">
+                  {data.content.slice(0, 300)}{data.content.length > 300 ? '...' : ''}
+                </pre>
+              </details>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 /**
  * Agent Profile Settings component
@@ -333,6 +389,8 @@ export function AgentProfileSettings() {
           <p className="text-xs text-muted-foreground">
             {t("settings:agent.rules.hint", "These instructions are injected into the system prompt for every agent task.")}
           </p>
+
+          <ClaudeMdInfo />
         </div>
       </SettingsSection>
     </div>

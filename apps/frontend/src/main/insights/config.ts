@@ -121,8 +121,32 @@ export class InsightsConfig {
       PYTHONUTF8: '1'
     };
 
+    let activeGlobalRules = '';
+
     if (globalRules) {
-      env.CLAUDE_GLOBAL_RULES = globalRules;
+      activeGlobalRules = globalRules;
+    } else if (process.env.CLAUDE_GLOBAL_RULES) {
+      // Fallback to process env if not in settings
+      activeGlobalRules = process.env.CLAUDE_GLOBAL_RULES;
+    }
+
+    // Append user's local CLAUDE.md if it exists
+    const userClaudeMdPath = path.join(app.getPath('home'), '.claude', 'CLAUDE.md');
+    if (existsSync(userClaudeMdPath)) {
+      try {
+        const userRules = readFileSync(userClaudeMdPath, 'utf-8');
+        if (userRules.trim()) {
+          activeGlobalRules = activeGlobalRules
+            ? `${activeGlobalRules}\n\n# User Rules (~/.claude/CLAUDE.md)\n${userRules}`
+            : userRules;
+        }
+      } catch (err) {
+        console.error('Failed to read ~/.claude/CLAUDE.md:', err);
+      }
+    }
+
+    if (activeGlobalRules) {
+      env.CLAUDE_GLOBAL_RULES = activeGlobalRules;
     }
 
     return env;

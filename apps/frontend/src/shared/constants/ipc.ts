@@ -107,6 +107,7 @@ export const IPC_CHANNELS = {
   SETTINGS_GET: 'settings:get',
   SETTINGS_SAVE: 'settings:save',
   SETTINGS_GET_PYTHON_PATHS: 'settings:getPythonPaths',
+  SETTINGS_GET_CLAUDE_MD: 'settings:getClaudeMd',
 
   // Dialogs
   DIALOG_SELECT_DIRECTORY: 'dialog:selectDirectory',

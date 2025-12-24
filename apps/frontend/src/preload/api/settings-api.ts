@@ -22,6 +22,9 @@ export interface SettingsAPI {
 
   // Python Path Detection
   getPythonPaths: () => Promise<string[]>;
+
+  // Global Rules
+  getClaudeMd: () => Promise<IPCResult<{ exists: boolean; content: string; path: string }>>;
 }
 
 export const createSettingsAPI = (): SettingsAPI => ({
@@ -48,5 +51,9 @@ export const createSettingsAPI = (): SettingsAPI => ({
 
   // Python Path Detection
   getPythonPaths: (): Promise<string[]> =>
-    ipcRenderer.invoke(IPC_CHANNELS.SETTINGS_GET_PYTHON_PATHS)
+    ipcRenderer.invoke(IPC_CHANNELS.SETTINGS_GET_PYTHON_PATHS),
+
+  // Global Rules
+  getClaudeMd: (): Promise<IPCResult<{ exists: boolean; content: string; path: string }>> =>
+    ipcRenderer.invoke(IPC_CHANNELS.SETTINGS_GET_CLAUDE_MD)
 });
