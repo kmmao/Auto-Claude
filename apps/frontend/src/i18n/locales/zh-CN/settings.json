@@ -45,6 +45,11 @@
       "previewHint": "更改将立即预览。点击 <1>保存设置</1> 以应用更改。"
     }
   },
+  "language": {
+    "title": "语言",
+    "label": "界面语言",
+    "description": "选择应用程序界面的语言"
+  },
   "agent": {
     "title": "代理设置",
     "description": "默认模型和框架",

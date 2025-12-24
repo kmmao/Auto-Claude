@@ -45,6 +45,11 @@
       "previewHint": "Changes preview immediately. Click <1>Save Settings</1> to persist your preferences."
     }
   },
+  "language": {
+    "title": "Language",
+    "label": "Interface Language",
+    "description": "Select the language for the application interface"
+  },
   "agent": {
     "title": "Agent Settings",
     "description": "Default model and framework",
