@@ -129,6 +129,8 @@ export interface AppSettings {
   betaUpdates?: boolean;
   // Migration flags (internal use)
   _migratedAgentProfileToAuto?: boolean;
+  // Global behavioral rules injected into every agent prompt
+  globalAgentRules?: string;
 }
 
 // Auto-Claude Source Environment Configuration (for auto-claude repo .env)

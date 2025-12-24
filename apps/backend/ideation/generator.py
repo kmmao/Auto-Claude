@@ -90,6 +90,12 @@ class IdeationGenerator:
         if additional_context:
             prompt += f"\n{additional_context}\n"
 
+        # Global Rules
+        import os
+        global_rules = os.environ.get("CLAUDE_GLOBAL_RULES")
+        if global_rules:
+            prompt += f"\n\n---\n\n## GLOBAL AGENT RULES\nThe user has defined the following global rules that MUST be followed:\n\n{global_rules}\n"
+
         # Create client with thinking budget
         client = create_client(
             self.project_dir,

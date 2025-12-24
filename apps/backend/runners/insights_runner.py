@@ -111,6 +111,8 @@ You have access to the following project context:
 
 {context}
 
+{self._get_global_rules()}
+
 Your capabilities:
 1. Answer questions about the codebase structure, patterns, and architecture
 2. Suggest improvements, features, or bug fixes based on the code

@@ -141,6 +141,13 @@
         "clickToCustomize": "点击进行自定义"
       }
     },
+    "rules": {
+      "title": "全局代理规则",
+      "description": "设置适用于所有代理任务的行为规则（例如：“始终输出中文”，“首选函数式编程”）。",
+      "label": "系统指令",
+      "placeholder": "例如：\n- 始终用中文回答\n- 使用 2 个空格缩进\n- 除非必要，避免使用 try-catch 块",
+      "hint": "这些指令将注入到每个代理任务的系统提示词中。"
+    },
     "features": {
       "title": "其他代理设置",
       "description": "其他代理配置选项",

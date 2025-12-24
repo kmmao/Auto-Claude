@@ -178,129 +178,163 @@ export function AgentProfileSettings() {
   };
 
   return (
-    <SettingsSection
-      title={t("settings:agent.profile.title")}
-      description={t("settings:agent.profile.description")}
-    >
-      <div className="space-y-4">
-        {/* Description */}
-        <div className="rounded-lg bg-muted/50 p-3">
+    <div className="space-y-8">
+      <SettingsSection
+        title={t("settings:agent.profile.title")}
+        description={t("settings:agent.profile.description")}
+      >
+        <div className="space-y-4">
+          {/* Description */}
+          <div className="rounded-lg bg-muted/50 p-3">
+            <p className="text-xs text-muted-foreground">
+              {t("settings:agent.profile.hint")}
+            </p>
+          </div>
+
+          {/* Profile cards - 2 column grid on larger screens */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            {DEFAULT_AGENT_PROFILES.map(renderProfileCard)}
+          </div>
+
+          {/* Phase Configuration (only for Auto profile) */}
+          {selectedProfileId === 'auto' && (
+            <div className="mt-6 rounded-lg border border-border bg-card">
+              {/* Header - Collapsible */}
+              <button
+                type="button"
+                onClick={() => setShowPhaseConfig(!showPhaseConfig)}
+                className="flex w-full items-center justify-between p-4 text-left hover:bg-muted/50 transition-colors rounded-t-lg"
+              >
+                <div>
+                  <h4 className="font-medium text-sm text-foreground">{t("settings:agent.profile.phaseConfig.title")}</h4>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {t("settings:agent.profile.phaseConfig.description")}
+                  </p>
+                </div>
+                {showPhaseConfig ? (
+                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                )}
+              </button>
+
+              {/* Phase Configuration Content */}
+              {showPhaseConfig && (
+                <div className="border-t border-border p-4 space-y-4">
+                  {/* Reset button */}
+                  {hasCustomConfig() && (
+                    <div className="flex justify-end">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleResetToDefaults}
+                        className="text-xs h-7"
+                      >
+                        <RotateCcw className="h-3 w-3 mr-1.5" />
+                        {t("settings:agent.profile.phaseConfig.reset")}
+                      </Button>
+                    </div>
+                  )}
+
+                  {/* Phase Configuration Grid */}
+                  <div className="space-y-4">
+                    {(Object.keys(PHASE_LABELS) as Array<keyof PhaseModelConfig>).map((phase) => (
+                      <div key={phase} className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-sm font-medium text-foreground">
+                            {t(`settings:agent.profile.phaseConfig.${phase}.label`)}
+                          </Label>
+                          <span className="text-xs text-muted-foreground">
+                            {t(`settings:agent.profile.phaseConfig.${phase}.description`)}
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          {/* Model Select */}
+                          <div className="space-y-1">
+                            <Label className="text-xs text-muted-foreground">{t("settings:agent.profile.model")}</Label>
+                            <Select
+                              value={currentPhaseModels[phase]}
+                              onValueChange={(value) => handlePhaseModelChange(phase, value as ModelTypeShort)}
+                            >
+                              <SelectTrigger className="h-9">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {AVAILABLE_MODELS.map((m) => (
+                                  <SelectItem key={m.value} value={m.value}>
+                                    {m.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          {/* Thinking Level Select */}
+                          <div className="space-y-1">
+                            <Label className="text-xs text-muted-foreground">{t("settings:agent.profile.thinkingLevel")}</Label>
+                            <Select
+                              value={currentPhaseThinking[phase]}
+                              onValueChange={(value) => handlePhaseThinkingChange(phase, value as ThinkingLevel)}
+                            >
+                              <SelectTrigger className="h-9">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {THINKING_LEVELS.map((level) => (
+                                  <SelectItem key={level.value} value={level.value}>
+                                    {t(`settings:agent.thinking.${level.value}.label`)}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Info note */}
+                  <p className="text-[10px] text-muted-foreground mt-4 pt-3 border-t border-border">
+                    {t("settings:agent.profile.phaseConfig.hint")}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+        </div>
+      </SettingsSection>
+
+      {/* Global Agent Rules */}
+      <SettingsSection
+        title={t("settings:agent.rules.title", "Global Agent Rules")}
+        description={t("settings:agent.rules.description", "Set behavioral rules that apply to all agent tasks (e.g., 'Always output Chinese', 'Prefer functional programming').")}
+      >
+        <div className="space-y-3">
+          <Label htmlFor="globalAgentRules" className="text-sm font-medium text-foreground">
+            {t("settings:agent.rules.label", "System Instructions")}
+          </Label>
+          <div className="relative">
+            <textarea
+              id="globalAgentRules"
+              className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 font-mono"
+              placeholder={t("settings:agent.rules.placeholder", "e.g. \n- Always respond in Chinese\n- Use 2 spaces for indentation\n- Avoid using try-catch blocks unless necessary")}
+              value={settings.globalAgentRules || ''}
+              onChange={(e) => {
+                const newValue = e.target.value;
+                // Update local state immediately for responsiveness
+                useSettingsStore.setState((state) => ({
+                  settings: { ...state.settings, globalAgentRules: newValue }
+                }));
+                // Debounce save is handled by listener, but we can also save explicitly on blur if needed
+                saveSettings({ globalAgentRules: newValue });
+              }}
+            />
+          </div>
           <p className="text-xs text-muted-foreground">
-            {t("settings:agent.profile.hint")}
+            {t("settings:agent.rules.hint", "These instructions are injected into the system prompt for every agent task.")}
           </p>
         </div>
-
-        {/* Profile cards - 2 column grid on larger screens */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-          {DEFAULT_AGENT_PROFILES.map(renderProfileCard)}
-        </div>
-
-        {/* Phase Configuration (only for Auto profile) */}
-        {selectedProfileId === 'auto' && (
-          <div className="mt-6 rounded-lg border border-border bg-card">
-            {/* Header - Collapsible */}
-            <button
-              type="button"
-              onClick={() => setShowPhaseConfig(!showPhaseConfig)}
-              className="flex w-full items-center justify-between p-4 text-left hover:bg-muted/50 transition-colors rounded-t-lg"
-            >
-              <div>
-                <h4 className="font-medium text-sm text-foreground">{t("settings:agent.profile.phaseConfig.title")}</h4>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {t("settings:agent.profile.phaseConfig.description")}
-                </p>
-              </div>
-              {showPhaseConfig ? (
-                <ChevronUp className="h-4 w-4 text-muted-foreground" />
-              ) : (
-                <ChevronDown className="h-4 w-4 text-muted-foreground" />
-              )}
-            </button>
-
-            {/* Phase Configuration Content */}
-            {showPhaseConfig && (
-              <div className="border-t border-border p-4 space-y-4">
-                {/* Reset button */}
-                {hasCustomConfig() && (
-                  <div className="flex justify-end">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleResetToDefaults}
-                      className="text-xs h-7"
-                    >
-                      <RotateCcw className="h-3 w-3 mr-1.5" />
-                      {t("settings:agent.profile.phaseConfig.reset")}
-                    </Button>
-                  </div>
-                )}
-
-                {/* Phase Configuration Grid */}
-                <div className="space-y-4">
-                  {(Object.keys(PHASE_LABELS) as Array<keyof PhaseModelConfig>).map((phase) => (
-                    <div key={phase} className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <Label className="text-sm font-medium text-foreground">
-                          {t(`settings:agent.profile.phaseConfig.${phase}.label`)}
-                        </Label>
-                        <span className="text-xs text-muted-foreground">
-                          {t(`settings:agent.profile.phaseConfig.${phase}.description`)}
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-2 gap-3">
-                        {/* Model Select */}
-                        <div className="space-y-1">
-                          <Label className="text-xs text-muted-foreground">{t("settings:agent.profile.model")}</Label>
-                          <Select
-                            value={currentPhaseModels[phase]}
-                            onValueChange={(value) => handlePhaseModelChange(phase, value as ModelTypeShort)}
-                          >
-                            <SelectTrigger className="h-9">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {AVAILABLE_MODELS.map((m) => (
-                                <SelectItem key={m.value} value={m.value}>
-                                  {m.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        {/* Thinking Level Select */}
-                        <div className="space-y-1">
-                          <Label className="text-xs text-muted-foreground">{t("settings:agent.profile.thinkingLevel")}</Label>
-                          <Select
-                            value={currentPhaseThinking[phase]}
-                            onValueChange={(value) => handlePhaseThinkingChange(phase, value as ThinkingLevel)}
-                          >
-                            <SelectTrigger className="h-9">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {THINKING_LEVELS.map((level) => (
-                                <SelectItem key={level.value} value={level.value}>
-                                  {t(`settings:agent.thinking.${level.value}.label`)}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Info note */}
-                <p className="text-[10px] text-muted-foreground mt-4 pt-3 border-t border-border">
-                  {t("settings:agent.profile.phaseConfig.hint")}
-                </p>
-              </div>
-            )}
-          </div>
-        )}
-
-      </div>
-    </SettingsSection>
+      </SettingsSection>
+    </div>
   );
 }

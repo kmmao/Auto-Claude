@@ -13,6 +13,7 @@ This approach:
 """
 
 import json
+import os
 from pathlib import Path
 
 
@@ -233,6 +234,16 @@ Before marking complete, verify:
     # Note: Linear updates are now handled by Python orchestrator via linear_updater.py
     # Agents no longer need to call Linear MCP tools directly
 
+    # Global Rules
+    global_rules = os.environ.get("CLAUDE_GLOBAL_RULES")
+    if global_rules:
+        sections.append(f"""
+## GLOBAL AGENT RULES
+The user has defined the following global rules that MUST be followed for ALL tasks:
+
+{global_rules}
+""")
+
     return "\n".join(sections)
 
 
@@ -288,6 +299,17 @@ not in the spec directory.
 """
     # Note: Linear task creation and updates are now handled by Python orchestrator
     # via linear_updater.py - agents no longer need Linear instructions in prompts
+
+    # Global Rules
+    global_rules = os.environ.get("CLAUDE_GLOBAL_RULES")
+    if global_rules:
+        header += f"""
+## GLOBAL AGENT RULES
+The user has defined the following global rules that MUST be followed for ALL tasks:
+
+{global_rules}
+
+"""
 
     return header + prompt
 

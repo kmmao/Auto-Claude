@@ -13,6 +13,7 @@ import type { BrowserWindow } from 'electron';
 import { getEffectiveVersion } from '../auto-claude-updater';
 import { setUpdateChannel } from '../app-updater';
 import { getSettingsPath, readSettingsFile } from '../settings-utils';
+import { findPythonCommand } from '../python-detector';
 
 const settingsPath = getSettingsPath();
 
@@ -128,6 +129,20 @@ export function registerSettingsHandlers(
         }
       }
 
+      // If no manual pythonPath is set, try to auto-detect
+      if (!settings.pythonPath) {
+        const detectedPython = findPythonCommand();
+        if (detectedPython) {
+          settings.pythonPath = detectedPython;
+          // We don't set needsSave = true here to avoid modifying the file implicitly
+          // The user will see this as the "default" in the UI and can save it if they want
+          // OR if we want to persist it immediately:
+          // needsSave = true; 
+          // Let's persist it so other parts of the app (AgentManager) pick it up on restart
+          needsSave = true;
+        }
+      }
+
       // Persist migration changes
       if (needsSave) {
         try {
@@ -169,6 +184,88 @@ export function registerSettingsHandlers(
           success: false,
           error: error instanceof Error ? error.message : 'Failed to save settings'
         };
+      }
+    }
+  );
+
+  ipcMain.handle(
+    IPC_CHANNELS.SETTINGS_GET_PYTHON_PATHS,
+    async (): Promise<string[]> => {
+      try {
+        const paths = new Set<string>();
+
+        // Helper to run which/where command and add paths
+        const addPathsFromCommand = (command: string) => {
+          try {
+            const output = execSync(command, { encoding: 'utf-8', stdio: ['ignore', 'pipe', 'ignore'] });
+            output.split('\n').filter(p => p.trim()).forEach(p => paths.add(p.trim()));
+          } catch {
+            // Command might fail if not found, ignore
+          }
+        };
+
+        const isWindows = process.platform === 'win32';
+
+        if (isWindows) {
+          addPathsFromCommand('where python');
+          addPathsFromCommand('where python3');
+        } else {
+          // Check standard commands
+          addPathsFromCommand('which -a python');
+          addPathsFromCommand('which -a python3');
+
+          // Check specific versions (newest first)
+          const versions = ['3.13', '3.12', '3.11', '3.10'];
+          for (const v of versions) {
+            addPathsFromCommand(`which -a python${v}`);
+          }
+        }
+
+        // Also check common locations if on macOS/Linux
+        if (!isWindows) {
+          const commonLocations = [
+            // Standard paths
+            '/usr/bin/python3',
+            '/usr/local/bin/python3',
+
+            // Homebrew (Apple Silicon & Intel)
+            '/opt/homebrew/bin/python3',
+            '/usr/local/opt/python/libexec/bin/python',
+
+            // Specific Homebrew versions
+            '/opt/homebrew/bin/python3.13',
+            '/opt/homebrew/bin/python3.12',
+            '/opt/homebrew/bin/python3.11',
+            '/opt/homebrew/bin/python3.10',
+
+            // Mac standard
+            '/Library/Frameworks/Python.framework/Versions/3.13/bin/python3',
+            '/Library/Frameworks/Python.framework/Versions/3.12/bin/python3',
+            '/Library/Frameworks/Python.framework/Versions/3.11/bin/python3',
+            '/Library/Frameworks/Python.framework/Versions/3.10/bin/python3',
+
+            // Anaconda/Miniconda
+            path.join(app.getPath('home'), 'anaconda3/bin/python3'),
+            path.join(app.getPath('home'), 'miniconda3/bin/python3'),
+            path.join(app.getPath('home'), 'opt/anaconda3/bin/python3'),
+          ];
+
+          for (const loc of commonLocations) {
+            try {
+              if (existsSync(loc)) {
+                paths.add(loc);
+              }
+            } catch (err) {
+              // Ignore permission errors etc
+            }
+          }
+        }
+
+        // Return sorted list
+        return Array.from(paths).sort();
+      } catch (error) {
+        console.error('Failed to detect python paths:', error);
+        return [];
       }
     }
   );

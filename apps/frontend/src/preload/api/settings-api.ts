@@ -19,6 +19,9 @@ export interface SettingsAPI {
   getSourceEnv: () => Promise<IPCResult<SourceEnvConfig>>;
   updateSourceEnv: (config: { claudeOAuthToken?: string }) => Promise<IPCResult>;
   checkSourceToken: () => Promise<IPCResult<SourceEnvCheckResult>>;
+
+  // Python Path Detection
+  getPythonPaths: () => Promise<string[]>;
 }
 
 export const createSettingsAPI = (): SettingsAPI => ({
@@ -41,5 +44,9 @@ export const createSettingsAPI = (): SettingsAPI => ({
     ipcRenderer.invoke(IPC_CHANNELS.AUTOBUILD_SOURCE_ENV_UPDATE, config),
 
   checkSourceToken: (): Promise<IPCResult<SourceEnvCheckResult>> =>
-    ipcRenderer.invoke(IPC_CHANNELS.AUTOBUILD_SOURCE_ENV_CHECK_TOKEN)
+    ipcRenderer.invoke(IPC_CHANNELS.AUTOBUILD_SOURCE_ENV_CHECK_TOKEN),
+
+  // Python Path Detection
+  getPythonPaths: (): Promise<string[]> =>
+    ipcRenderer.invoke(IPC_CHANNELS.SETTINGS_GET_PYTHON_PATHS)
 });

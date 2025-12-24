@@ -4,6 +4,7 @@ Execution layer for agents and scripts in the roadmap generation process.
 
 import subprocess
 import sys
+import os
 from pathlib import Path
 
 from debug import debug, debug_detailed, debug_error, debug_success
@@ -118,6 +119,12 @@ class AgentExecutor:
                 "Added additional context",
                 context_length=len(additional_context),
             )
+
+        # Global Rules
+        global_rules = os.environ.get("CLAUDE_GLOBAL_RULES")
+        if global_rules:
+            prompt += f"\n\n---\n\n## GLOBAL AGENT RULES\nThe user has defined the following global rules that MUST be followed:\n\n{global_rules}\n"
+
 
         # Create client with thinking budget
         debug(

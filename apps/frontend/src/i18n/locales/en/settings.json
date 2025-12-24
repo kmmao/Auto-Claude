@@ -141,6 +141,13 @@
         "clickToCustomize": "Click to customize"
       }
     },
+    "rules": {
+      "title": "Global Agent Rules",
+      "description": "Set behavioral rules that apply to all agent tasks (e.g., 'Always output Chinese', 'Prefer functional programming').",
+      "label": "System Instructions",
+      "placeholder": "e.g. \n- Always respond in Chinese\n- Use 2 spaces for indentation\n- Avoid using try-catch blocks unless necessary",
+      "hint": "These instructions are injected into the system prompt for every agent task."
+    },
     "features": {
       "title": "Other Agent Settings",
       "description": "Additional agent configuration options",

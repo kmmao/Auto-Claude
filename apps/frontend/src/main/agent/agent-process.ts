@@ -10,6 +10,7 @@ import { detectRateLimit, createSDKRateLimitInfo, getProfileEnv, detectAuthFailu
 import { projectStore } from '../project-store';
 import { getClaudeProfileManager } from '../claude-profile-manager';
 import { findPythonCommand, parsePythonCommand } from '../python-detector';
+import { readSettingsFile } from '../settings-utils';
 
 /**
  * Process spawning and lifecycle management
@@ -129,7 +130,7 @@ export class AgentProcessManager {
 
           // Remove quotes if present
           if ((value.startsWith('"') && value.endsWith('"')) ||
-              (value.startsWith("'") && value.endsWith("'"))) {
+            (value.startsWith("'") && value.endsWith("'"))) {
             value = value.slice(1, -1);
           }
 
@@ -165,12 +166,18 @@ export class AgentProcessManager {
 
     // Parse Python command to handle space-separated commands like "py -3"
     const [pythonCommand, pythonBaseArgs] = parsePythonCommand(this.pythonPath);
+
+    // Get global agent rules from settings
+    const settings = readSettingsFile();
+    const globalRules = settings?.globalAgentRules ? String(settings.globalAgentRules) : '';
+
     const childProcess = spawn(pythonCommand, [...pythonBaseArgs, ...args], {
       cwd,
       env: {
         ...process.env,
         ...extraEnv,
         ...profileEnv, // Include active Claude profile config
+        CLAUDE_GLOBAL_RULES: globalRules, // Inject global rules
         PYTHONUNBUFFERED: '1', // Ensure real-time output
         PYTHONIOENCODING: 'utf-8', // Ensure UTF-8 encoding on Windows
         PYTHONUTF8: '1' // Force Python UTF-8 mode on Windows (Python 3.7+)

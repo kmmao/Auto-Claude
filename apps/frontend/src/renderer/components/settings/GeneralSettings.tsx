@@ -1,3 +1,4 @@
+import React from 'react';
 import { Label } from '../ui/label';
 import { Input } from '../ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
@@ -11,7 +12,8 @@ import {
   THINKING_LEVELS,
   DEFAULT_FEATURE_MODELS,
   DEFAULT_FEATURE_THINKING,
-  FEATURE_LABELS
+  FEATURE_LABELS,
+  IPC_CHANNELS
 } from '../../../shared/constants';
 import type { AppSettings, FeatureModelConfig, FeatureThinkingConfig, ModelTypeShort, ThinkingLevel } from '../../../shared/types';
 
@@ -26,6 +28,24 @@ interface GeneralSettingsProps {
  */
 export function GeneralSettings({ settings, onSettingsChange, section }: GeneralSettingsProps) {
   const { t } = useTranslation(['common', 'settings']);
+  const [availablePythonPaths, setAvailablePythonPaths] = React.useState<string[]>([]);
+
+  React.useEffect(() => {
+    if (section === 'paths') {
+      const fetchPaths = async () => {
+        try {
+          const paths = await (window as any).electronAPI.getPythonPaths();
+          if (Array.isArray(paths)) {
+            setAvailablePythonPaths(paths);
+          }
+        } catch (error) {
+          console.error('Failed to fetch python paths:', error);
+        }
+      };
+
+      fetchPaths();
+    }
+  }, [section]);
 
   if (section === 'agent') {
     return (
@@ -165,13 +185,38 @@ export function GeneralSettings({ settings, onSettingsChange, section }: General
         <div className="space-y-3">
           <Label htmlFor="pythonPath" className="text-sm font-medium text-foreground">{t("settings:paths.python.title")}</Label>
           <p className="text-sm text-muted-foreground">{t("settings:paths.python.description")}</p>
-          <Input
-            id="pythonPath"
-            placeholder={t("settings:paths.python.placeholder")}
-            className="w-full max-w-lg"
-            value={settings.pythonPath || ''}
-            onChange={(e) => onSettingsChange({ ...settings, pythonPath: e.target.value })}
-          />
+
+          {availablePythonPaths.length > 0 ? (
+            <div className="w-full max-w-lg space-y-2">
+              <Select
+                value={settings.pythonPath || ''}
+                onValueChange={(value) => onSettingsChange({ ...settings, pythonPath: value })}
+              >
+                <SelectTrigger id="pythonPath" className="w-full">
+                  <SelectValue placeholder={t("settings:paths.python.placeholder")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {availablePythonPaths.map((path) => (
+                    <SelectItem key={path} value={path}>
+                      {path}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {/* Fallback input if needed or custom path entry could be added here later */}
+              {/* <div className="text-xs text-muted-foreground">
+                Currently detected: {availablePythonPaths.length} paths
+              </div> */}
+            </div>
+          ) : (
+            <Input
+              id="pythonPath"
+              placeholder={t("settings:paths.python.placeholder")}
+              className="w-full max-w-lg"
+              value={settings.pythonPath || ''}
+              onChange={(e) => onSettingsChange({ ...settings, pythonPath: e.target.value })}
+            />
+          )}
         </div>
         <div className="space-y-3">
           <Label htmlFor="autoBuildPath" className="text-sm font-medium text-foreground">{t("settings:paths.autoBuild.title")}</Label>
