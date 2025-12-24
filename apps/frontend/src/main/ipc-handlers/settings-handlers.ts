@@ -189,6 +189,26 @@ export function registerSettingsHandlers(
   );
 
   ipcMain.handle(
+    IPC_CHANNELS.SETTINGS_GET_CLAUDE_MD,
+    async (): Promise<IPCResult<{ exists: boolean; content: string; path: string }>> => {
+      const claudeMdPath = path.join(app.getPath('home'), '.claude', 'CLAUDE.md');
+      try {
+        if (existsSync(claudeMdPath)) {
+          const content = readFileSync(claudeMdPath, 'utf-8');
+          return { success: true, data: { exists: true, content, path: claudeMdPath } };
+        }
+        return { success: true, data: { exists: false, content: '', path: claudeMdPath } };
+      } catch (error) {
+        console.error('Failed to read ~/.claude/CLAUDE.md:', error);
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to read CLAUDE.md'
+        };
+      }
+    }
+  );
+
+  ipcMain.handle(
     IPC_CHANNELS.SETTINGS_GET_PYTHON_PATHS,
     async (): Promise<string[]> => {
       try {
