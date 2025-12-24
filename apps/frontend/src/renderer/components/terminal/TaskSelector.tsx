@@ -28,7 +28,7 @@ export function TaskSelector({
   onClearTask,
   onNewTaskClick,
 }: TaskSelectorProps) {
-  const { t } = useTranslation(['common', 'settings']);
+  const { t } = useTranslation(['common', 'terminal']);
 
   const executionPhase = associatedTask?.executionProgress?.phase || 'idle';
   const phaseConfig = PHASE_CONFIG[executionPhase];
@@ -57,7 +57,7 @@ export function TaskSelector({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-56">
           <div className="px-2 py-1.5 text-xs text-muted-foreground">
-            Current task
+            {t('terminal:taskSelector.currentTask')}
           </div>
           <div className="px-2 py-1 text-sm font-medium truncate">
             {associatedTask.title}
@@ -71,7 +71,7 @@ export function TaskSelector({
           {backlogTasks.length > 0 && (
             <>
               <div className="px-2 py-1.5 text-xs text-muted-foreground">
-                Switch to...
+                {t('terminal:taskSelector.switchTo')}
               </div>
               {backlogTasks.filter(t => t.id !== associatedTask.id).slice(0, 5).map((task) => (
                 <DropdownMenuItem
@@ -91,7 +91,7 @@ export function TaskSelector({
             className="text-xs text-muted-foreground"
           >
             <X className="h-3 w-3 mr-2" />
-            Clear task
+            {t('terminal:taskSelector.clearTask')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -106,7 +106,7 @@ export function TaskSelector({
           onClick={(e) => e.stopPropagation()}
         >
           <ListTodo className="h-3 w-3" />
-          <span>Select task...</span>
+          <span>{t('terminal:taskSelector.selectTask')}</span>
           <ChevronDown className="h-2.5 w-2.5 opacity-60" />
         </button>
       </DropdownMenuTrigger>
@@ -114,7 +114,7 @@ export function TaskSelector({
         {backlogTasks.length > 0 ? (
           <>
             <div className="px-2 py-1.5 text-xs text-muted-foreground">
-              Available tasks
+              {t('terminal:taskSelector.availableTasks')}
             </div>
             {backlogTasks.slice(0, 8).map((task) => (
               <DropdownMenuItem
@@ -137,7 +137,7 @@ export function TaskSelector({
                   className="text-xs text-primary"
                 >
                   <Plus className="h-3 w-3 mr-2" />
-                  Add new task
+                  {t('terminal:taskSelector.addNewTask')}
                 </DropdownMenuItem>
               </>
             )}
@@ -145,7 +145,7 @@ export function TaskSelector({
         ) : (
           <>
             <div className="px-2 py-1.5 text-xs text-muted-foreground">
-              No tasks available
+              {t('terminal:taskSelector.noTasksAvailable')}
             </div>
             {onNewTaskClick ? (
               <DropdownMenuItem
@@ -156,11 +156,11 @@ export function TaskSelector({
                 className="text-xs text-primary"
               >
                 <Plus className="h-3 w-3 mr-2" />
-                Add new task
+                {t('terminal:taskSelector.addNewTask')}
               </DropdownMenuItem>
             ) : (
               <div className="px-2 py-1.5 text-xs text-muted-foreground italic">
-                Create tasks in the Kanban board
+                {t('terminal:taskSelector.createTasksHint')}
               </div>
             )}
           </>

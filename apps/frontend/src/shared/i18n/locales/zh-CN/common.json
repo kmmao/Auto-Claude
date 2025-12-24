@@ -52,6 +52,10 @@
         "swapTo": "切换到",
         "swapReason": "({{reason}} 切换)"
     },
+    "files": {
+        "projectFiles": "项目文件",
+        "dragHint": "将文件拖入终端以插入路径"
+    },
     "rateLimit": {
         "title": "速率限制",
         "resetsAt": "{{time}} 后重置",

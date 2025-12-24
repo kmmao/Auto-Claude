@@ -30,5 +30,15 @@
     "createFirst": "创建第一个终端开始",
     "terminalClosed": "终端已关闭",
     "terminalError": "终端错误"
+  },
+  "taskSelector": {
+    "selectTask": "选择任务...",
+    "currentTask": "当前任务",
+    "switchTo": "切换到...",
+    "clearTask": "清除任务",
+    "availableTasks": "可用任务",
+    "noTasksAvailable": "暂无可用任务",
+    "addNewTask": "添加新任务",
+    "createTasksHint": "在看板中创建任务"
   }
 }

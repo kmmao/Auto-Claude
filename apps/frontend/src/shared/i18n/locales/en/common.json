@@ -58,6 +58,10 @@
         "deleteFailed": "Failed to delete",
         "dropHere": "Drop here"
     },
+    "files": {
+        "projectFiles": "Project Files",
+        "dragHint": "Drag files into a terminal to insert the path"
+    },
     "dialogs": {
         "deleteConversation": "Delete conversation?",
         "deleteConversationDesc": "This will permanently delete this conversation and all its messages.",
