@@ -163,10 +163,14 @@
     "userStories": "用户故事",
     "acceptanceCriteria": "验收标准",
     "competitorPainPoints": "解决竞品痛点",
-    "severity": "{{severity}} 严重程度",
     "deleteFeature": "删除功能？",
     "deleteFeatureDesc": "这将从您的路线图中永久删除 \"{{title}}\"。",
     "convertToTask": "转换为自动构建任务"
+  },
+  "severity": {
+    "high": "高严重程度",
+    "medium": "中等严重程度",
+    "low": "低严重程度"
   },
   "addFeatureDialog": {
     "title": "添加功能",

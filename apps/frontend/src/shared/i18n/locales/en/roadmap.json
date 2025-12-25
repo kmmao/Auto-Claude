@@ -168,6 +168,11 @@
     "deleteFeatureDesc": "This will permanently remove \"{{title}}\" from your roadmap.",
     "convertToTask": "Convert to Auto-Build Task"
   },
+  "severity": {
+    "high": "High Severity",
+    "medium": "Medium Severity",
+    "low": "Low Severity"
+  },
   "addFeatureDialog": {
     "title": "Add Feature",
     "description": "Add a new feature to your roadmap. Provide details about what you want to build and how it fits into your product strategy.",
