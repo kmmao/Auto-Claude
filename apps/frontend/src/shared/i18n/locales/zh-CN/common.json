@@ -104,5 +104,15 @@
     },
     "sidebar": {
         "chatHistory": "聊天历史"
+    },
+    "prReview": {
+        "reviewing": "审查中",
+        "reviewed": "已审查",
+        "approved": "已批准",
+        "changesRequested": "需要修改",
+        "commented": "已评论",
+        "readyForFollowup": "等待跟进",
+        "readyToMerge": "可以合并",
+        "pendingPost": "待发布"
     }
 }

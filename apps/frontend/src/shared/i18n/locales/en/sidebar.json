@@ -13,6 +13,7 @@
         "changelog": "Changelog",
         "context": "Context",
         "githubIssues": "GitHub Issues",
+        "githubPRs": "GitHub PRs",
         "worktrees": "Worktrees"
     },
     "shortcuts": {

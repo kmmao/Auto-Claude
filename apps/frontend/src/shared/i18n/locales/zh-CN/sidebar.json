@@ -13,6 +13,7 @@
         "changelog": "更新日志",
         "context": "上下文",
         "githubIssues": "GitHub 问题",
+        "githubPRs": "GitHub PR",
         "worktrees": "工作树"
     },
     "shortcuts": {
