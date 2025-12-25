@@ -110,5 +110,83 @@
       "label": "Code Quality",
       "description": "Suggestions to improve code structure and maintainability"
     }
+  },
+  "categories": {
+    "uiux": {
+      "usability": "Usability",
+      "accessibility": "Accessibility",
+      "performance": "Performance",
+      "visual": "Visual Design",
+      "interaction": "Interaction"
+    },
+    "documentation": {
+      "readme": "README",
+      "api_docs": "API Documentation",
+      "inline_comments": "Inline Comments",
+      "examples": "Examples & Tutorials",
+      "architecture": "Architecture Docs",
+      "troubleshooting": "Troubleshooting Guide"
+    },
+    "security": {
+      "authentication": "Authentication",
+      "authorization": "Authorization",
+      "input_validation": "Input Validation",
+      "data_protection": "Data Protection",
+      "dependencies": "Dependencies",
+      "configuration": "Configuration",
+      "secrets_management": "Secrets Management"
+    },
+    "performance": {
+      "bundle_size": "Bundle Size",
+      "runtime": "Runtime Performance",
+      "memory": "Memory Usage",
+      "database": "Database Queries",
+      "network": "Network Requests",
+      "rendering": "Rendering",
+      "caching": "Caching"
+    },
+    "codeQuality": {
+      "large_files": "Large Files",
+      "code_smells": "Code Smells",
+      "complexity": "High Complexity",
+      "duplication": "Code Duplication",
+      "naming": "Naming Conventions",
+      "structure": "File Structure",
+      "linting": "Linting Issues",
+      "testing": "Test Coverage",
+      "types": "Type Safety",
+      "dependencies": "Dependency Issues",
+      "dead_code": "Dead Code",
+      "git_hygiene": "Git Hygiene"
+    }
+  },
+  "effort": {
+    "trivial": "Trivial",
+    "small": "Small",
+    "medium": "Medium",
+    "large": "Large",
+    "complex": "Complex"
+  },
+  "impact": {
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High",
+    "critical": "Critical"
+  },
+  "status": {
+    "draft": "Draft",
+    "selected": "Selected",
+    "converted": "Converted",
+    "dismissed": "Dismissed",
+    "archived": "Archived"
+  },
+  "severity": {
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High",
+    "critical": "Critical",
+    "suggestion": "Suggestion",
+    "minor": "Minor",
+    "major": "Major"
   }
 }

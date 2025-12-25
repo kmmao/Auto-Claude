@@ -17,15 +17,10 @@ import { useTranslation } from 'react-i18next';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { cn, formatRelativeTime, sanitizeMarkdownForDisplay } from '../../lib/utils';
 import {
-  TASK_CATEGORY_LABELS,
   TASK_CATEGORY_COLORS,
-  TASK_COMPLEXITY_LABELS,
   TASK_COMPLEXITY_COLORS,
-  TASK_IMPACT_LABELS,
   TASK_IMPACT_COLORS,
-  TASK_PRIORITY_LABELS,
-  TASK_PRIORITY_COLORS,
-  IDEATION_TYPE_LABELS
+  TASK_PRIORITY_COLORS
 } from '../../../shared/constants';
 import type { Task, TaskCategory } from '../../../shared/types';
 
@@ -47,7 +42,7 @@ interface TaskMetadataProps {
 }
 
 export function TaskMetadata({ task }: TaskMetadataProps) {
-  const { t } = useTranslation(['common', 'taskDetail']);
+  const { t } = useTranslation(['common', 'taskDetail', 'ideation']);
 
   const hasClassification = task.metadata && (
     task.metadata.category ||
@@ -119,7 +114,7 @@ export function TaskMetadata({ task }: TaskMetadataProps) {
             {task.metadata?.sourceType && (
               <Badge variant="secondary" className="text-xs">
                 {task.metadata.sourceType === 'ideation' && task.metadata.ideationType
-                  ? IDEATION_TYPE_LABELS[task.metadata.ideationType] || task.metadata.ideationType
+                  ? t(`ideation:types.${task.metadata.ideationType}.label`, { defaultValue: task.metadata.ideationType })
                   : t(`taskDetail:sourceType.${task.metadata.sourceType}`)}
               </Badge>
             )}

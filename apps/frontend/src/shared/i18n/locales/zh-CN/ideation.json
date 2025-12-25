@@ -110,5 +110,83 @@
       "label": "代码质量",
       "description": "改进代码结构和可维护性的建议"
     }
+  },
+  "categories": {
+    "uiux": {
+      "usability": "可用性",
+      "accessibility": "无障碍",
+      "performance": "性能",
+      "visual": "视觉设计",
+      "interaction": "交互"
+    },
+    "documentation": {
+      "readme": "README",
+      "api_docs": "API 文档",
+      "inline_comments": "行内注释",
+      "examples": "示例与教程",
+      "architecture": "架构文档",
+      "troubleshooting": "故障排除指南"
+    },
+    "security": {
+      "authentication": "认证",
+      "authorization": "授权",
+      "input_validation": "输入验证",
+      "data_protection": "数据保护",
+      "dependencies": "依赖项",
+      "configuration": "配置",
+      "secrets_management": "密钥管理"
+    },
+    "performance": {
+      "bundle_size": "包大小",
+      "runtime": "运行时性能",
+      "memory": "内存使用",
+      "database": "数据库查询",
+      "network": "网络请求",
+      "rendering": "渲染",
+      "caching": "缓存"
+    },
+    "codeQuality": {
+      "large_files": "大文件",
+      "code_smells": "代码异味",
+      "complexity": "高复杂度",
+      "duplication": "代码重复",
+      "naming": "命名规范",
+      "structure": "文件结构",
+      "linting": "Lint 问题",
+      "testing": "测试覆盖",
+      "types": "类型安全",
+      "dependencies": "依赖问题",
+      "dead_code": "死代码",
+      "git_hygiene": "Git 规范"
+    }
+  },
+  "effort": {
+    "trivial": "微小",
+    "small": "小",
+    "medium": "中等",
+    "large": "大",
+    "complex": "复杂"
+  },
+  "impact": {
+    "low": "低",
+    "medium": "中",
+    "high": "高",
+    "critical": "关键"
+  },
+  "status": {
+    "draft": "草稿",
+    "selected": "已选",
+    "converted": "已转换",
+    "dismissed": "已忽略",
+    "archived": "已归档"
+  },
+  "severity": {
+    "low": "低",
+    "medium": "中",
+    "high": "高",
+    "critical": "严重",
+    "suggestion": "建议",
+    "minor": "次要",
+    "major": "主要"
   }
 }

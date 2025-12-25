@@ -7,7 +7,6 @@ import { ScrollArea } from '../ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { useTranslation } from 'react-i18next';
 import {
-  IDEATION_TYPE_LABELS,
   IDEATION_TYPE_COLORS
 } from '../../../shared/constants';
 import type {

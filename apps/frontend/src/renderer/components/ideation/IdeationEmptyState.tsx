@@ -3,9 +3,6 @@ import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { Switch } from '../ui/switch';
 import { useTranslation } from 'react-i18next';
-import {
-  IDEATION_TYPE_LABELS
-} from '../../../shared/constants';
 import type { IdeationType, IdeationConfig } from '../../../shared/types';
 import { TypeIcon } from './TypeIcon';
 import { ALL_IDEATION_TYPES } from './constants';

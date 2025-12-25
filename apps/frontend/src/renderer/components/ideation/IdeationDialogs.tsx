@@ -11,8 +11,6 @@ import {
   DialogTitle
 } from '../ui/dialog';
 import {
-  IDEATION_TYPE_LABELS,
-  IDEATION_TYPE_DESCRIPTIONS,
   IDEATION_TYPE_COLORS
 } from '../../../shared/constants';
 import type { IdeationType, IdeationConfig } from '../../../shared/types';
