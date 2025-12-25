@@ -183,6 +183,12 @@ export function initializePRReviewListeners(): void {
     return;
   }
 
+  // Guard against missing github API (e.g., during early initialization or in browser mode)
+  if (!window.electronAPI?.github) {
+    console.warn('[PR Review Store] GitHub API not available, skipping PR review listeners initialization');
+    return;
+  }
+
   const store = usePRReviewStore.getState();
 
   // Listen for PR review progress events
