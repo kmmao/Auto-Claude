@@ -37,7 +37,7 @@ export function useAnalyzePreview({ projectId }: UseAnalyzePreviewProps): UseAna
 
   // Subscribe to analysis events
   useEffect(() => {
-    if (!projectId) return;
+    if (!projectId || !window.electronAPI?.github) return;
 
     const cleanupProgress = window.electronAPI.github.onAnalyzePreviewProgress(
       (eventProjectId, progress) => {

@@ -27,6 +27,8 @@ export function AutoFixButton({ issue, projectId, config, queueItem }: AutoFixBu
 
   // Listen for progress events
   useEffect(() => {
+    if (!window.electronAPI?.github) return;
+
     const cleanupProgress = window.electronAPI.github.onAutoFixProgress(
       (eventProjectId: string, progressData: AutoFixProgress) => {
         if (eventProjectId === projectId && progressData.issueNumber === issue.number) {

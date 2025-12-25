@@ -84,7 +84,7 @@ export function useGitHubPRs(projectId?: string): UseGitHubPRsResult {
 
   // Check connection and fetch PRs
   const fetchPRs = useCallback(async () => {
-    if (!projectId) return;
+    if (!projectId || !window.electronAPI?.github) return;
 
     setIsLoading(true);
     setError(null);

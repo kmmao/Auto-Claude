@@ -22,7 +22,7 @@ export function useAutoFix(projectId: string | undefined) {
 
   // Load config, queue, and batches
   const loadData = useCallback(async () => {
-    if (!projectId) return;
+    if (!projectId || !window.electronAPI?.github) return;
 
     setIsLoading(true);
     try {
@@ -49,7 +49,7 @@ export function useAutoFix(projectId: string | undefined) {
 
   // Listen for completion events to refresh queue
   useEffect(() => {
-    if (!projectId) return;
+    if (!projectId || !window.electronAPI?.github) return;
 
     const cleanupComplete = window.electronAPI.github.onAutoFixComplete(
       (eventProjectId: string) => {
@@ -64,7 +64,7 @@ export function useAutoFix(projectId: string | undefined) {
 
   // Listen for batch events
   useEffect(() => {
-    if (!projectId) return;
+    if (!projectId || !window.electronAPI?.github) return;
 
     const cleanupProgress = window.electronAPI.github.onBatchProgress(
       (eventProjectId: string, progress: BatchProgress) => {
