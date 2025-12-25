@@ -270,6 +270,27 @@ export function registerSettingsHandlers(
             path.join(app.getPath('home'), 'opt/anaconda3/bin/python3'),
           ];
 
+          // Also check for Auto-Claude backend venv (relative to app location)
+          const autoBuildVenvPaths = [
+            // Development mode: from apps/frontend/out/main -> apps/backend/.venv
+            path.resolve(__dirname, '..', '..', '..', 'backend', '.venv', 'bin', 'python'),
+            // Alternative: from app root -> apps/backend/.venv
+            path.resolve(app.getAppPath(), '..', 'backend', '.venv', 'bin', 'python'),
+            // If running from repo root
+            path.resolve(process.cwd(), 'apps', 'backend', '.venv', 'bin', 'python'),
+          ];
+
+          for (const venvPath of autoBuildVenvPaths) {
+            try {
+              if (existsSync(venvPath)) {
+                paths.add(venvPath);
+                break; // Only add first found venv
+              }
+            } catch {
+              // Ignore errors
+            }
+          }
+
           for (const loc of commonLocations) {
             try {
               if (existsSync(loc)) {
