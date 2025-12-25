@@ -172,6 +172,21 @@
     "medium": "中等严重程度",
     "low": "低严重程度"
   },
+  "phaseCard": {
+    "progress": "进度",
+    "featuresCount": "{{completed}}/{{total}} 功能",
+    "milestones": "里程碑",
+    "features": "功能",
+    "moreFeatures": "+{{count}} 个更多功能",
+    "viewTask": "查看任务",
+    "showAll": "显示全部",
+    "showLess": "收起"
+  },
+  "phaseStatus": {
+    "planned": "已规划",
+    "in_progress": "进行中",
+    "completed": "已完成"
+  },
   "addFeatureDialog": {
     "title": "添加功能",
     "description": "向您的路线图添加新功能。提供有关您想构建的内容及其如何符合您的产品策略的详细信息。",

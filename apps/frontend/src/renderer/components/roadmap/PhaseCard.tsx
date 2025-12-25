@@ -1,4 +1,5 @@
-import { CheckCircle2, Circle, ExternalLink, Play, TrendingUp } from 'lucide-react';
+import { useState } from 'react';
+import { CheckCircle2, Circle, ExternalLink, Play, TrendingUp, ChevronDown, ChevronUp } from 'lucide-react';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
@@ -15,23 +16,26 @@ export function PhaseCard({
   onConvertToSpec,
   onGoToTask,
 }: PhaseCardProps) {
-  const { t } = useTranslation(['common', 'settings']);
+  const { t } = useTranslation(['common', 'roadmap']);
+  const [showAllFeatures, setShowAllFeatures] = useState(false);
 
   const completedCount = features.filter((f) => f.status === 'done').length;
   const progress = features.length > 0 ? (completedCount / features.length) * 100 : 0;
+
+  const displayedFeatures = showAllFeatures ? features : features.slice(0, 5);
+  const hasMoreFeatures = features.length > 5;
 
   return (
     <Card className="p-4">
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-3">
           <div
-            className={`w-8 h-8 rounded-full flex items-center justify-center ${
-              phase.status === 'completed'
+            className={`w-8 h-8 rounded-full flex items-center justify-center ${phase.status === 'completed'
                 ? 'bg-success/10 text-success'
                 : phase.status === 'in_progress'
-                ? 'bg-primary/10 text-primary'
-                : 'bg-muted text-muted-foreground'
-            }`}
+                  ? 'bg-primary/10 text-primary'
+                  : 'bg-muted text-muted-foreground'
+              }`}
           >
             {phase.status === 'completed' ? (
               <CheckCircle2 className="h-4 w-4" />
@@ -45,16 +49,16 @@ export function PhaseCard({
           </div>
         </div>
         <Badge variant={phase.status === 'completed' ? 'default' : 'outline'}>
-          {phase.status}
+          {t(`roadmap:phaseStatus.${phase.status}`)}
         </Badge>
       </div>
 
       {/* Progress */}
       <div className="mb-4">
         <div className="flex items-center justify-between text-sm mb-1">
-          <span className="text-muted-foreground">Progress</span>
+          <span className="text-muted-foreground">{t('roadmap:phaseCard.progress')}</span>
           <span>
-            {completedCount}/{features.length} features
+            {t('roadmap:phaseCard.featuresCount', { completed: completedCount, total: features.length })}
           </span>
         </div>
         <Progress value={progress} className="h-2" />
@@ -63,7 +67,7 @@ export function PhaseCard({
       {/* Milestones */}
       {phase.milestones.length > 0 && (
         <div className="mb-4">
-          <h4 className="text-sm font-medium mb-2">Milestones</h4>
+          <h4 className="text-sm font-medium mb-2">{t('roadmap:phaseCard.milestones')}</h4>
           <div className="space-y-2">
             {phase.milestones.map((milestone) => (
               <div key={milestone.id} className="flex items-center gap-2 text-sm">
@@ -87,9 +91,9 @@ export function PhaseCard({
 
       {/* Features */}
       <div>
-        <h4 className="text-sm font-medium mb-2">Features ({features.length})</h4>
+        <h4 className="text-sm font-medium mb-2">{t('roadmap:phaseCard.features')} ({features.length})</h4>
         <div className="grid gap-2">
-          {features.slice(0, 5).map((feature) => (
+          {displayedFeatures.map((feature) => (
             <div
               key={feature.id}
               className="flex items-center justify-between p-2 rounded-md bg-muted/50 hover:bg-muted cursor-pointer transition-colors"
@@ -100,7 +104,7 @@ export function PhaseCard({
                   variant="outline"
                   className={`text-xs ${ROADMAP_PRIORITY_COLORS[feature.priority]}`}
                 >
-                  {feature.priority}
+                  {t(`roadmap:priority.${feature.priority}`)}
                 </Badge>
                 <span className="text-sm truncate">{feature.title}</span>
                 {feature.competitorInsightIds && feature.competitorInsightIds.length > 0 && (
@@ -120,7 +124,7 @@ export function PhaseCard({
                   }}
                 >
                   <ExternalLink className="h-3 w-3 mr-1" />
-                  View Task
+                  {t('roadmap:phaseCard.viewTask')}
                 </Button>
               ) : (
                 <Button
@@ -133,15 +137,30 @@ export function PhaseCard({
                   }}
                 >
                   <Play className="h-3 w-3 mr-1" />
-                  Build
+                  {t('common:build')}
                 </Button>
               )}
             </div>
           ))}
-          {features.length > 5 && (
-            <div className="text-sm text-muted-foreground text-center py-1">
-              +{features.length - 5} more features
-            </div>
+          {hasMoreFeatures && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-sm text-muted-foreground w-full py-1"
+              onClick={() => setShowAllFeatures(!showAllFeatures)}
+            >
+              {showAllFeatures ? (
+                <>
+                  <ChevronUp className="h-4 w-4 mr-1" />
+                  {t('roadmap:phaseCard.showLess')}
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="h-4 w-4 mr-1" />
+                  {t('roadmap:phaseCard.moreFeatures', { count: features.length - 5 })}
+                </>
+              )}
+            </Button>
           )}
         </div>
       </div>

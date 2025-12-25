@@ -173,6 +173,21 @@
     "medium": "Medium Severity",
     "low": "Low Severity"
   },
+  "phaseCard": {
+    "progress": "Progress",
+    "featuresCount": "{{completed}}/{{total}} features",
+    "milestones": "Milestones",
+    "features": "Features",
+    "moreFeatures": "+{{count}} more features",
+    "viewTask": "View Task",
+    "showAll": "Show All",
+    "showLess": "Show Less"
+  },
+  "phaseStatus": {
+    "planned": "Planned",
+    "in_progress": "In Progress",
+    "completed": "Completed"
+  },
   "addFeatureDialog": {
     "title": "Add Feature",
     "description": "Add a new feature to your roadmap. Provide details about what you want to build and how it fits into your product strategy.",
