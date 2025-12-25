@@ -306,28 +306,10 @@ export function SecuritySettings({
       return (
         <div className="space-y-2">
           <Label className="text-sm font-medium text-foreground">{t("settings:project.memory.ollama.select")}</Label>
-          <Select
-            value={envConfig.graphitiProviderConfig?.ollamaEmbeddingModel || ''}
-            onValueChange={(value) => updateEnvConfig({
-              graphitiProviderConfig: {
-                ...envConfig.graphitiProviderConfig,
-                embeddingProvider: 'ollama',
-                ollamaEmbeddingModel: value,
-              }
-            })}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder={t("settings:project.memory.ollama.placeholder")} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="mxbai-embed-large">mxbai-embed-large</SelectItem>
-              <SelectItem value="nomic-embed-text">nomic-embed-text</SelectItem>
-              <SelectItem value="all-minilm">all-minilm</SelectItem>
-            </SelectContent>
-          </Select>
-          <p className="text-xs text-muted-foreground">
-            {t("settings:project.memory.ollama.hint")}
-          </p>
+          <OllamaModelSelector
+            selectedModel={envConfig.graphitiProviderConfig?.ollamaEmbeddingModel || ''}
+            onModelSelect={handleOllamaModelSelect}
+          />
         </div>
       )
     }
