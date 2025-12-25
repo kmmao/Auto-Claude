@@ -493,6 +493,7 @@ export class MemoryService {
 
   /**
    * Test connection to the database
+   * If the database directory doesn't exist, creates it automatically
    */
   async testConnection(): Promise<{ success: boolean; message: string }> {
     const result = await executeQuery('get-status', [this.config.dbPath, this.config.database]);
@@ -513,11 +514,22 @@ export class MemoryService {
       };
     }
 
+    // Auto-create database directory if it doesn't exist
     if (!data.databaseExists) {
-      return {
-        success: false,
-        message: `Database not found at ${data.databasePath}/${data.database}`,
-      };
+      const dbFullPath = path.join(this.config.dbPath, this.config.database);
+      try {
+        fs.mkdirSync(dbFullPath, { recursive: true });
+        console.log(`[MemoryService] Created database directory: ${dbFullPath}`);
+        return {
+          success: true,
+          message: `Database directory created at ${dbFullPath}. Ready for first use.`,
+        };
+      } catch (err) {
+        return {
+          success: false,
+          message: `Failed to create database directory: ${err instanceof Error ? err.message : 'Unknown error'}`,
+        };
+      }
     }
 
     if (!data.connected) {
