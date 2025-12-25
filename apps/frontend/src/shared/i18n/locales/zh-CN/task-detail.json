@@ -142,13 +142,6 @@
             "mergeToMain": "合并到主",
             "discardBuild": "丢弃构建"
         },
-        "feedback": {
-            "title": "请求更改",
-            "description": "发现了问题？描述需要修复的内容，AI 将继续工作。",
-            "placeholder": "描述需要的问题或更改...",
-            "submit": "请求更改",
-            "submitting": "提交中..."
-        },
         "stagedSuccess": {
             "title": "更改已成功暂存",
             "commitTitle": "AI 生成的提交信息",
@@ -178,6 +171,13 @@
             "cleaning": "清理中...",
             "cleanupDesc": "这将删除隔离工作区并将任务标记为完成。"
         }
+    },
+    "feedback": {
+        "title": "请求更改",
+        "description": "发现了问题？描述需要修复的内容，AI 将继续工作。",
+        "placeholder": "描述需要修改的问题或内容...",
+        "submit": "请求更改",
+        "submitting": "提交中..."
     },
     "discardDialog": {
         "title": "丢弃更改",
