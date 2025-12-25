@@ -79,5 +79,15 @@
         "search": "Search...",
         "enterText": "Enter text...",
         "selectOption": "Select option..."
+    },
+    "prReview": {
+        "reviewing": "Reviewing",
+        "reviewed": "Reviewed",
+        "approved": "Approved",
+        "changesRequested": "Changes Requested",
+        "commented": "Commented",
+        "readyForFollowup": "Ready for Follow-up",
+        "readyToMerge": "Ready to Merge",
+        "pendingPost": "Pending Post"
     }
 }

@@ -591,6 +591,9 @@ export interface ElectronAPI {
       percentage: number;
     }) => void
   ) => () => void;
+
+  // GitHub API (nested for organized access)
+  github: import('../../preload/api/modules/github-api').GitHubAPI;
 }
 
 declare global {

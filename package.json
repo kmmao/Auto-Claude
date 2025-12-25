@@ -10,7 +10,7 @@
     "install:all": "pnpm run install:backend && pnpm run install:frontend",
     "start": "cd apps/frontend && pnpm run build && pnpm run start",
     "dev": "cd apps/frontend && pnpm run dev",
-    "dev:debug": "DEBUG=true cd apps/frontend && pnpm run dev",
+    "dev:debug": "cd apps/frontend && pnpm run dev:debug",
     "dev:mcp": "cd apps/frontend && pnpm run dev:mcp",
     "build": "cd apps/frontend && pnpm run build",
     "lint": "cd apps/frontend && pnpm run lint",
