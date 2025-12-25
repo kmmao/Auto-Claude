@@ -6,11 +6,16 @@ import {
   EyeOff,
   ChevronDown,
   ChevronUp,
-  Globe
+  Globe,
+  Loader2,
+  CheckCircle2,
+  XCircle,
+  PlayCircle
 } from 'lucide-react';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Switch } from '../ui/switch';
+import { Button } from '../ui/button';
 import {
   Select,
   SelectContent,
@@ -64,6 +69,43 @@ export function SecuritySettings({
   }, [showOpenAIKey]);
 
   const embeddingProvider = envConfig?.graphitiProviderConfig?.embeddingProvider || 'ollama';
+
+  // Memory test state
+  const [isTesting, setIsTesting] = useState(false);
+  const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
+
+  // Test memory connection
+  const handleTestConnection = async () => {
+    if (!envConfig) return;
+    setIsTesting(true);
+    setTestResult(null);
+    try {
+      const result = await window.electronAPI.testMemoryConnection(
+        envConfig.graphitiDbPath,
+        envConfig.graphitiDatabase
+      );
+      if (result?.success && result?.data) {
+        setTestResult({
+          success: result.data.success,
+          message: result.data.success
+            ? t('settings:project.memory.test.success')
+            : result.data.message || t('settings:project.memory.test.failed')
+        });
+      } else {
+        setTestResult({
+          success: false,
+          message: result?.error || t('settings:project.memory.test.failed')
+        });
+      }
+    } catch (err) {
+      setTestResult({
+        success: false,
+        message: err instanceof Error ? err.message : t('settings:project.memory.test.failed')
+      });
+    } finally {
+      setIsTesting(false);
+    }
+  };
 
   // Toggle API key visibility
   const toggleShowApiKey = (key: string) => {
@@ -458,6 +500,42 @@ export function SecuritySettings({
                   value={envConfig.graphitiDbPath || ''}
                   onChange={(e) => updateEnvConfig({ graphitiDbPath: e.target.value || undefined })}
                 />
+              </div>
+
+              {/* Test Connection Button */}
+              <div className="pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleTestConnection}
+                  disabled={isTesting}
+                  className="w-full"
+                >
+                  {isTesting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      {t('settings:project.memory.test.testing')}
+                    </>
+                  ) : (
+                    <>
+                      <PlayCircle className="h-4 w-4 mr-2" />
+                      {t('settings:project.memory.test.button')}
+                    </>
+                  )}
+                </Button>
+                {testResult && (
+                  <div className={`mt-2 p-2 rounded-md text-sm flex items-center gap-2 ${testResult.success
+                    ? 'bg-success/10 text-success'
+                    : 'bg-destructive/10 text-destructive'
+                    }`}>
+                    {testResult.success ? (
+                      <CheckCircle2 className="h-4 w-4" />
+                    ) : (
+                      <XCircle className="h-4 w-4" />
+                    )}
+                    {testResult.message}
+                  </div>
+                )}
               </div>
             </>
           )}

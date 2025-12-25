@@ -553,6 +553,12 @@
         "path": "Database Path (Optional)",
         "customPath": "Custom storage location. Default: ~/.auto-claude/memories/"
       },
+      "test": {
+        "button": "Test Connection",
+        "testing": "Testing...",
+        "success": "Connection successful! Memory service is working.",
+        "failed": "Connection failed"
+      },
       "embeddingModel": "Embedding Model"
     },
     "environment": {

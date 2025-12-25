@@ -1,5 +1,24 @@
 import { execSync } from 'child_process';
-import { existsSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
+import { app } from 'electron';
+import path from 'path';
+
+/**
+ * Get the user-configured Python path from settings.json
+ */
+export function getConfiguredPythonPath(): string | undefined {
+  try {
+    const settingsPath = path.join(app.getPath('userData'), 'settings.json');
+    if (existsSync(settingsPath)) {
+      const content = readFileSync(settingsPath, 'utf-8');
+      const settings = JSON.parse(content);
+      return settings.pythonPath;
+    }
+  } catch {
+    // Ignore errors, return undefined
+  }
+  return undefined;
+}
 
 /**
  * Find the first existing Homebrew Python installation.
@@ -13,9 +32,9 @@ function findHomebrewPython(): string | null {
     '/usr/local/bin/python3'      // Intel Mac
   ];
 
-  for (const path of homebrewPaths) {
-    if (existsSync(path)) {
-      return path;
+  for (const p of homebrewPaths) {
+    if (existsSync(p)) {
+      return p;
     }
   }
 
@@ -25,13 +44,33 @@ function findHomebrewPython(): string | null {
 /**
  * Detect and return the best available Python command.
  * Tries multiple candidates and returns the first one that works with Python 3.
+ * Priority: User-configured path > Homebrew paths > System paths
  *
+ * @param userConfiguredPath - Optional user-configured Python path from settings
  * @returns The Python command to use, or null if none found
  */
-export function findPythonCommand(): string | null {
+export function findPythonCommand(userConfiguredPath?: string): string | null {
   const isWindows = process.platform === 'win32';
 
-  // On Unix/Mac, try Homebrew paths and specific versions first since aliases aren't inherited by sub-processes
+  // If no path provided, try to read from settings
+  const configuredPath = userConfiguredPath || getConfiguredPythonPath();
+
+  // Priority 1: Check user-configured path first (from settings)
+  if (configuredPath && existsSync(configuredPath)) {
+    try {
+      const validation = validatePythonVersion(configuredPath);
+      if (validation.valid) {
+        console.log(`[Python] Using user-configured Python: ${configuredPath} (${validation.version})`);
+        return configuredPath;
+      } else {
+        console.warn(`[Python] User-configured path ${configuredPath} invalid: ${validation.message}`);
+      }
+    } catch (err) {
+      console.warn(`[Python] User-configured path ${configuredPath} errored:`, err);
+    }
+  }
+
+  // Priority 2: On Unix/Mac, try Homebrew paths and specific versions
   const unixCandidates = [
     '/opt/homebrew/bin/python3',
     '/usr/local/bin/python3',

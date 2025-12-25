@@ -557,6 +557,12 @@
         "path": "数据库路径 (可选)",
         "customPath": "自定义存储位置。默认值：~/.auto-claude/memories/"
       },
+      "test": {
+        "button": "测试连接",
+        "testing": "测试中...",
+        "success": "连接成功！内存服务工作正常。",
+        "failed": "连接失败"
+      },
       "embeddingModel": "嵌入模型"
     },
     "environment": {
