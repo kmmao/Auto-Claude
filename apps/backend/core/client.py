@@ -126,6 +126,7 @@ BUILTIN_TOOLS = [
     "Glob",
     "Grep",
     "Bash",
+    "WebSearch",
 ]
 
 
@@ -234,6 +235,8 @@ def create_client(
                 # Bash permission granted here, but actual commands are validated
                 # by the bash_security_hook (see security.py for allowed commands)
                 "Bash(*)",
+                # Allow WebSearch for research and competitor analysis
+                "WebSearch",
                 # Allow Context7 MCP tools for documentation lookup
                 *CONTEXT7_TOOLS,
                 # Allow Linear MCP tools for project management (if enabled)
