@@ -66,6 +66,39 @@ function getStatusIcon(iconName: string) {
   }
 }
 
+// Hook to get translated status label
+function useStatusLabel(statusId: string) {
+  const { t } = useTranslation(['roadmap']);
+  return t(`roadmap:status.${statusId}`);
+}
+
+// Component for status label
+function StatusLabel({ statusId }: { statusId: string }) {
+  const label = useStatusLabel(statusId);
+  return <>{label}</>;
+}
+
+// Component for "Drop here" text
+function DropHereText() {
+  const { t } = useTranslation(['roadmap']);
+  return <span className="text-sm font-medium text-primary">{t('roadmap:kanban.dropHere')}</span>;
+}
+
+// Component for empty column text
+function KanbanEmptyText() {
+  const { t } = useTranslation(['roadmap']);
+  return (
+    <>
+      <span className="mt-2 text-sm font-medium text-muted-foreground/70">
+        {t('roadmap:kanban.noFeatures')}
+      </span>
+      <span className="mt-0.5 text-xs text-muted-foreground/50">
+        {t('roadmap:kanban.dragFeaturesHere')}
+      </span>
+    </>
+  );
+}
+
 function DroppableStatusColumn({
   column,
   features,
@@ -100,16 +133,16 @@ function DroppableStatusColumn({
               column.id === 'done'
                 ? 'bg-success/10 text-success'
                 : column.id === 'in_progress'
-                ? 'bg-primary/10 text-primary'
-                : column.id === 'planned'
-                ? 'bg-info/10 text-info'
-                : 'bg-muted text-muted-foreground'
+                  ? 'bg-primary/10 text-primary'
+                  : column.id === 'planned'
+                    ? 'bg-info/10 text-info'
+                    : 'bg-muted text-muted-foreground'
             )}
           >
             {getStatusIcon(column.icon)}
           </div>
           <h2 className="font-semibold text-sm text-foreground">
-            {column.label}
+            <StatusLabel statusId={column.id} />
           </h2>
           <span className="column-count-badge">
             {features.length}
@@ -137,17 +170,12 @@ function DroppableStatusColumn({
                       <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center mb-2">
                         <Plus className="h-4 w-4 text-primary" />
                       </div>
-                      <span className="text-sm font-medium text-primary">Drop here</span>
+                      <DropHereText />
                     </>
                   ) : (
                     <>
                       <Inbox className="h-6 w-6 text-muted-foreground/50" />
-                      <span className="mt-2 text-sm font-medium text-muted-foreground/70">
-                        No features
-                      </span>
-                      <span className="mt-0.5 text-xs text-muted-foreground/50">
-                        Drag features here
-                      </span>
+                      <KanbanEmptyText />
                     </>
                   )}
                 </div>
@@ -178,7 +206,7 @@ export function RoadmapKanbanView({
   onGoToTask,
   onSave
 }: RoadmapKanbanViewProps) {
-  const { t } = useTranslation(['common', 'settings']);
+  const { t } = useTranslation(['common', 'roadmap']);
 
   const [activeFeature, setActiveFeature] = useState<RoadmapFeature | null>(null);
   const [overColumnId, setOverColumnId] = useState<string | null>(null);

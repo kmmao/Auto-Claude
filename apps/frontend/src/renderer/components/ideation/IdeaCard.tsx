@@ -83,37 +83,37 @@ export function IdeaCard({ idea, isSelected, onClick, onConvert, onGoToTask, onD
               </Badge>
               {idea.status !== 'draft' && (
                 <Badge variant="outline" className={IDEATION_STATUS_COLORS[idea.status]}>
-                  {idea.status}
+                  {t(`ideation:status.${idea.status}`)}
                 </Badge>
               )}
               {isCodeImprovementIdea(idea) && (
                 <Badge variant="outline" className={IDEATION_EFFORT_COLORS[(idea as CodeImprovementIdea).estimatedEffort]}>
-                  {(idea as CodeImprovementIdea).estimatedEffort}
+                  {t(`ideation:effort.${(idea as CodeImprovementIdea).estimatedEffort}`)}
                 </Badge>
               )}
               {isUIUXIdea(idea) && (
                 <Badge variant="outline">
-                  {UIUX_CATEGORY_LABELS[(idea as UIUXImprovementIdea).category]}
+                  {t(`ideation:categories.uiux.${(idea as UIUXImprovementIdea).category}`)}
                 </Badge>
               )}
               {isDocumentationGapIdea(idea) && (
                 <Badge variant="outline">
-                  {DOCUMENTATION_CATEGORY_LABELS[(idea as DocumentationGapIdea).category]}
+                  {t(`ideation:categories.documentation.${(idea as DocumentationGapIdea).category}`)}
                 </Badge>
               )}
               {isSecurityHardeningIdea(idea) && (
                 <Badge variant="outline" className={SECURITY_SEVERITY_COLORS[(idea as SecurityHardeningIdea).severity]}>
-                  {(idea as SecurityHardeningIdea).severity}
+                  {t(`ideation:severity.${(idea as SecurityHardeningIdea).severity}`)}
                 </Badge>
               )}
               {isPerformanceOptimizationIdea(idea) && (
                 <Badge variant="outline" className={IDEATION_IMPACT_COLORS[(idea as PerformanceOptimizationIdea).impact]}>
-                  {(idea as PerformanceOptimizationIdea).impact} {t('ideation:common.impact')}
+                  {t(`ideation:impact.${(idea as PerformanceOptimizationIdea).impact}`)}
                 </Badge>
               )}
               {isCodeQualityIdea(idea) && (
                 <Badge variant="outline" className={CODE_QUALITY_SEVERITY_COLORS[(idea as CodeQualityIdea).severity]}>
-                  {(idea as CodeQualityIdea).severity}
+                  {t(`ideation:severity.${(idea as CodeQualityIdea).severity}`)}
                 </Badge>
               )}
             </div>

@@ -13,7 +13,6 @@ import {
 import { Play, ExternalLink, TrendingUp, Layers, ThumbsUp } from 'lucide-react';
 import {
   ROADMAP_PRIORITY_COLORS,
-  ROADMAP_PRIORITY_LABELS,
   ROADMAP_COMPLEXITY_COLORS,
   ROADMAP_IMPACT_COLORS
 } from '../../shared/constants';
@@ -34,7 +33,7 @@ export function SortableFeatureCard({
   onConvertToSpec,
   onGoToTask
 }: SortableFeatureCardProps) {
-  const { t } = useTranslation(['common', 'settings']);
+  const { t } = useTranslation(['common', 'roadmap']);
 
   const {
     attributes,
@@ -86,7 +85,7 @@ export function SortableFeatureCard({
                 variant="outline"
                 className={cn('text-[10px] px-1.5 py-0', ROADMAP_PRIORITY_COLORS[feature.priority])}
               >
-                {ROADMAP_PRIORITY_LABELS[feature.priority]}
+                {t(`roadmap:priority.${feature.priority}`)}
               </Badge>
               {phaseName && (
                 <Tooltip>
@@ -100,7 +99,7 @@ export function SortableFeatureCard({
                     </Badge>
                   </TooltipTrigger>
                   <TooltipContent>
-                    Phase: {phaseName}
+                    {t('roadmap:addFeatureDialog.fields.phase.label')}: {phaseName}
                   </TooltipContent>
                 </Tooltip>
               )}
@@ -115,7 +114,7 @@ export function SortableFeatureCard({
                     </Badge>
                   </TooltipTrigger>
                   <TooltipContent>
-                    This feature addresses competitor pain points
+                    {t('common:competitorInsightTooltip')}
                   </TooltipContent>
                 </Tooltip>
               )}
@@ -133,8 +132,8 @@ export function SortableFeatureCard({
                   onGoToTask?.(feature.linkedSpecId!);
                 }}
               >
-                <ExternalLink className="h-3 w-3 mr-1" />
-                Task
+                <ExternalLink className="h-3 w.3 mr-1" />
+                {t('common:goToTask')}
               </Button>
             ) : (
               feature.status !== 'done' &&
@@ -149,7 +148,7 @@ export function SortableFeatureCard({
                   }}
                 >
                   <Play className="h-3 w-3 mr-1" />
-                  Build
+                  {t('common:build')}
                 </Button>
               )
             )}
@@ -167,13 +166,13 @@ export function SortableFeatureCard({
             variant="outline"
             className={cn('text-[10px] px-1.5 py-0', ROADMAP_COMPLEXITY_COLORS[feature.complexity])}
           >
-            {feature.complexity}
+            {t(`roadmap:complexity.${feature.complexity}`)}
           </Badge>
           <Badge
             variant="outline"
             className={cn('text-[10px] px-1.5 py-0', ROADMAP_IMPACT_COLORS[feature.impact])}
           >
-            {feature.impact}
+            {t(`roadmap:impact.${feature.impact}`)}
           </Badge>
           {/* Show vote count if from external source */}
           {feature.votes !== undefined && feature.votes > 0 && (
@@ -188,7 +187,7 @@ export function SortableFeatureCard({
                 </Badge>
               </TooltipTrigger>
               <TooltipContent>
-                {feature.votes} votes from user feedback
+                {t('roadmap:kanban.votes', { count: feature.votes })}
               </TooltipContent>
             </Tooltip>
           )}
@@ -204,7 +203,7 @@ export function SortableFeatureCard({
                 </Badge>
               </TooltipTrigger>
               <TooltipContent>
-                Imported from {feature.source?.provider}
+                {t('roadmap:kanban.importedFrom', { provider: feature.source?.provider })}
               </TooltipContent>
             </Tooltip>
           )}

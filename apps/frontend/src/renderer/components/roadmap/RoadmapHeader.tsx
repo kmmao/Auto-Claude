@@ -19,7 +19,7 @@ export function RoadmapHeader({ roadmap, competitorAnalysis, onAddFeature, onRef
           <div className="flex items-center gap-2 mb-1">
             <Target className="h-5 w-5 text-primary" />
             <h2 className="text-lg font-semibold">{roadmap.projectName}</h2>
-            <Badge variant="outline">{roadmap.status}</Badge>
+            <Badge variant="outline">{t(`roadmap:roadmapStatus.${roadmap.status}`)}</Badge>
             {competitorAnalysis && (
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -119,7 +119,7 @@ export function RoadmapHeader({ roadmap, competitorAnalysis, onAddFeature, onRef
               variant="outline"
               className={`text-xs ${ROADMAP_PRIORITY_COLORS[priority]}`}
             >
-              {count} {priority}
+              {count} {t(`roadmap:priority.${priority}`)}
             </Badge>
           ))}
         </div>

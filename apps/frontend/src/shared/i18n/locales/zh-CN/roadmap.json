@@ -119,6 +119,55 @@
     "differentiators": "差异化机会：",
     "trends": "市场趋势："
   },
+  "priority": {
+    "must": "必须有",
+    "should": "应该有",
+    "could": "可以有",
+    "wont": "暂不考虑"
+  },
+  "complexity": {
+    "low": "低",
+    "medium": "中",
+    "high": "高"
+  },
+  "impact": {
+    "low": "低影响",
+    "medium": "中影响",
+    "high": "高影响"
+  },
+  "status": {
+    "under_review": "评审中",
+    "planned": "已规划",
+    "in_progress": "进行中",
+    "done": "已完成"
+  },
+  "roadmapStatus": {
+    "draft": "草稿",
+    "active": "活跃",
+    "completed": "已完成",
+    "archived": "已归档"
+  },
+  "kanban": {
+    "dropHere": "拖放到此处",
+    "noFeatures": "暂无功能",
+    "dragFeaturesHere": "将功能拖到这里",
+    "votes": "{{count}} 票来自用户反馈",
+    "importedFrom": "从 {{provider}} 导入"
+  },
+  "featureDetail": {
+    "description": "描述",
+    "rationale": "理由",
+    "complexity": "复杂度",
+    "impact": "影响力",
+    "dependencies": "依赖项",
+    "userStories": "用户故事",
+    "acceptanceCriteria": "验收标准",
+    "competitorPainPoints": "解决竞品痛点",
+    "severity": "{{severity}} 严重程度",
+    "deleteFeature": "删除功能？",
+    "deleteFeatureDesc": "这将从您的路线图中永久删除 \"{{title}}\"。",
+    "convertToTask": "转换为自动构建任务"
+  },
   "addFeatureDialog": {
     "title": "添加功能",
     "description": "向您的路线图添加新功能。提供有关您想构建的内容及其如何符合您的产品策略的详细信息。",

@@ -119,6 +119,55 @@
     "differentiators": "Differentiator Opportunities:",
     "trends": "Market Trends:"
   },
+  "priority": {
+    "must": "Must Have",
+    "should": "Should Have",
+    "could": "Could Have",
+    "wont": "Won't Have"
+  },
+  "complexity": {
+    "low": "Low",
+    "medium": "Medium",
+    "high": "High"
+  },
+  "impact": {
+    "low": "Low Impact",
+    "medium": "Medium Impact",
+    "high": "High Impact"
+  },
+  "status": {
+    "under_review": "Under Review",
+    "planned": "Planned",
+    "in_progress": "In Progress",
+    "done": "Done"
+  },
+  "roadmapStatus": {
+    "draft": "Draft",
+    "active": "Active",
+    "completed": "Completed",
+    "archived": "Archived"
+  },
+  "kanban": {
+    "dropHere": "Drop here",
+    "noFeatures": "No features",
+    "dragFeaturesHere": "Drag features here",
+    "votes": "{{count}} votes from user feedback",
+    "importedFrom": "Imported from {{provider}}"
+  },
+  "featureDetail": {
+    "description": "Description",
+    "rationale": "Rationale",
+    "complexity": "Complexity",
+    "impact": "Impact",
+    "dependencies": "Dependencies",
+    "userStories": "User Stories",
+    "acceptanceCriteria": "Acceptance Criteria",
+    "competitorPainPoints": "Addresses Competitor Pain Points",
+    "severity": "{{severity}} severity",
+    "deleteFeature": "Delete Feature?",
+    "deleteFeatureDesc": "This will permanently remove \"{{title}}\" from your roadmap.",
+    "convertToTask": "Convert to Auto-Build Task"
+  },
   "addFeatureDialog": {
     "title": "Add Feature",
     "description": "Add a new feature to your roadmap. Provide details about what you want to build and how it fits into your product strategy.",

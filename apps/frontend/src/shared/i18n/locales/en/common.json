@@ -89,5 +89,8 @@
         "readyForFollowup": "Ready for Follow-up",
         "readyToMerge": "Ready to Merge",
         "pendingPost": "Pending Post"
-    }
+    },
+    "goToTask": "Go to Task",
+    "build": "Build",
+    "competitorInsightTooltip": "This feature addresses competitor pain points"
 }

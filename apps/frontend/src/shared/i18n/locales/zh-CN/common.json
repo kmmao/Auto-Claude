@@ -112,7 +112,9 @@
         "changesRequested": "需要修改",
         "commented": "已评论",
         "readyForFollowup": "等待跟进",
-        "readyToMerge": "可以合并",
-        "pendingPost": "待发布"
-    }
+        "readyToMerge": "可以合并"
+    },
+    "goToTask": "前往任务",
+    "build": "构建",
+    "competitorInsightTooltip": "此功能解决了竞品的痛点"
 }

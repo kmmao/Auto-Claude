@@ -9,7 +9,6 @@ import { getFeaturesByPhase } from '../../stores/roadmap-store';
 import { useTranslation } from 'react-i18next';
 import {
   ROADMAP_PRIORITY_COLORS,
-  ROADMAP_PRIORITY_LABELS,
   ROADMAP_COMPLEXITY_COLORS,
   ROADMAP_IMPACT_COLORS,
 } from '../../../shared/constants';
@@ -90,7 +89,7 @@ export function RoadmapTabs({
               <Card key={priority} className="p-4">
                 <div className="flex items-center gap-2 mb-3">
                   <Badge variant="outline" className={ROADMAP_PRIORITY_COLORS[priority]}>
-                    {ROADMAP_PRIORITY_LABELS[priority]}
+                    {t(`roadmap:priority.${priority}`)}
                   </Badge>
                   <span className="text-sm text-muted-foreground">{features.length} {t('roadmap:priorityView.features')}</span>
                 </div>
@@ -107,13 +106,13 @@ export function RoadmapTabs({
                           variant="outline"
                           className={`text-xs ${ROADMAP_COMPLEXITY_COLORS[feature.complexity]}`}
                         >
-                          {feature.complexity}
+                          {t(`roadmap:complexity.${feature.complexity}`)}
                         </Badge>
                         <Badge
                           variant="outline"
                           className={`text-xs ${ROADMAP_IMPACT_COLORS[feature.impact]}`}
                         >
-                          {feature.impact} {t('roadmap:priorityView.impact')}
+                          {t(`roadmap:impact.${feature.impact}`)}
                         </Badge>
                         {hasCompetitorInsight(feature) && (
                           <Badge variant="outline" className="text-xs text-primary border-primary/50">
