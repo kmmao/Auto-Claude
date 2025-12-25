@@ -24,7 +24,17 @@
     "close": "关闭",
     "cancel": "取消",
     "merge": "合并",
-    "merging": "正在合并..."
+    "merging": "正在合并...",
+    "uncommittedChanges": "本地有未提交的更改阻止合并",
+    "uncommittedChangesDesc": "以下文件有未提交的更改，需要先处理才能合并：",
+    "stashAndMerge": "暂存后合并",
+    "stashAndMergeDesc": "暂存本地更改，执行合并，然后恢复暂存",
+    "discardAndMerge": "丢弃更改后合并",
+    "discardAndMergeDesc": "丢弃本地更改后执行合并（不可恢复）",
+    "manualResolve": "手动处理",
+    "manualResolveDesc": "在终端中手动处理冲突",
+    "forceMerge": "强制合并",
+    "forceMergeDesc": "直接将工作树分支合并到主分支"
   },
   "deleteDialog": {
     "title": "删除工作树？",

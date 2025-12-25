@@ -118,6 +118,31 @@ export function TaskDetailPanel({ task, onClose }: TaskDetailPanelProps) {
     state.setIsDiscarding(false);
   };
 
+  const handleStashAndMerge = async () => {
+    console.warn('[TaskDetailPanel] handleStashAndMerge called, stageOnly:', state.stageOnly);
+    state.setIsMerging(true);
+    state.setWorkspaceError(null);
+    try {
+      const result = await window.electronAPI.stashAndMergeWorktree(task.id, { noCommit: state.stageOnly });
+      console.warn('[TaskDetailPanel] stashAndMergeWorktree result:', JSON.stringify(result, null, 2));
+      if (result.success && result.data?.success) {
+        if (state.stageOnly && result.data.staged) {
+          state.setStagedSuccess(result.data.message || 'Changes stashed, merged, and staged');
+          state.setStagedProjectPath(result.data.projectPath);
+        } else {
+          onClose();
+        }
+      } else {
+        state.setWorkspaceError(result.data?.message || result.error || 'Failed to stash and merge');
+      }
+    } catch (error) {
+      console.error('[TaskDetailPanel] handleStashAndMerge exception:', error);
+      state.setWorkspaceError(error instanceof Error ? error.message : 'Unknown error during stash and merge');
+    } finally {
+      state.setIsMerging(false);
+    }
+  };
+
   return (
     <TooltipProvider delayDuration={300}>
       <div className="flex h-full w-96 flex-col bg-card border-l border-border">
@@ -213,6 +238,7 @@ export function TaskDetailPanel({ task, onClose }: TaskDetailPanelProps) {
                     onStageOnlyChange={state.setStageOnly}
                     onShowConflictDialog={state.setShowConflictDialog}
                     onLoadMergePreview={state.loadMergePreview}
+                    onStashAndMerge={handleStashAndMerge}
                   />
                 )}
               </div>

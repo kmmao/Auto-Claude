@@ -36,6 +36,8 @@ export const IPC_CHANNELS = {
   TASK_WORKTREE_MERGE: 'task:worktreeMerge',
   TASK_WORKTREE_MERGE_PREVIEW: 'task:worktreeMergePreview',  // Preview merge conflicts before merging
   TASK_WORKTREE_DISCARD: 'task:worktreeDiscard',
+  TASK_WORKTREE_STASH_AND_MERGE: 'task:worktreeStashAndMerge',  // Stash local changes, merge, then pop stash
+  TASK_WORKTREE_FORCE_MERGE: 'task:worktreeForceMerge',  // Force merge worktree branch directly into main
   TASK_LIST_WORKTREES: 'task:listWorktrees',
   TASK_ARCHIVE: 'task:archive',
   TASK_UNARCHIVE: 'task:unarchive',

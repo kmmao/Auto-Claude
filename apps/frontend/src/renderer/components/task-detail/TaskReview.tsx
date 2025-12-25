@@ -40,6 +40,7 @@ interface TaskReviewProps {
   onStageOnlyChange: (value: boolean) => void;
   onShowConflictDialog: (show: boolean) => void;
   onLoadMergePreview: () => void;
+  onStashAndMerge?: () => void;
   onClose?: () => void;
 }
 
@@ -80,6 +81,7 @@ export function TaskReview({
   onStageOnlyChange,
   onShowConflictDialog,
   onLoadMergePreview,
+  onStashAndMerge,
   onClose
 }: TaskReviewProps) {
   const { t } = useTranslation(['common', 'settings']);
@@ -118,6 +120,7 @@ export function TaskReview({
           onLoadMergePreview={onLoadMergePreview}
           onStageOnlyChange={onStageOnlyChange}
           onMerge={onMerge}
+          onStashAndMerge={onStashAndMerge}
         />
       ) : task.stagedInMainProject && !stagedSuccess ? (
         <StagedInProjectMessage

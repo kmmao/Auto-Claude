@@ -24,7 +24,17 @@
     "close": "Close",
     "cancel": "Cancel",
     "merge": "Merge",
-    "merging": "Merging..."
+    "merging": "Merging...",
+    "uncommittedChanges": "Local uncommitted changes blocking merge",
+    "uncommittedChangesDesc": "The following files have uncommitted changes that need to be handled before merging:",
+    "stashAndMerge": "Stash & Merge",
+    "stashAndMergeDesc": "Stash local changes, perform merge, then restore stash",
+    "discardAndMerge": "Discard & Merge",
+    "discardAndMergeDesc": "Discard local changes and perform merge (irreversible)",
+    "manualResolve": "Manual Resolution",
+    "manualResolveDesc": "Resolve conflicts manually in terminal",
+    "forceMerge": "Force Merge",
+    "forceMergeDesc": "Merge worktree branch directly into main"
   },
   "deleteDialog": {
     "title": "Delete Worktree?",

@@ -12,8 +12,10 @@ import {
   AlertTriangle,
   CheckCircle,
   GitCommit,
-  Terminal
+  Terminal,
+  Package
 } from 'lucide-react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../../ui/button';
 import { Checkbox } from '../../ui/checkbox';
@@ -36,6 +38,7 @@ interface WorkspaceStatusProps {
   onLoadMergePreview: () => void;
   onStageOnlyChange: (value: boolean) => void;
   onMerge: () => void;
+  onStashAndMerge?: () => void;
 }
 
 /**
@@ -55,9 +58,11 @@ export function WorkspaceStatus({
   onShowConflictDialog,
   onLoadMergePreview,
   onStageOnlyChange,
-  onMerge
+  onMerge,
+  onStashAndMerge
 }: WorkspaceStatusProps) {
-  const { t } = useTranslation(['common', 'taskDetail']);
+  const { t } = useTranslation(['common', 'taskDetail', 'worktrees']);
+  const [isStashingAndMerging, setIsStashingAndMerging] = useState(false);
 
   const { openTerminal, error: terminalError, isOpening } = useTerminalHandler();
   const hasGitConflicts = mergePreview?.gitConflicts?.hasConflicts;
@@ -160,19 +165,64 @@ export function WorkspaceStatus({
           </div>
         )}
 
-        {/* Uncommitted Changes Warning */}
+        {/* Uncommitted Changes Warning with Stash & Merge Option */}
         {hasUncommittedChanges && (
-          <div className="flex items-start gap-2 p-2.5 rounded-lg bg-warning/10 border border-warning/20">
-            <AlertTriangle className="h-4 w-4 text-warning mt-0.5 flex-shrink-0" />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-warning">
-                {t('taskDetail:review.uncommittedChanges', { count: uncommittedCount })}
-              </p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {t('taskDetail:review.uncommittedWarning')}
-              </p>
+          <div className="flex flex-col gap-2 p-3 rounded-lg bg-warning/10 border border-warning/20">
+            <div className="flex items-start gap-2">
+              <AlertTriangle className="h-4 w-4 text-warning mt-0.5 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-warning">
+                  {t('worktrees:mergeDialog.uncommittedChanges')}
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {t('worktrees:mergeDialog.uncommittedChangesDesc')}
+                </p>
+                {/* List of uncommitted files */}
+                {mergePreview?.uncommittedChanges?.files && mergePreview.uncommittedChanges.files.length > 0 && (
+                  <div className="mt-2 text-xs font-mono text-muted-foreground max-h-20 overflow-y-auto">
+                    {mergePreview.uncommittedChanges.files.slice(0, 5).map((file, idx) => (
+                      <div key={idx} className="truncate">• {file}</div>
+                    ))}
+                    {mergePreview.uncommittedChanges.files.length > 5 && (
+                      <div className="text-muted-foreground/60">... {t('common:and')} {mergePreview.uncommittedChanges.files.length - 5} {t('common:more')}</div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Resolution Options */}
+            <div className="flex flex-wrap gap-2 mt-1 ml-6">
+              {onStashAndMerge && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={async () => {
+                    setIsStashingAndMerging(true);
+                    try {
+                      await onStashAndMerge();
+                    } finally {
+                      setIsStashingAndMerging(false);
+                    }
+                  }}
+                  className="text-xs h-7 bg-warning/20 hover:bg-warning/30 border-warning/40"
+                  disabled={isStashingAndMerging || isMerging}
+                >
+                  {isStashingAndMerging ? (
+                    <>
+                      <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                      {t('worktrees:mergeDialog.merging')}
+                    </>
+                  ) : (
+                    <>
+                      <Package className="h-3 w-3 mr-1" />
+                      {t('worktrees:mergeDialog.stashAndMerge')}
+                    </>
+                  )}
+                </Button>
+              )}
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
                 onClick={() => {
                   const mainProjectPath = worktreeStatus.worktreePath?.replace('.worktrees/' + task.specId, '') || '';
@@ -180,11 +230,11 @@ export function WorkspaceStatus({
                     openTerminal(`stash-${task.id}`, mainProjectPath);
                   }
                 }}
-                className="text-xs h-6 mt-2"
+                className="text-xs h-7"
                 disabled={isOpening}
               >
                 <Terminal className="h-3 w-3 mr-1" />
-                {isOpening ? t('taskDetail:review.opening') : t('taskDetail:review.openTerminal')}
+                {t('worktrees:mergeDialog.manualResolve')}
               </Button>
             </div>
           </div>

@@ -62,6 +62,22 @@ export const workspaceMock = {
     }
   }),
 
+  stashAndMergeWorktree: async () => ({
+    success: true,
+    data: {
+      success: true,
+      message: 'Changes stashed, merged, and restored successfully'
+    }
+  }),
+
+  forceMergeWorktree: async () => ({
+    success: true,
+    data: {
+      success: true,
+      message: 'Force merge completed successfully'
+    }
+  }),
+
   listWorktrees: async () => ({
     success: true,
     data: {

@@ -13,7 +13,9 @@ import {
   Minus,
   ChevronRight,
   Check,
-  X
+  X,
+  Package,
+  Zap
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
@@ -66,6 +68,8 @@ export function Worktrees({ projectId }: WorktreesProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [worktreeToDelete, setWorktreeToDelete] = useState<WorktreeListItem | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isStashingAndMerging, setIsStashingAndMerging] = useState(false);
+  const [isForceMerging, setIsForceMerging] = useState(false);
 
   // Load worktrees
   const loadWorktrees = useCallback(async () => {
@@ -130,6 +134,75 @@ export function Worktrees({ projectId }: WorktreesProps) {
       });
     } finally {
       setIsMerging(false);
+    }
+  };
+
+  // Handle stash and merge
+  const handleStashAndMerge = async () => {
+    if (!selectedWorktree) return;
+
+    const task = findTaskForWorktree(selectedWorktree.specName);
+    if (!task) {
+      setError('Task not found for this worktree');
+      return;
+    }
+
+    setIsStashingAndMerging(true);
+    try {
+      const result = await window.electronAPI.stashAndMergeWorktree(task.id);
+      if (result.success && result.data) {
+        setMergeResult(result.data);
+        if (result.data.success) {
+          // Refresh worktrees after successful merge
+          await loadWorktrees();
+        }
+      } else {
+        setMergeResult({
+          success: false,
+          message: result.error || 'Stash and merge failed'
+        });
+      }
+    } catch (err) {
+      setMergeResult({
+        success: false,
+        message: err instanceof Error ? err.message : 'Stash and merge failed'
+      });
+    } finally {
+      setIsStashingAndMerging(false);
+    }
+  };
+
+  // Handle force merge
+  const handleForceMerge = async () => {
+    if (!selectedWorktree) return;
+
+    const task = findTaskForWorktree(selectedWorktree.specName);
+    if (!task) {
+      setError('Task not found for this worktree');
+      return;
+    }
+
+    setIsForceMerging(true);
+    try {
+      const result = await window.electronAPI.forceMergeWorktree(task.id);
+      if (result.success && result.data) {
+        setMergeResult(result.data);
+        if (result.data.success) {
+          await loadWorktrees();
+        }
+      } else {
+        setMergeResult({
+          success: false,
+          message: result.error || 'Force merge failed'
+        });
+      }
+    } catch (err) {
+      setMergeResult({
+        success: false,
+        message: err instanceof Error ? err.message : 'Force merge failed'
+      });
+    } finally {
+      setIsForceMerging(false);
     }
   };
 
@@ -372,8 +445,8 @@ export function Worktrees({ projectId }: WorktreesProps) {
           {mergeResult && (
             <div className="py-4">
               <div className={`rounded-lg p-4 text-sm ${mergeResult.success
-                  ? 'bg-success/10 border border-success/30'
-                  : 'bg-destructive/10 border border-destructive/30'
+                ? 'bg-success/10 border border-success/30'
+                : 'bg-destructive/10 border border-destructive/30'
                 }`}>
                 <div className="flex items-start gap-2">
                   {mergeResult.success ? (
@@ -381,7 +454,7 @@ export function Worktrees({ projectId }: WorktreesProps) {
                   ) : (
                     <X className="h-4 w-4 text-destructive mt-0.5" />
                   )}
-                  <div>
+                  <div className="flex-1">
                     <p className={`font-medium ${mergeResult.success ? 'text-success' : 'text-destructive'}`}>
                       {mergeResult.success ? t('worktrees:mergeDialog.success') : t('worktrees:mergeDialog.failed')}
                     </p>
@@ -394,6 +467,58 @@ export function Worktrees({ projectId }: WorktreesProps) {
                             <li key={file} className="font-mono">{file}</li>
                           ))}
                         </ul>
+                      </div>
+                    )}
+                    {/* Recovery options when merge fails */}
+                    {!mergeResult.success && (
+                      <div className="mt-4 pt-3 border-t border-border">
+                        <p className="text-xs text-muted-foreground mb-2">
+                          {mergeResult.message?.toLowerCase().includes('conflict')
+                            ? t('worktrees:mergeDialog.uncommittedChangesDesc')
+                            : t('worktrees:mergeDialog.forceMergeDesc')}
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {mergeResult.message?.toLowerCase().includes('conflict') && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={handleStashAndMerge}
+                              disabled={isStashingAndMerging || isMerging || isForceMerging}
+                              className="bg-warning/20 hover:bg-warning/30 border-warning/40"
+                            >
+                              {isStashingAndMerging ? (
+                                <>
+                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                  {t('worktrees:mergeDialog.merging')}
+                                </>
+                              ) : (
+                                <>
+                                  <Package className="h-4 w-4 mr-2" />
+                                  {t('worktrees:mergeDialog.stashAndMerge')}
+                                </>
+                              )}
+                            </Button>
+                          )}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleForceMerge}
+                            disabled={isStashingAndMerging || isMerging || isForceMerging}
+                            className="bg-primary/20 hover:bg-primary/30 border-primary/40"
+                          >
+                            {isForceMerging ? (
+                              <>
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                {t('worktrees:mergeDialog.merging')}
+                              </>
+                            ) : (
+                              <>
+                                <Zap className="h-4 w-4 mr-2" />
+                                {t('worktrees:mergeDialog.forceMerge')}
+                              </>
+                            )}
+                          </Button>
+                        </div>
                       </div>
                     )}
                   </div>

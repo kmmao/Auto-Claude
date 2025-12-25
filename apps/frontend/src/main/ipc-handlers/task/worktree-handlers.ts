@@ -405,8 +405,8 @@ export function registerWorktreeHandlers(
               // Check if merge might have succeeded before the hang
               // Look for success indicators in the output
               const mayHaveSucceeded = stdout.includes('staged') ||
-                                       stdout.includes('Successfully merged') ||
-                                       stdout.includes('Changes from');
+                stdout.includes('Successfully merged') ||
+                stdout.includes('Changes from');
 
               if (mayHaveSucceeded) {
                 debug('TIMEOUT: Process hung but merge may have succeeded based on output');
@@ -504,6 +504,7 @@ export function registerWorktreeHandlers(
               let planStatus: string;
               let message: string;
               let staged: boolean;
+              let mergeSuccess: boolean = true;  // Track if merge truly succeeded
 
               if (isStageOnly && !hasActualStagedChanges && mergeAlreadyCommitted) {
                 // Stage-only was requested but merge was already committed previously
@@ -528,11 +529,34 @@ export function registerWorktreeHandlers(
                 message = 'Changes staged in main project. Review with git status and commit when ready.';
                 staged = true;
               } else {
-                // Full merge (not stage-only)
-                newStatus = 'done';
-                planStatus = 'completed';
-                message = 'Changes merged successfully';
-                staged = false;
+                // Full merge (not stage-only) - verify commits are actually merged
+                const worktreeBranch = `auto-claude/${task.specId}`;
+                const baseBranch = getTaskBaseBranch(specDir) || 'main';
+
+                // Count commits that are in worktree branch but not in base branch
+                const pendingResult = spawnSync('git', ['rev-list', '--count', `${baseBranch}..${worktreeBranch}`], {
+                  cwd: project.path,
+                  encoding: 'utf-8'
+                });
+                const pendingCommits = parseInt(pendingResult.stdout?.trim() || '0', 10);
+                const actuallyMerged = pendingCommits === 0;
+
+                debug('Post-merge verification: pendingCommits:', pendingCommits, 'actuallyMerged:', actuallyMerged);
+
+                if (actuallyMerged) {
+                  newStatus = 'done';
+                  planStatus = 'completed';
+                  message = 'Changes merged successfully';
+                  staged = false;
+                  mergeSuccess = true;
+                } else {
+                  // Merge command succeeded but commits not actually in base branch
+                  newStatus = 'human_review';
+                  planStatus = 'review';
+                  message = `Merge process completed but ${pendingCommits} commit(s) still pending. Use "Force Merge" to complete.`;
+                  staged = false;
+                  mergeSuccess = false;
+                }
               }
 
               debug('Merge result. isStageOnly:', isStageOnly, 'newStatus:', newStatus, 'staged:', staged);
@@ -580,7 +604,7 @@ export function registerWorktreeHandlers(
               resolve({
                 success: true,
                 data: {
-                  success: true,
+                  success: mergeSuccess,
                   message,
                   staged,
                   projectPath: staged ? project.path : undefined,
@@ -996,6 +1020,361 @@ export function registerWorktreeHandlers(
         return {
           success: false,
           error: error instanceof Error ? error.message : 'Failed to list worktrees'
+        };
+      }
+    }
+  );
+
+  /**
+   * Stash local changes, perform merge, then pop stash
+   * This resolves the "local changes would be overwritten" error
+   */
+  ipcMain.handle(
+    IPC_CHANNELS.TASK_WORKTREE_STASH_AND_MERGE,
+    async (_, taskId: string, options?: { noCommit?: boolean }): Promise<IPCResult<WorktreeMergeResult>> => {
+      const debug = (...args: unknown[]) => {
+        console.warn('[STASH_AND_MERGE]', ...args);
+      };
+
+      try {
+        debug('Starting stash-and-merge for taskId:', taskId);
+
+        const { task, project } = findTaskAndProject(taskId);
+        if (!task || !project) {
+          return { success: false, error: 'Task not found' };
+        }
+
+        // Step 1: Stash local changes
+        debug('Step 1: Stashing local changes...');
+        const stashResult = spawnSync('git', ['stash', 'push', '-m', `auto-claude-merge-${task.specId}`], {
+          cwd: project.path,
+          encoding: 'utf-8'
+        });
+
+        if (stashResult.status !== 0) {
+          debug('Stash failed:', stashResult.stderr);
+          return {
+            success: false,
+            error: `Failed to stash changes: ${stashResult.stderr || stashResult.stdout}`
+          };
+        }
+
+        const didStash = !stashResult.stdout.includes('No local changes to save');
+        debug('Stash result:', stashResult.stdout, 'didStash:', didStash);
+
+        // Step 2: Perform the merge (reuse existing merge logic via IPC simulation)
+        debug('Step 2: Performing merge...');
+
+        // Ensure Python environment is ready
+        if (!pythonEnvManager.isEnvReady()) {
+          const autoBuildSource = getEffectiveSourcePath();
+          if (autoBuildSource) {
+            const status = await pythonEnvManager.initialize(autoBuildSource);
+            if (!status.ready) {
+              // Pop stash before returning error
+              if (didStash) {
+                spawnSync('git', ['stash', 'pop'], { cwd: project.path, encoding: 'utf-8' });
+              }
+              return { success: false, error: `Python environment not ready: ${status.error || 'Unknown error'}` };
+            }
+          }
+        }
+
+        const sourcePath = getEffectiveSourcePath();
+        if (!sourcePath) {
+          if (didStash) {
+            spawnSync('git', ['stash', 'pop'], { cwd: project.path, encoding: 'utf-8' });
+          }
+          return { success: false, error: 'Auto Claude source not found' };
+        }
+
+        const runScript = path.join(sourcePath, 'run.py');
+        const specDir = path.join(project.path, project.autoBuildPath || '.auto-claude', 'specs', task.specId);
+
+        const args = [
+          runScript,
+          '--spec', task.specId,
+          '--project-dir', project.path,
+          '--merge'
+        ];
+
+        if (options?.noCommit) {
+          args.push('--no-commit');
+        }
+
+        // Add --base-branch if task was created with a specific base branch
+        const taskBaseBranch = getTaskBaseBranch(specDir);
+        if (taskBaseBranch) {
+          args.push('--base-branch', taskBaseBranch);
+        }
+
+        const pythonPath = pythonEnvManager.getPythonPath() || findPythonCommand() || 'python';
+        const profileEnv = getProfileEnv();
+
+        // Run merge synchronously using spawnSync for simpler flow
+        const [pythonCommand, pythonBaseArgs] = parsePythonCommand(pythonPath);
+        const mergeResult = spawnSync(pythonCommand, [...pythonBaseArgs, ...args], {
+          cwd: sourcePath,
+          encoding: 'utf-8',
+          env: {
+            ...process.env,
+            ...profileEnv,
+            PYTHONUNBUFFERED: '1',
+            PYTHONIOENCODING: 'utf-8',
+            PYTHONUTF8: '1'
+          },
+          timeout: 300000 // 5 minute timeout
+        });
+
+        debug('Merge result code:', mergeResult.status);
+        debug('Merge stdout:', mergeResult.stdout);
+        debug('Merge stderr:', mergeResult.stderr);
+
+        // Step 3: Pop stash (regardless of merge result)
+        if (didStash) {
+          debug('Step 3: Popping stash...');
+          const popResult = spawnSync('git', ['stash', 'pop'], {
+            cwd: project.path,
+            encoding: 'utf-8'
+          });
+          debug('Stash pop result:', popResult.stdout, popResult.stderr);
+
+          // Check for stash pop conflicts
+          if (popResult.status !== 0 && popResult.stderr?.includes('conflict')) {
+            return {
+              success: true,
+              data: {
+                success: false,
+                message: 'Merge succeeded but stash pop had conflicts. Please resolve manually with: git stash show -p | git apply --3way'
+              }
+            };
+          }
+        }
+
+        // Return merge result
+        if (mergeResult.status === 0) {
+          const isStageOnly = options?.noCommit === true;
+
+          // Step 4: Verify that commits were actually merged to main
+          debug('Step 4: Verifying merge...');
+          const worktreeBranch = `auto-claude/${task.specId}`;
+
+          // Get the HEAD commit of the worktree branch
+          const worktreeHeadResult = spawnSync('git', ['rev-parse', worktreeBranch], {
+            cwd: project.path,
+            encoding: 'utf-8'
+          });
+          const worktreeHead = worktreeHeadResult.stdout?.trim();
+
+          // Check if this commit is in main/master
+          let actuallyMerged = false;
+          let pendingCommits = 0;
+
+          if (worktreeHead) {
+            // Count commits that are in worktree branch but not in main
+            const baseBranch = getTaskBaseBranch(specDir) || 'main';
+            const pendingResult = spawnSync('git', ['rev-list', '--count', `${baseBranch}..${worktreeBranch}`], {
+              cwd: project.path,
+              encoding: 'utf-8'
+            });
+            pendingCommits = parseInt(pendingResult.stdout?.trim() || '0', 10);
+            actuallyMerged = pendingCommits === 0;
+            debug('Pending commits:', pendingCommits, 'actuallyMerged:', actuallyMerged);
+          }
+
+          // Update task status
+          const planPath = path.join(specDir, AUTO_BUILD_PATHS.IMPLEMENTATION_PLAN);
+          try {
+            if (existsSync(planPath)) {
+              const planContent = readFileSync(planPath, 'utf-8');
+              const plan = JSON.parse(planContent);
+              plan.status = isStageOnly ? 'human_review' : 'done';
+              plan.planStatus = isStageOnly ? 'review' : 'completed';
+              plan.updated_at = new Date().toISOString();
+              require('fs').writeFileSync(planPath, JSON.stringify(plan, null, 2));
+            }
+          } catch (e) {
+            debug('Failed to update plan status:', e);
+          }
+
+          // Notify UI of status change
+          const mainWindow = getMainWindow();
+          if (mainWindow) {
+            mainWindow.webContents.send(
+              IPC_CHANNELS.TASK_STATUS_CHANGE,
+              taskId,
+              isStageOnly ? 'human_review' : 'done'
+            );
+          }
+
+          // Return result with verification info
+          if (actuallyMerged) {
+            return {
+              success: true,
+              data: {
+                success: true,
+                message: isStageOnly
+                  ? 'Changes stashed, merged, and staged. Review with git status.'
+                  : 'Changes stashed, merged, and committed successfully.',
+                staged: isStageOnly,
+                projectPath: project.path
+              }
+            };
+          } else {
+            // Merge command succeeded but commits not actually in main
+            return {
+              success: true,
+              data: {
+                success: false,
+                message: `Merge process completed but ${pendingCommits} commit(s) still pending. Please use "Force Merge" to complete.`,
+                merged: false,
+                conflictFiles: []
+              }
+            };
+          }
+        } else {
+          const hasConflicts = mergeResult.stdout?.includes('conflict') || mergeResult.stderr?.includes('conflict');
+          return {
+            success: true,
+            data: {
+              success: false,
+              message: hasConflicts
+                ? 'Merge conflicts detected even after stashing. Manual resolution required.'
+                : `Merge failed: ${mergeResult.stderr || mergeResult.stdout}`
+            }
+          };
+        }
+      } catch (error) {
+        console.error('[STASH_AND_MERGE] Exception:', error);
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to stash and merge'
+        };
+      }
+    }
+  );
+
+  /**
+   * Force merge worktree branch directly into main using git merge
+   * This is a fallback when normal merge doesn't work
+   */
+  ipcMain.handle(
+    IPC_CHANNELS.TASK_WORKTREE_FORCE_MERGE,
+    async (_, taskId: string): Promise<IPCResult<WorktreeMergeResult>> => {
+      const debug = (...args: unknown[]) => {
+        console.warn('[FORCE_MERGE]', ...args);
+      };
+
+      try {
+        debug('Starting force merge for taskId:', taskId);
+
+        const { task, project } = findTaskAndProject(taskId);
+        if (!task || !project) {
+          return { success: false, error: 'Task not found' };
+        }
+
+        const worktreeBranch = `auto-claude/${task.specId}`;
+        const specDir = path.join(project.path, project.autoBuildPath || '.auto-claude', 'specs', task.specId);
+        const baseBranch = getTaskBaseBranch(specDir) || 'main';
+
+        // Step 1: Stash any local changes
+        debug('Step 1: Stashing local changes...');
+        const stashResult = spawnSync('git', ['stash', 'push', '-m', `force-merge-${task.specId}`], {
+          cwd: project.path,
+          encoding: 'utf-8'
+        });
+        const didStash = !stashResult.stdout?.includes('No local changes to save');
+        debug('Stash result:', stashResult.stdout, 'didStash:', didStash);
+
+        // Step 2: Make sure we're on the base branch
+        debug('Step 2: Checking out base branch:', baseBranch);
+        const checkoutResult = spawnSync('git', ['checkout', baseBranch], {
+          cwd: project.path,
+          encoding: 'utf-8'
+        });
+        if (checkoutResult.status !== 0) {
+          if (didStash) spawnSync('git', ['stash', 'pop'], { cwd: project.path });
+          return {
+            success: false,
+            error: `Failed to checkout ${baseBranch}: ${checkoutResult.stderr}`
+          };
+        }
+
+        // Step 3: Force merge the worktree branch
+        debug('Step 3: Merging worktree branch:', worktreeBranch);
+        const mergeResult = spawnSync('git', ['merge', worktreeBranch, '--no-ff', '-m', `Merge ${worktreeBranch} (force merge)`], {
+          cwd: project.path,
+          encoding: 'utf-8'
+        });
+        debug('Merge result:', mergeResult.status, mergeResult.stdout, mergeResult.stderr);
+
+        // Step 4: Pop stash if we stashed
+        if (didStash) {
+          debug('Step 4: Popping stash...');
+          spawnSync('git', ['stash', 'pop'], { cwd: project.path, encoding: 'utf-8' });
+        }
+
+        if (mergeResult.status === 0) {
+          // Verify merge succeeded
+          const pendingResult = spawnSync('git', ['rev-list', '--count', `${baseBranch}..${worktreeBranch}`], {
+            cwd: project.path,
+            encoding: 'utf-8'
+          });
+          const pendingCommits = parseInt(pendingResult.stdout?.trim() || '0', 10);
+
+          if (pendingCommits === 0) {
+            // Update task status
+            const planPath = path.join(specDir, AUTO_BUILD_PATHS.IMPLEMENTATION_PLAN);
+            try {
+              if (existsSync(planPath)) {
+                const planContent = readFileSync(planPath, 'utf-8');
+                const plan = JSON.parse(planContent);
+                plan.status = 'done';
+                plan.planStatus = 'completed';
+                plan.updated_at = new Date().toISOString();
+                require('fs').writeFileSync(planPath, JSON.stringify(plan, null, 2));
+              }
+            } catch (e) {
+              debug('Failed to update plan status:', e);
+            }
+
+            // Notify UI
+            const mainWindow = getMainWindow();
+            if (mainWindow) {
+              mainWindow.webContents.send(IPC_CHANNELS.TASK_STATUS_CHANGE, taskId, 'done');
+            }
+
+            return {
+              success: true,
+              data: {
+                success: true,
+                message: 'Force merge completed successfully.',
+                merged: true
+              }
+            };
+          } else {
+            return {
+              success: true,
+              data: {
+                success: false,
+                message: `Merge command succeeded but ${pendingCommits} commit(s) are still pending.`
+              }
+            };
+          }
+        } else {
+          return {
+            success: true,
+            data: {
+              success: false,
+              message: `Force merge failed: ${mergeResult.stderr || mergeResult.stdout}`
+            }
+          };
+        }
+      } catch (error) {
+        console.error('[FORCE_MERGE] Exception:', error);
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to force merge'
         };
       }
     }
