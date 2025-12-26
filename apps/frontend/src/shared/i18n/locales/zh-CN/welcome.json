@@ -1,28 +1,23 @@
 {
-    "title": "欢迎使用 Auto Claude",
-    "subtitle": "AI 驱动的自主编码平台",
-    "description": "使用 AI 代理构建软件的新方式",
-    "features": {
-        "autoTasks": {
-            "title": "自动化任务",
-            "description": "让 AI 代理自主处理您的编码任务"
-        },
-        "parallel": {
-            "title": "并行执行",
-            "description": "同时运行多个代理以加快开发"
-        },
-        "memory": {
-            "title": "持久记忆",
-            "description": "跨会话记住上下文和决策"
-        },
-        "qa": {
-            "title": "自动 QA",
-            "description": "内建质量保证和代码审查"
-        }
+    "hero": {
+        "title": "欢迎使用 Auto Claude",
+        "subtitle": "使用 AI 代理自主构建软件"
     },
     "actions": {
-        "getStarted": "开始使用",
-        "documentation": "文档",
-        "addProject": "添加项目"
+        "newProject": "新建项目",
+        "openProject": "打开项目"
+    },
+    "recentProjects": {
+        "title": "最近的项目",
+        "empty": "暂无项目",
+        "emptyDescription": "创建新项目或打开现有项目以开始使用",
+        "openFolder": "打开文件夹",
+        "initialized": "已初始化"
+    },
+    "time": {
+        "justNow": "刚刚",
+        "minutesAgo": "{{count}}分钟前",
+        "hoursAgo": "{{count}}小时前",
+        "daysAgo": "{{count}}天前"
     }
 }

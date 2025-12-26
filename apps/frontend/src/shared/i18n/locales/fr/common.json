@@ -98,5 +98,9 @@
     "readyForFollowup": "Prêt pour suivi",
     "readyToMerge": "Prêt à fusionner",
     "pendingPost": "En attente de publication"
+  },
+  "header": {
+    "selectProject": "Sélectionnez un projet pour commencer",
+    "settings": "Paramètres"
   }
 }

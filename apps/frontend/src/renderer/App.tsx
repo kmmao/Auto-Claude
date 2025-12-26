@@ -192,7 +192,7 @@ export function App() {
   }, [settingsHaveLoaded, settings.onboardingCompleted]);
 
   // Sync i18n language with settings
-  const { t, i18n } = useTranslation('dialogs');
+  const { t, i18n } = useTranslation(['dialogs', 'common']);
   useEffect(() => {
     if (settings.language && settings.language !== i18n.language) {
       i18n.changeLanguage(settings.language);
@@ -616,7 +616,7 @@ export function App() {
                 <h1 className="font-semibold text-foreground">{selectedProject.name}</h1>
               ) : (
                 <div className="text-muted-foreground">
-                  Select a project to get started
+                  {t('common:header.selectProject')}
                 </div>
               )}
             </div>
@@ -633,7 +633,7 @@ export function App() {
                       <Settings2 className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>Settings</TooltipContent>
+                  <TooltipContent>{t('common:header.settings')}</TooltipContent>
                 </Tooltip>
               </div>
             )}

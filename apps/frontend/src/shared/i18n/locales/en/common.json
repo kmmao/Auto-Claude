@@ -92,5 +92,9 @@
     },
     "goToTask": "Go to Task",
     "build": "Build",
-    "competitorInsightTooltip": "This feature addresses competitor pain points"
+    "competitorInsightTooltip": "This feature addresses competitor pain points",
+    "header": {
+        "selectProject": "Select a project to get started",
+        "settings": "Settings"
+    }
 }

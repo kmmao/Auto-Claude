@@ -116,5 +116,9 @@
     },
     "goToTask": "前往任务",
     "build": "构建",
-    "competitorInsightTooltip": "此功能解决了竞品的痛点"
+    "competitorInsightTooltip": "此功能解决了竞品的痛点",
+    "header": {
+        "selectProject": "选择一个项目开始使用",
+        "settings": "设置"
+    }
 }
