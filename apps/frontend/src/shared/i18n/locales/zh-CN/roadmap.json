@@ -1,0 +1,249 @@
+{
+  "emptyState": {
+    "title": "暂无路线图",
+    "description": "生成一个 AI 驱动的路线图，了解您项目的目标受众并制定战略性功能计划。",
+    "generate": "生成路线图"
+  },
+  "header": {
+    "competitorAnalysis": {
+      "label": "竞品分析",
+      "tooltipTitle": "点击查看详细分析",
+      "tooltipDesc": "分析了 {{competitors}} 个竞争对手，识别出 {{painPoints}} 个痛点"
+    },
+    "buttons": {
+      "addFeature": "添加功能",
+      "addFeatureTooltip": "向路线图添加新功能",
+      "refreshTooltip": "重新生成路线图"
+    },
+    "target": {
+      "label": "目标：",
+      "morePersonas": "+{{count}} 更多画像",
+      "tooltipTitle": "次要画像："
+    },
+    "stats": {
+      "features": "功能",
+      "phases": "阶段"
+    }
+  },
+  "tabs": {
+    "kanban": "看板",
+    "phases": "阶段",
+    "features": "所有功能",
+    "priorities": "按优先级"
+  },
+  "priorityView": {
+    "features": "功能",
+    "impact": "影响",
+    "insight": "洞察"
+  },
+  "progress": {
+    "phases": {
+      "analyzing": {
+        "label": "分析中",
+        "description": "正在分析项目结构和代码库..."
+      },
+      "discovering": {
+        "label": "探索中",
+        "description": "正在探索目标受众和用户需求..."
+      },
+      "generating": {
+        "label": "生成中",
+        "description": "正在生成功能路线图..."
+      },
+      "complete": {
+        "label": "完成",
+        "description": "路线图生成完成！"
+      },
+      "error": {
+        "label": "错误",
+        "description": "生成失败"
+      }
+    },
+    "steps": {
+      "analyze": "分析",
+      "discover": "探索",
+      "generate": "生成"
+    },
+    "progressLabel": "进度",
+    "stop": "停止",
+    "stopping": "停止中...",
+    "stopTooltip": "停止生成"
+  },
+  "competitorDialog": {
+    "title": "启用竞品分析？",
+    "description": "利用竞品分析增强您的路线图",
+    "whatItDoes": {
+      "title": "竞品分析的作用：",
+      "item1": "根据您的项目类型识别 3-5 个主要竞争对手",
+      "item2": "在应用商店、论坛和社交媒体上搜索用户反馈和痛点",
+      "item3": "建议解决竞品功能缺失的功能"
+    },
+    "privacy": {
+      "title": "将执行网络搜索",
+      "description": "此功能将执行网络搜索以收集竞争对手信息。您的项目名称和类型将用于搜索查询。不会共享代码或敏感数据。"
+    },
+    "optionalInfo": "如果您愿意，您可以生成不带竞品分析的路线图。路线图仍基于您的项目结构和最佳实践。",
+    "buttons": {
+      "skip": "不，跳过分析",
+      "enable": "是，启用分析"
+    }
+  },
+  "existingCompetitorDialog": {
+    "title": "竞品分析选项",
+    "description": "此项目有一个来自 {{date}} 的现有竞品分析",
+    "useExisting": {
+      "title": "使用现有分析",
+      "recommended": "(推荐)",
+      "description": "重复使用您已有的竞品洞察。速度更快，无需额外的网络搜索。"
+    },
+    "runNew": {
+      "title": "运行新分析",
+      "description": "执行新的网络搜索以获取更新的竞争对手信息。耗时较长。"
+    },
+    "skip": {
+      "title": "跳过竞品分析",
+      "description": "生成不带任何竞品洞察的路线图。"
+    }
+  },
+  "competitorViewer": {
+    "title": "竞品分析结果",
+    "description": "分析了 {{competitors}} 个竞争对手以识别市场空白和机会",
+    "visit": "访问",
+    "painPointsTitle": "识别到的痛点 ({{count}})",
+    "noPainPoints": "未识别到痛点",
+    "source": "来源：",
+    "frequency": "频率：",
+    "opportunity": "机会：",
+    "summaryTitle": "市场洞察摘要",
+    "topPainPoints": "主要痛点：",
+    "differentiators": "差异化机会：",
+    "trends": "市场趋势："
+  },
+  "priority": {
+    "must": "必须有",
+    "should": "应该有",
+    "could": "可以有",
+    "wont": "暂不考虑"
+  },
+  "complexity": {
+    "low": "低",
+    "medium": "中",
+    "high": "高"
+  },
+  "impact": {
+    "low": "低影响",
+    "medium": "中影响",
+    "high": "高影响"
+  },
+  "status": {
+    "under_review": "评审中",
+    "planned": "已规划",
+    "in_progress": "进行中",
+    "done": "已完成"
+  },
+  "roadmapStatus": {
+    "draft": "草稿",
+    "active": "活跃",
+    "completed": "已完成",
+    "archived": "已归档"
+  },
+  "kanban": {
+    "dropHere": "拖放到此处",
+    "noFeatures": "暂无功能",
+    "dragFeaturesHere": "将功能拖到这里",
+    "votes": "{{count}} 票来自用户反馈",
+    "importedFrom": "从 {{provider}} 导入"
+  },
+  "featureDetail": {
+    "description": "描述",
+    "rationale": "理由",
+    "complexity": "复杂度",
+    "impact": "影响力",
+    "dependencies": "依赖项",
+    "dependencyNotFound": "未找到",
+    "dependenciesIncomplete": "必须先完成依赖项",
+    "dependenciesIncompleteDesc": "在转换此功能为任务之前，必须先完成 {{count}} 个必需的依赖项。",
+    "userStories": "用户故事",
+    "acceptanceCriteria": "验收标准",
+    "competitorPainPoints": "解决竞品痛点",
+    "deleteFeature": "删除功能？",
+    "deleteFeatureDesc": "这将从您的路线图中永久删除 \"{{title}}\"。",
+    "convertToTask": "转换为自动构建任务"
+  },
+  "severity": {
+    "high": "高严重程度",
+    "medium": "中等严重程度",
+    "low": "低严重程度"
+  },
+  "phaseCard": {
+    "progress": "进度",
+    "featuresCount": "{{completed}}/{{total}} 功能",
+    "milestones": "里程碑",
+    "features": "功能",
+    "moreFeatures": "+{{count}} 个更多功能",
+    "viewTask": "查看任务",
+    "showAll": "显示全部",
+    "showLess": "收起"
+  },
+  "phaseStatus": {
+    "planned": "已规划",
+    "in_progress": "进行中",
+    "completed": "已完成"
+  },
+  "addFeatureDialog": {
+    "title": "添加功能",
+    "description": "向您的路线图添加新功能。提供有关您想构建的内容及其如何符合您的产品策略的详细信息。",
+    "fields": {
+      "title": {
+        "label": "功能标题",
+        "placeholder": "例如：用户认证、暗黑模式支持"
+      },
+      "description": {
+        "label": "描述",
+        "placeholder": "描述此功能的作用以及它对用户的价值。"
+      },
+      "rationale": {
+        "label": "基本原理",
+        "placeholder": "解释为什么要构建此功能以及它如何符合产品愿景。",
+        "optional": "（可选）"
+      },
+      "phase": {
+        "label": "阶段",
+        "placeholder": "选择阶段"
+      },
+      "priority": {
+        "label": "优先级",
+        "placeholder": "选择优先级"
+      },
+      "complexity": {
+        "label": "复杂度",
+        "placeholder": "选择复杂度",
+        "options": {
+          "low": "低",
+          "medium": "中",
+          "high": "高"
+        }
+      },
+      "impact": {
+        "label": "影响力",
+        "placeholder": "选择影响力",
+        "options": {
+          "low": "低影响",
+          "medium": "中影响",
+          "high": "高影响"
+        }
+      }
+    },
+    "errors": {
+      "titleRequired": "标题为必填项",
+      "descriptionRequired": "描述为必填项",
+      "phaseRequired": "请选择一个阶段",
+      "failedToSave": "保存路线图失败",
+      "failedToAdd": "添加功能失败。请重试。"
+    },
+    "buttons": {
+      "adding": "添加中...",
+      "add": "添加功能"
+    }
+  }
+}

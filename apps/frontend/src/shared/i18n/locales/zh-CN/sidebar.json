@@ -1,0 +1,63 @@
+{
+    "title": "Auto Claude",
+    "sections": {
+        "project": "项目",
+        "tools": "工具"
+    },
+    "navigation": {
+        "kanban": "看板",
+        "terminals": "代理终端",
+        "insights": "洞察",
+        "roadmap": "路线图",
+        "ideation": "创意",
+        "changelog": "更新日志",
+        "context": "上下文",
+        "githubIssues": "GitHub 问题",
+        "githubPRs": "GitHub PR",
+        "worktrees": "工作树"
+    },
+    "shortcuts": {
+        "kanban": "K",
+        "terminals": "A",
+        "insights": "N",
+        "roadmap": "D",
+        "ideation": "I",
+        "changelog": "L",
+        "context": "C",
+        "githubIssues": "G",
+        "worktrees": "W"
+    },
+    "buttons": {
+        "newTask": "新建任务",
+        "settings": "设置",
+        "help": "帮助与反馈"
+    },
+    "tooltips": {
+        "settings": "应用程序设置",
+        "help": "帮助与反馈"
+    },
+    "messages": {
+        "initializeRequired": "初始化 Auto Claude 以创建任务",
+        "noProjectSelected": "未选择项目"
+    },
+    "dialogs": {
+        "initialize": {
+            "title": "初始化 Auto Claude",
+            "description": "此项目尚未初始化 Auto Claude。是否现在设置?",
+            "willDo": "这将会:",
+            "step1": "在您的项目中创建 .auto-claude 文件夹",
+            "step2": "复制 Auto Claude 框架文件",
+            "step3": "为您的任务设置规格目录",
+            "warning": {
+                "title": "源路径未配置",
+                "message": "请在应用设置中设置 Auto Claude 源路径后再初始化。"
+            },
+            "initializeButton": "初始化",
+            "initializing": "初始化中..."
+        },
+        "update": {
+            "title": "Auto Claude",
+            "description": "项目已初始化。"
+        }
+    }
+}

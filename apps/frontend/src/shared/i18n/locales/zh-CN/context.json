@@ -1,0 +1,91 @@
+{
+  "tabs": {
+    "index": "项目索引",
+    "memories": "记忆库"
+  },
+  "projectIndex": {
+    "title": "项目结构",
+    "description": "AI 发现的关于您的代码库的知识",
+    "tooltip": {
+      "reanalyze": "重新分析项目结构"
+    },
+    "error": {
+      "loadFailed": "加载项目索引失败"
+    },
+    "emptyState": {
+      "title": "未找到项目索引",
+      "description": "点击刷新按钮以分析您的项目结构并创建索引。",
+      "action": "分析项目"
+    },
+    "overview": {
+      "title": "概览",
+      "services": "{{count}} 个服务",
+      "services_plural": "{{count}} 个服务"
+    },
+    "sections": {
+      "services": "服务",
+      "infrastructure": "基础设施",
+      "conventions": "约定"
+    },
+    "labels": {
+      "dockerCompose": "Docker Compose",
+      "ci": "CI/CD",
+      "deployment": "部署",
+      "dockerServices": "Docker 服务",
+      "pythonLinting": "Python Linting",
+      "jsLinting": "JS Linting",
+      "formatting": "格式化",
+      "gitHooks": "Git Hooks",
+      "typescript": "TypeScript",
+      "enabled": "已启用",
+      "testing": "测试",
+      "orm": "ORM",
+      "port": "端口",
+      "styling": "样式",
+      "state": "状态",
+      "keyDirectories": "关键目录",
+      "appleFrameworks": "Apple 框架",
+      "spmDependencies": "SPM 依赖"
+    }
+  },
+  "memories": {
+    "status": {
+      "title": "图记忆状态",
+      "connected": "已连接",
+      "notAvailable": "不可用",
+      "database": "数据库",
+      "path": "路径",
+      "episodes": "片段",
+      "lastSession": "最后会话: #{{id}}",
+      "notConfigured": "Graphiti 记忆未配置",
+      "enableHint": "要启用图记忆，请在项目设置中设置 <1>GRAPHITI_ENABLED=true</1>。"
+    },
+    "search": {
+      "title": "搜索记忆",
+      "placeholder": "搜索模式、洞察、陷阱...",
+      "results": "找到 {{count}} 个结果",
+      "results_plural": "找到 {{count}} 个结果",
+      "score": "得分: {{score}}"
+    },
+    "recent": {
+      "title": "最近记忆",
+      "empty": "暂无记忆记录。记忆是在 AI 代理会话期间创建的。"
+    }
+  },
+  "memoryCard": {
+    "session": "会话 #{{number}}",
+    "expand": "展开",
+    "collapse": "收起",
+    "sections": {
+      "whatWorked": "有效的方法",
+      "whatFailed": "失败的尝试",
+      "approach": "方法",
+      "recommendations": "建议",
+      "patterns": "模式",
+      "gotchas": "陷阱",
+      "changedFiles": "变更文件",
+      "fileInsights": "文件洞察",
+      "subtasks": "完成的子任务"
+    }
+  }
+}

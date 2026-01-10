@@ -1,0 +1,192 @@
+{
+  "header": {
+    "title": "创意构思",
+    "subtitle": "为您的项目生成 AI 驱动的功能创意",
+    "ideaCount": "{{count}} 个创意",
+    "selectedCount": "已选 {{count}} 个",
+    "tooltips": {
+      "clearSelection": "清除选择",
+      "selectAll": "全选",
+      "hideDismissed": "隐藏已忽略",
+      "showDismissed": "显示已忽略",
+      "hideArchived": "隐藏已归档",
+      "showArchived": "显示已归档",
+      "configure": "配置",
+      "addMore": "添加更多创意类型",
+      "dismissAll": "忽略所有创意",
+      "regenerate": "重新生成创意"
+    },
+    "buttons": {
+      "addMore": "添加更多"
+    }
+  },
+  "common": {
+    "noIdeas": "暂无创意可显示",
+    "impact": "影响",
+    "tooltips": {
+      "convertToTask": "转换为任务",
+      "dismiss": "忽略",
+      "goToTask": "前往任务"
+    }
+  },
+  "details": {
+    "rationale": "理由",
+    "actions": {
+      "convert": "转换为自动构建任务",
+      "dismiss": "忽略创意"
+    }
+  },
+  "envConfig": {
+    "title": "需要 Claude 认证",
+    "description": "生成 AI 驱动的功能创意需要 Claude Code OAuth 令牌。"
+  },
+  "emptyState": {
+    "title": "暂无创意",
+    "description": "根据您的项目上下文、现有模式和目标受众生成 AI 驱动的功能创意。",
+    "enabledTypes": "启用的创意类型",
+    "generate": "生成创意",
+    "tokenWarning": "未配置 Claude 令牌。生成时将提示您输入。"
+  },
+  "filters": {
+    "all": "全部",
+    "code": "代码",
+    "ui": "UI/UX",
+    "docs": "文档",
+    "security": "安全",
+    "performance": "性能"
+  },
+  "configDialog": {
+    "title": "创意配置",
+    "description": "配置要生成的创意类型",
+    "typesTitle": "创意类型",
+    "contextTitle": "上下文来源",
+    "includeRoadmap": "包含开发路线图上下文",
+    "includeKanban": "包含看板上下文"
+  },
+  "addMoreDialog": {
+    "title": "添加更多创意",
+    "description": "选择要生成的其他创意类型。现有的创意将被保留。",
+    "allGenerated": "您已生成所有类型的创意！",
+    "useRegenerate": "使用“重新生成”以刷新现有创意。",
+    "selectedCount": "已选 {{count}} 个",
+    "generateButton": "生成 {{count}} 种类型",
+    "generateButtonEmpty": "生成创意"
+  },
+  "progress": {
+    "title": "正在生成创意",
+    "complete": "{{complete}}/{{total}} 完成",
+    "showLogs": "显示日志",
+    "hideLogs": "隐藏日志",
+    "stop": "停止",
+    "stopping": "停止中...",
+    "stopTooltip": "停止生成",
+    "waiting": "等待开始...",
+    "failed": "未能为该类别生成创意",
+    "noIdeas": "该类别未生成任何创意",
+    "ideaCount": "{{count}} 个创意"
+  },
+  "types": {
+    "code_improvements": {
+      "label": "代码改进",
+      "description": "改进代码质量、可读性和结构的建议"
+    },
+    "ui_ux_improvements": {
+      "label": "UI/UX 改进",
+      "description": "增强用户界面和体验的创意"
+    },
+    "documentation_gaps": {
+      "label": "文档缺失",
+      "description": "识别缺失或不完整的文档"
+    },
+    "security_hardening": {
+      "label": "安全加固",
+      "description": "漏洞修复和安全最佳实践"
+    },
+    "performance_optimizations": {
+      "label": "性能优化",
+      "description": "速度和资源使用的优化机会"
+    },
+    "code_quality": {
+      "label": "代码质量",
+      "description": "改进代码结构和可维护性的建议"
+    }
+  },
+  "categories": {
+    "uiux": {
+      "usability": "可用性",
+      "accessibility": "无障碍",
+      "performance": "性能",
+      "visual": "视觉设计",
+      "interaction": "交互"
+    },
+    "documentation": {
+      "readme": "README",
+      "api_docs": "API 文档",
+      "inline_comments": "行内注释",
+      "examples": "示例与教程",
+      "architecture": "架构文档",
+      "troubleshooting": "故障排除指南"
+    },
+    "security": {
+      "authentication": "认证",
+      "authorization": "授权",
+      "input_validation": "输入验证",
+      "data_protection": "数据保护",
+      "dependencies": "依赖项",
+      "configuration": "配置",
+      "secrets_management": "密钥管理"
+    },
+    "performance": {
+      "bundle_size": "包大小",
+      "runtime": "运行时性能",
+      "memory": "内存使用",
+      "database": "数据库查询",
+      "network": "网络请求",
+      "rendering": "渲染",
+      "caching": "缓存"
+    },
+    "codeQuality": {
+      "large_files": "大文件",
+      "code_smells": "代码异味",
+      "complexity": "高复杂度",
+      "duplication": "代码重复",
+      "naming": "命名规范",
+      "structure": "文件结构",
+      "linting": "Lint 问题",
+      "testing": "测试覆盖",
+      "types": "类型安全",
+      "dependencies": "依赖问题",
+      "dead_code": "死代码",
+      "git_hygiene": "Git 规范"
+    }
+  },
+  "effort": {
+    "trivial": "微小",
+    "small": "小",
+    "medium": "中等",
+    "large": "大",
+    "complex": "复杂"
+  },
+  "impact": {
+    "low": "低",
+    "medium": "中",
+    "high": "高",
+    "critical": "关键"
+  },
+  "status": {
+    "draft": "草稿",
+    "selected": "已选",
+    "converted": "已转换",
+    "dismissed": "已忽略",
+    "archived": "已归档"
+  },
+  "severity": {
+    "low": "低",
+    "medium": "中",
+    "high": "高",
+    "critical": "严重",
+    "suggestion": "建议",
+    "minor": "次要",
+    "major": "主要"
+  }
+}

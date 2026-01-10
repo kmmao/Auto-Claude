@@ -1,0 +1,206 @@
+{
+  "wizard": {
+    "title": "设置向导",
+    "description": "只需几个简单的步骤即可配置您的 Auto Claude 环境",
+    "steps": {
+      "welcome": "欢迎",
+      "oauth": "认证",
+      "devtools": "开发工具",
+      "memory": "记忆",
+      "completion": "完成"
+    }
+  },
+  "welcome": {
+    "title": "欢迎使用 Auto Claude",
+    "subtitle": "利用 AI 代理自主构建软件",
+    "description": "此向导将帮助您在几个步骤内设置环境。您可以配置 Claude OAuth 令牌，设置记忆功能，并创建您的第一个任务。",
+    "features": {
+      "ai": {
+        "title": "AI 驱动开发",
+        "description": "使用 Claude Code 代理生成代码并构建功能"
+      },
+      "spec": {
+        "title": "规约驱动工作流",
+        "description": "定义具有清晰规约的任务，让 Auto Claude 处理实现"
+      },
+      "memory": {
+        "title": "记忆与上下文",
+        "description": "使用 Graphiti 实现跨会话的持久记忆"
+      },
+      "parallel": {
+        "title": "并行执行",
+        "description": "同时运行多个代理以加快开发周期"
+      }
+    },
+    "getStarted": "开始使用",
+    "skip": "跳过设置"
+  },
+  "oauth": {
+    "title": "配置 Claude 身份验证",
+    "subtitle": "添加您的 Claude 账号以启用 AI 功能",
+    "info": "添加多个 Claude 订阅，以便在达到速率限制时自动切换。",
+    "noAccounts": "尚未配置账号",
+    "profile": {
+      "default": "默认",
+      "active": "激活",
+      "authenticated": "已认证",
+      "needsAuth": "需要认证",
+      "rename": "重命名配置",
+      "delete": "删除配置"
+    },
+    "actions": {
+      "authenticate": "认证",
+      "setActive": "设为活跃",
+      "manualToken": "手动输入令牌",
+      "tokenHint": "运行 <1>{{command}}</1> 以获取您的令牌",
+      "saveToken": "保存令牌",
+      "add": "添加",
+      "hideToken": "隐藏令牌输入",
+      "enterToken": "手动输入令牌"
+    },
+    "placeholders": {
+      "accountName": "账号名称 (例如：工作、个人)",
+      "token": "sk-ant-oat01-...",
+      "email": "电子邮件 (可选，用于显示)"
+    },
+    "success": "您至少已有一个经过身份验证的 Claude 账号。您可以继续下一步。",
+    "alerts": {
+      "authSuccess": "✅ 账号认证成功！\n\n{{account}}\n\n您现在可以使用此配置了。",
+      "authenticating": "正在认证 \"{{name}}\"...\n\n将打开浏览器窗口供您登录 Claude 账号。\n\n认证完成后将自动保存。",
+      "authFailed": "启动认证失败：{{error}}",
+      "loadFailed": "加载配置失败",
+      "addFailed": "添加配置失败。请重试。",
+      "saveTokenFailed": "保存令牌失败：{{error}}",
+      "deleteFailed": "删除配置失败",
+      "renameFailed": "重命名配置失败",
+      "setActiveFailed": "设置活跃配置失败"
+    }
+  },
+  "memory": {
+    "title": "记忆",
+    "subtitle": "Auto Claude 记忆有助于在编码会话中记住上下文",
+    "infra": {
+      "creating": "数据库将自动创建",
+      "description": "记忆功能使用嵌入式数据库 - 无需 Docker。它将在您首次使用记忆功能时创建。"
+    },
+    "qna": {
+      "title": "记忆是做什么的？",
+      "description": "记忆存储关于您代码库的发现、模式和见解，以便将来的会话在加载上下文的情况下开始。",
+      "bullets": [
+        "跨会话记住模式",
+        "随着时间的推移理解您的代码库",
+        "离线工作 - 无需云端"
+      ]
+    },
+    "db": {
+      "title": "记忆数据库",
+      "path": "存储在 ~/.auto-claude/memories/"
+    },
+    "provider": {
+      "label": "嵌入提供商 (用于语义搜索)",
+      "ollama": {
+        "name": "Ollama (本地)",
+        "description": "免费、本地嵌入",
+        "select": "选择嵌入模型",
+        "checking": "正在检查 Ollama 模型...",
+        "notRunning": "Ollama 未运行",
+        "notRunningDesc": "启动 Ollama 以使用本地嵌入模型。记忆功能仍可通过关键字搜索工作。",
+        "installed": "已安装",
+        "downloading": "正在下载...",
+        "download": "下载",
+        "semanticSearchTip": "选择一个已安装的模型进行语义搜索。即使没有嵌入模型，记忆功能也可以通过关键字搜索工作。",
+        "timeRemaining": {
+          "hours": "{{count}} 小时剩余",
+          "minutes": "{{count}} 分钟剩余",
+          "seconds": "{{count}} 秒剩余"
+        },
+        "recommended": {
+          "gemma": "Google 轻量级嵌入模型 (推荐)",
+          "nomic": "流行的通用嵌入模型",
+          "mxbai": "MixedBread AI 大型嵌入模型"
+        }
+      },
+      "openai": {
+        "name": "OpenAI",
+        "description": "text-embedding-3-small",
+        "label": "OpenAI API 密钥"
+      },
+      "voyage": {
+        "name": "Voyage AI",
+        "description": "voyage-3 (高质量)",
+        "label": "Voyage AI API 密钥"
+      },
+      "google": {
+        "name": "Google AI",
+        "description": "text-embedding-004",
+        "label": "Google AI API 密钥"
+      },
+      "azure": {
+        "name": "Azure OpenAI",
+        "description": "企业级部署"
+      }
+    },
+    "fallback": "没有嵌入提供商？记忆仍然可以通过关键词搜索工作。语义搜索是一项升级功能。",
+    "saveAndContinue": "保存并继续",
+    "saving": "保存中...",
+    "alerts": {
+      "saveFailed": "保存记忆配置失败"
+    }
+  },
+  "completion": {
+    "title": "配置完成！",
+    "subtitle": "您已准备好体验软件开发的未来",
+    "success": {
+      "card": "环境已认证并验证",
+      "ready": "您的 Claude 账号和记忆服务已准备就绪。"
+    },
+    "nextSteps": {
+      "title": "下一步是什么？",
+      "task": {
+        "title": "创建首个任务",
+        "description": "开始您的第一个自主编码任务"
+      },
+      "settings": {
+        "title": "全局设置",
+        "description": "配置 LLM 提供商和 UI 偏好"
+      },
+      "docs": {
+        "title": "查看文档",
+        "description": "详细了解 Auto Claude 的功能"
+      }
+    },
+    "actions": {
+      "finish": "前往控制面板",
+      "rerun": "您始终可以从 <1>设置</1> 重新运行此向导。"
+    }
+  },
+  "steps": {
+    "welcome": "欢迎",
+    "auth": "认证",
+    "devtools": "开发工具",
+    "memory": "记忆",
+    "done": "完成"
+  },
+  "devtools": {
+    "title": "开发者工具",
+    "description": "选择您在使用 Auto Claude 工作树时首选的 IDE 和终端",
+    "detecting": "正在检测已安装的工具...",
+    "detectAgain": "重新检测",
+    "whyConfigure": "为什么要配置这些？",
+    "whyConfigureDescription": "当 Auto Claude 在隔离的工作树中构建功能时，您可以直接在您首选的 IDE 或终端中打开它们以测试和查看更改。",
+    "ide": {
+      "label": "首选 IDE",
+      "description": "Auto Claude 将在此编辑器中打开工作树",
+      "customPath": "自定义 IDE 路径"
+    },
+    "terminal": {
+      "label": "首选终端",
+      "description": "Auto Claude 将在此处打开终端会话",
+      "customPath": "自定义终端路径"
+    },
+    "detectedSummary": "检测到您的系统上的工具：",
+    "noToolsDetected": "未检测到其他工具（将使用 VS Code 和系统终端）",
+    "custom": "自定义...",
+    "saveAndContinue": "保存并继续"
+  }
+}

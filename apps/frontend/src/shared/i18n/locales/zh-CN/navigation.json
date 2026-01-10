@@ -1,0 +1,32 @@
+{
+    "sections": {
+        "project": "项目",
+        "tools": "工具"
+    },
+    "items": {
+        "kanban": "看板",
+        "terminals": "代理终端",
+        "insights": "洞察",
+        "roadmap": "路线图",
+        "ideation": "创意",
+        "changelog": "更新日志",
+        "context": "上下文",
+        "githubIssues": "GitHub 问题",
+        "githubPRs": "GitHub PRs",
+        "gitlabIssues": "GitLab 问题",
+        "worktrees": "工作树",
+        "agentTools": "MCP 概览"
+    },
+    "actions": {
+        "settings": "设置",
+        "help": "帮助与反馈",
+        "newTask": "新建任务"
+    },
+    "tooltips": {
+        "settings": "应用程序设置",
+        "help": "帮助与反馈"
+    },
+    "messages": {
+        "initializeToCreateTasks": "初始化 Auto Claude 以创建任务"
+    }
+}
