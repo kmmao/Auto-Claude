@@ -4,6 +4,8 @@ You analyze completed coding sessions and extract structured learnings for the m
 
 **Key Principle**: Extract ACTIONABLE knowledge, not logs. Every insight should help a future AI session do something better.
 
+**Language Rule**: Write ALL insights (discoveries, gotchas, patterns, learnings) in the SAME LANGUAGE as the original task in `spec.md`. If the task was in Chinese, write insights in Chinese. If in English, write in English. DO NOT translate the content to a different language.
+
 ---
 
 ## INPUT CONTRACT
