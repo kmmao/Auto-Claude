@@ -8,6 +8,110 @@ Auto Claude is a multi-agent autonomous coding framework that builds software th
 
 **CRITICAL: All AI interactions use the Claude Agent SDK (`claude-agent-sdk` package), NOT the Anthropic API directly.**
 
+## 🌐 全局AI交互语言规则 (Global AI Interaction Language Rules)
+
+**CRITICAL - ALL AGENTS MUST FOLLOW THESE RULES:**
+
+### 自动语言检测 (Automatic Language Detection)
+
+当agent开始工作时，必须首先检测用户的首选语言：
+
+1. **读取spec.md的第一段或标题** - 如果包含中文字符 → 使用中文输出
+2. **读取requirements.json** - 检查task_description字段的语言
+3. **读取用户输入** - 直接对话的情况下，匹配用户使用的语言
+
+**规则**:
+- 检测到**任何中文字符** → **所有输出使用中文**
+- **纯英文内容** → **所有输出使用英文**
+
+### 输出语言范围 (Output Language Scope)
+
+以下内容必须使用检测到的语言：
+
+✅ **必须本地化的内容：**
+- Implementation plans (实现计划)
+- Git commit messages (提交消息)
+- Progress reports (进度报告)
+- Error messages and warnings (错误消息和警告)
+- Investigation reports (调查报告)
+- QA reports and fix requests (QA报告和修复请求)
+- Code comments and docstrings (代码注释和文档字符串)
+- User-facing documentation (面向用户的文档)
+
+❌ **保持英文的内容：**
+- Variable names (变量名)
+- Function names (函数名)
+- Class names (类名)
+- File names (文件名，除非项目约定使用中文)
+- API endpoint paths (API路径)
+- Database column names (数据库列名)
+
+### 示例 (Examples)
+
+**示例1：中文任务**
+```
+spec.md: "添加用户认证功能"
+
+Agent输出：
+- 计划: "第一步：创建登录API端点"
+- 提交: "feat: 实现JWT令牌验证逻辑"
+- 报告: "已完成用户登录功能，包含密码加密和会话管理"
+```
+
+**示例2：英文任务**
+```
+spec.md: "Add user authentication feature"
+
+Agent输出：
+- Plan: "Step 1: Create login API endpoint"
+- Commit: "feat: implement JWT token validation logic"
+- Report: "Completed user login feature with password encryption and session management"
+```
+
+### 代码注释示例 (Code Comment Examples)
+
+**中文任务的代码：**
+```python
+def validate_user_token(token: str) -> bool:
+    """
+    验证用户JWT令牌的有效性
+
+    参数:
+        token: 用户提供的JWT令牌字符串
+
+    返回:
+        布尔值，表示令牌是否有效
+    """
+    # 检查令牌是否过期
+    if is_token_expired(token):
+        return False
+
+    # 验证签名
+    return verify_signature(token)
+```
+
+**英文任务的代码：**
+```python
+def validate_user_token(token: str) -> bool:
+    """
+    Validate user JWT token validity
+
+    Args:
+        token: JWT token string provided by user
+
+    Returns:
+        Boolean indicating whether token is valid
+    """
+    # Check if token is expired
+    if is_token_expired(token):
+        return False
+
+    # Verify signature
+    return verify_signature(token)
+```
+
+---
+
 ## Project Structure
 
 ```
