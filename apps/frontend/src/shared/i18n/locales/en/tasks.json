@@ -1,48 +1,142 @@
 {
-  "title": "Tasks",
   "status": {
-    "pending": "Pending",
-    "inProgress": "In Progress",
-    "completed": "Completed",
-    "failed": "Failed"
+    "backlog": "Backlog",
+    "todo": "To Do",
+    "in_progress": "In Progress",
+    "review": "Review",
+    "prCreated": "PR Created",
+    "complete": "Complete",
+    "archived": "Archived"
   },
   "actions": {
-    "create": "Create Task",
-    "edit": "Edit Task",
-    "delete": "Delete Task",
     "start": "Start",
-    "pause": "Pause",
+    "stop": "Stop",
+    "recover": "Recover",
     "resume": "Resume",
-    "cancel": "Cancel"
+    "archive": "Archive",
+    "delete": "Delete",
+    "view": "View Details",
+    "viewPR": "View PR",
+    "moveTo": "Move to",
+    "taskActions": "Task actions"
   },
-  "category": {
-    "feature": "Feature",
-    "bug_fix": "Bug Fix",
-    "refactoring": "Refactoring",
-    "documentation": "Docs",
-    "security": "Security",
-    "performance": "Performance",
-    "ui_ux": "UI/UX",
-    "infrastructure": "Infrastructure",
-    "testing": "Testing"
+  "labels": {
+    "running": "Running",
+    "aiReview": "AI Review",
+    "needsReview": "Needs Review",
+    "pending": "Pending",
+    "stuck": "Stuck",
+    "incomplete": "Incomplete",
+    "recovering": "Recovering...",
+    "needsRecovery": "Needs Recovery",
+    "needsResume": "Needs Resume"
   },
-  "complexity": {
-    "trivial": "Trivial",
-    "small": "Small",
-    "medium": "Medium",
-    "large": "Large",
-    "complex": "Complex"
+  "reviewReason": {
+    "completed": "Completed",
+    "hasErrors": "Has Errors",
+    "qaIssues": "QA Issues",
+    "approvePlan": "Approve Plan"
   },
-  "impact": {
-    "low": "Low Impact",
-    "medium": "Medium Impact",
-    "high": "High Impact",
-    "critical": "Critical Impact"
+  "tooltips": {
+    "archiveTask": "Archive task",
+    "archiveAllDone": "Archive all done tasks",
+    "viewPR": "Open pull request in browser"
   },
-  "priority": {
-    "low": "Low",
-    "medium": "Medium",
-    "high": "High",
-    "urgent": "Urgent"
+  "creation": {
+    "title": "Create New Task",
+    "description": "Describe what you want to build",
+    "placeholder": "Describe your task..."
+  },
+  "empty": {
+    "title": "No tasks yet",
+    "description": "Create your first task to get started"
+  },
+  "columns": {
+    "backlog": "Planning",
+    "in_progress": "In Progress",
+    "ai_review": "AI Review",
+    "human_review": "Human Review",
+    "done": "Done",
+    "pr_created": "PR Created"
+  },
+  "kanban": {
+    "emptyBacklog": "No tasks planned",
+    "emptyBacklogHint": "Add a task to get started",
+    "emptyInProgress": "Nothing running",
+    "emptyInProgressHint": "Start a task from Backlog",
+    "emptyAiReview": "No tasks in review",
+    "emptyAiReviewHint": "AI will review completed tasks",
+    "emptyHumanReview": "Nothing to review",
+    "emptyHumanReviewHint": "Tasks await your approval here",
+    "emptyDone": "No completed tasks",
+    "emptyDoneHint": "Approved tasks appear here",
+    "emptyDefault": "No tasks",
+    "dropHere": "Drop here",
+    "showArchived": "Show archived",
+    "addTaskAriaLabel": "Add new task to backlog",
+    "closeTaskDetailsAriaLabel": "Close task details",
+    "editTask": "Edit task",
+    "cannotEditWhileRunning": "Cannot edit while task is running",
+    "worktreeCleanupTitle": "Worktree Cleanup",
+    "worktreeCleanupStaged": "This task has been staged and has a worktree. Would you like to clean up the worktree?",
+    "worktreeCleanupNotStaged": "This task has a worktree with changes that have not been merged. Delete the worktree to mark as done, or cancel to review the changes first.",
+    "keepWorktree": "Keep Worktree",
+    "deleteWorktree": "Delete Worktree & Mark Done"
+  },
+  "execution": {
+    "phases": {
+      "idle": "Idle",
+      "planning": "Planning",
+      "coding": "Coding",
+      "reviewing": "Reviewing",
+      "fixing": "Fixing",
+      "complete": "Complete",
+      "failed": "Failed"
+    },
+    "labels": {
+      "interrupted": "Interrupted",
+      "progress": "Progress",
+      "entry": "entry",
+      "entries": "entries"
+    },
+    "shortPhases": {
+      "plan": "Plan",
+      "code": "Code",
+      "qa": "QA"
+    }
+  },
+  "files": {
+    "title": "Files",
+    "tab": "Files",
+    "noSpecPath": "No spec files available",
+    "noFiles": "No files found",
+    "loading": "Loading files...",
+    "loadingContent": "Loading content...",
+    "errorLoading": "Failed to load files",
+    "errorLoadingContent": "Failed to load file content",
+    "retry": "Retry",
+    "selectFile": "Select a file to view its contents",
+    "openInIDE": "Open in IDE"
+  },
+  "metadata": {
+    "severity": "severity",
+    "pullRequest": "Pull Request"
+  },
+  "images": {
+    "removeImageAriaLabel": "Remove image {{filename}}",
+    "pasteHint": "Tip: Paste screenshots directly with {{shortcut}} to add reference images."
+  },
+  "notifications": {
+    "backgroundTaskTitle": "Task continues in background",
+    "backgroundTaskDescription": "The task is still running. You can reopen this dialog to monitor progress."
+  },
+  "wizard": {
+    "gitOptions": {
+      "useWorktreeLabel": "Use isolated workspace (recommended)",
+      "useWorktreeDescription": "Creates changes in a separate git worktree for safe review before merging. Disable to build directly in your project (faster but riskier)."
+    }
+  },
+  "subtasks": {
+    "untitled": "Untitled subtask"
   }
 }

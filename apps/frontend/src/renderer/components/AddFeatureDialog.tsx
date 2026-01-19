@@ -69,18 +69,18 @@ interface AddFeatureDialogProps {
   defaultPhaseId?: string;
 }
 
-// Complexity options
+// Complexity options (keys for translation)
 const COMPLEXITY_OPTIONS = [
-  { value: 'low', label: 'Low' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'high', label: 'High' }
+  { value: 'low', labelKey: 'addFeature.lowComplexity' },
+  { value: 'medium', labelKey: 'addFeature.mediumComplexity' },
+  { value: 'high', labelKey: 'addFeature.highComplexity' }
 ] as const;
 
-// Impact options
+// Impact options (keys for translation)
 const IMPACT_OPTIONS = [
-  { value: 'low', label: 'Low Impact' },
-  { value: 'medium', label: 'Medium Impact' },
-  { value: 'high', label: 'High Impact' }
+  { value: 'low', labelKey: 'addFeature.lowImpact' },
+  { value: 'medium', labelKey: 'addFeature.mediumImpact' },
+  { value: 'high', labelKey: 'addFeature.highImpact' }
 ] as const;
 
 export function AddFeatureDialog({
@@ -90,7 +90,7 @@ export function AddFeatureDialog({
   onFeatureAdded,
   defaultPhaseId
 }: AddFeatureDialogProps) {
-  const { t } = useTranslation(['common', 'roadmap']);
+  const { t } = useTranslation('dialogs');
 
   // Form state
   const [title, setTitle] = useState('');
@@ -125,15 +125,15 @@ export function AddFeatureDialog({
   const handleSave = async () => {
     // Validate required fields
     if (!title.trim()) {
-      setError(t('roadmap:addFeatureDialog.errors.titleRequired'));
+      setError(t('addFeature.titleRequired'));
       return;
     }
     if (!description.trim()) {
-      setError(t('roadmap:addFeatureDialog.errors.descriptionRequired'));
+      setError(t('addFeature.descriptionRequired'));
       return;
     }
     if (!phaseId) {
-      setError(t('roadmap:addFeatureDialog.errors.phaseRequired'));
+      setError(t('addFeature.phaseRequired'));
       return;
     }
 
@@ -163,7 +163,7 @@ export function AddFeatureDialog({
         // Get the project ID from the roadmap
         const result = await window.electronAPI.saveRoadmap(roadmap.projectId, roadmap);
         if (!result.success) {
-          throw new Error(result.error || t('roadmap:addFeatureDialog.errors.failedToSave'));
+          throw new Error(result.error || 'Failed to save roadmap');
         }
       }
 
@@ -171,7 +171,7 @@ export function AddFeatureDialog({
       onOpenChange(false);
       onFeatureAdded?.(newFeatureId);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('roadmap:addFeatureDialog.errors.failedToAdd'));
+      setError(err instanceof Error ? err.message : t('addFeature.failedToAdd'));
     } finally {
       setIsSaving(false);
     }
@@ -190,9 +190,9 @@ export function AddFeatureDialog({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-foreground">{t('roadmap:addFeatureDialog.title')}</DialogTitle>
+          <DialogTitle className="text-foreground">{t('addFeature.title')}</DialogTitle>
           <DialogDescription>
-            {t('roadmap:addFeatureDialog.description')}
+            {t('addFeature.description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -200,40 +200,42 @@ export function AddFeatureDialog({
           {/* Title (Required) */}
           <div className="space-y-2">
             <Label htmlFor="add-feature-title" className="text-sm font-medium text-foreground">
-              {t('roadmap:addFeatureDialog.fields.title.label')} <span className="text-destructive">*</span>
+              {t('addFeature.featureTitle')} <span className="text-destructive">*</span>
             </Label>
             <Input
               id="add-feature-title"
-              placeholder={t('roadmap:addFeatureDialog.fields.title.placeholder')}
+              placeholder={t('addFeature.featureTitlePlaceholder')}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               disabled={isSaving}
+              aria-required="true"
             />
           </div>
 
           {/* Description (Required) */}
           <div className="space-y-2">
             <Label htmlFor="add-feature-description" className="text-sm font-medium text-foreground">
-              {t('roadmap:addFeatureDialog.fields.description.label')} <span className="text-destructive">*</span>
+              {t('addFeature.featureDescription')} <span className="text-destructive">*</span>
             </Label>
             <Textarea
               id="add-feature-description"
-              placeholder={t('roadmap:addFeatureDialog.fields.description.placeholder')}
+              placeholder={t('addFeature.featureDescriptionPlaceholder')}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
               disabled={isSaving}
+              aria-required="true"
             />
           </div>
 
           {/* Rationale (Optional) */}
           <div className="space-y-2">
             <Label htmlFor="add-feature-rationale" className="text-sm font-medium text-foreground">
-              {t('roadmap:addFeatureDialog.fields.rationale.label')} <span className="text-muted-foreground font-normal">{t('roadmap:addFeatureDialog.fields.rationale.optional')}</span>
+              {t('addFeature.rationale')} <span className="text-muted-foreground font-normal">({t('addFeature.optional')})</span>
             </Label>
             <Textarea
               id="add-feature-rationale"
-              placeholder={t('roadmap:addFeatureDialog.fields.rationale.placeholder')}
+              placeholder={t('addFeature.rationalePlaceholder')}
               value={rationale}
               onChange={(e) => setRationale(e.target.value)}
               rows={2}
@@ -246,15 +248,15 @@ export function AddFeatureDialog({
             {/* Phase */}
             <div className="space-y-2">
               <Label htmlFor="add-feature-phase" className="text-sm font-medium text-foreground">
-                {t('roadmap:addFeatureDialog.fields.phase.label')} <span className="text-destructive">*</span>
+                {t('addFeature.phase')} <span className="text-destructive">*</span>
               </Label>
               <Select
                 value={phaseId}
                 onValueChange={setPhaseId}
                 disabled={isSaving}
               >
-                <SelectTrigger id="add-feature-phase">
-                  <SelectValue placeholder={t('roadmap:addFeatureDialog.fields.phase.placeholder')} />
+                <SelectTrigger id="add-feature-phase" aria-required="true">
+                  <SelectValue placeholder={t('addFeature.selectPhase')} />
                 </SelectTrigger>
                 <SelectContent>
                   {phases.map((phase) => (
@@ -269,7 +271,7 @@ export function AddFeatureDialog({
             {/* Priority */}
             <div className="space-y-2">
               <Label htmlFor="add-feature-priority" className="text-sm font-medium text-foreground">
-                {t('roadmap:addFeatureDialog.fields.priority.label')}
+                {t('addFeature.priority')}
               </Label>
               <Select
                 value={priority}
@@ -277,7 +279,7 @@ export function AddFeatureDialog({
                 disabled={isSaving}
               >
                 <SelectTrigger id="add-feature-priority">
-                  <SelectValue placeholder={t('roadmap:addFeatureDialog.fields.priority.placeholder')} />
+                  <SelectValue placeholder={t('addFeature.selectPriority')} />
                 </SelectTrigger>
                 <SelectContent>
                   {Object.entries(ROADMAP_PRIORITY_LABELS).map(([value, label]) => (
@@ -292,7 +294,7 @@ export function AddFeatureDialog({
             {/* Complexity */}
             <div className="space-y-2">
               <Label htmlFor="add-feature-complexity" className="text-sm font-medium text-foreground">
-                {t('roadmap:addFeatureDialog.fields.complexity.label')}
+                {t('addFeature.complexity')}
               </Label>
               <Select
                 value={complexity}
@@ -300,12 +302,12 @@ export function AddFeatureDialog({
                 disabled={isSaving}
               >
                 <SelectTrigger id="add-feature-complexity">
-                  <SelectValue placeholder={t('roadmap:addFeatureDialog.fields.complexity.placeholder')} />
+                  <SelectValue placeholder={t('addFeature.selectComplexity')} />
                 </SelectTrigger>
                 <SelectContent>
-                  {COMPLEXITY_OPTIONS.map(({ value }) => (
+                  {COMPLEXITY_OPTIONS.map(({ value, labelKey }) => (
                     <SelectItem key={value} value={value}>
-                      {t(`roadmap:addFeatureDialog.fields.complexity.options.${value}`)}
+                      {t(labelKey)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -315,7 +317,7 @@ export function AddFeatureDialog({
             {/* Impact */}
             <div className="space-y-2">
               <Label htmlFor="add-feature-impact" className="text-sm font-medium text-foreground">
-                {t('roadmap:addFeatureDialog.fields.impact.label')}
+                {t('addFeature.impact')}
               </Label>
               <Select
                 value={impact}
@@ -323,12 +325,12 @@ export function AddFeatureDialog({
                 disabled={isSaving}
               >
                 <SelectTrigger id="add-feature-impact">
-                  <SelectValue placeholder={t('roadmap:addFeatureDialog.fields.impact.placeholder')} />
+                  <SelectValue placeholder={t('addFeature.selectImpact')} />
                 </SelectTrigger>
                 <SelectContent>
-                  {IMPACT_OPTIONS.map(({ value }) => (
+                  {IMPACT_OPTIONS.map(({ value, labelKey }) => (
                     <SelectItem key={value} value={value}>
-                      {t(`roadmap:addFeatureDialog.fields.impact.options.${value}`)}
+                      {t(labelKey)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -338,7 +340,7 @@ export function AddFeatureDialog({
 
           {/* Error */}
           {error && (
-            <div className="flex items-start gap-2 rounded-lg bg-destructive/10 border border-destructive/30 p-3 text-sm text-destructive">
+            <div className="flex items-start gap-2 rounded-lg bg-destructive/10 border border-destructive/30 p-3 text-sm text-destructive" role="alert">
               <X className="h-4 w-4 mt-0.5 shrink-0" />
               <span>{error}</span>
             </div>
@@ -346,7 +348,9 @@ export function AddFeatureDialog({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={handleClose} disabled={isSaving}>{t("common:buttons.cancel")}</Button>
+          <Button variant="outline" onClick={handleClose} disabled={isSaving}>
+            {t('addFeature.cancel')}
+          </Button>
           <Button
             onClick={handleSave}
             disabled={isSaving || !isValid}
@@ -354,10 +358,10 @@ export function AddFeatureDialog({
             {isSaving ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {t('roadmap:addFeatureDialog.buttons.adding')}
+                {t('addFeature.adding')}
               </>
             ) : (
-              t('roadmap:addFeatureDialog.buttons.add')
+              t('addFeature.addFeature')
             )}
           </Button>
         </DialogFooter>

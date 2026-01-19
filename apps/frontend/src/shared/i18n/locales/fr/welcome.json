@@ -12,12 +12,6 @@
     "empty": "Aucun projet",
     "emptyDescription": "Créez un nouveau projet ou ouvrez-en un existant pour commencer",
     "openFolder": "Ouvrir le dossier",
-    "initialized": "Initialisé"
-  },
-  "time": {
-    "justNow": "À l'instant",
-    "minutesAgo": "Il y a {{count}}min",
-    "hoursAgo": "Il y a {{count}}h",
-    "daysAgo": "Il y a {{count}}j"
+    "openProjectAriaLabel": "Ouvrir le projet {{name}}"
   }
 }

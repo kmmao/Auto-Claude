@@ -1,6 +1,6 @@
 import { TabsContent } from '../ui/tabs';
 import { EnvConfigModal } from '../EnvConfigModal';
-
+import { IDEATION_TYPE_DESCRIPTIONS } from '../../../shared/constants';
 import { IdeationEmptyState } from './IdeationEmptyState';
 import { IdeationHeader } from './IdeationHeader';
 import { IdeationFilters } from './IdeationFilters';
@@ -9,8 +9,8 @@ import { GenerationProgressScreen } from './GenerationProgressScreen';
 import { IdeaCard } from './IdeaCard';
 import { IdeaDetailPanel } from './IdeaDetailPanel';
 import { useIdeation } from './hooks/useIdeation';
+import { useViewState } from '../../contexts/ViewStateContext';
 import { ALL_IDEATION_TYPES } from './constants';
-import { useTranslation } from 'react-i18next';
 
 interface IdeationProps {
   projectId: string;
@@ -18,8 +18,10 @@ interface IdeationProps {
 }
 
 export function Ideation({ projectId, onGoToTask }: IdeationProps) {
-  const { t } = useTranslation(['common', 'settings', 'ideation']);
+  // Get showArchived from shared context for cross-page sync
+  const { showArchived } = useViewState();
 
+  // Pass showArchived directly to the hook to avoid render lag from useEffect sync
   const {
     session,
     generationStatus,
@@ -31,7 +33,6 @@ export function Ideation({ projectId, onGoToTask }: IdeationProps) {
     activeTab,
     showConfigDialog,
     showDismissed,
-    showArchived,
     showEnvConfigModal,
     showAddMoreDialog,
     typesToAdd,
@@ -44,7 +45,6 @@ export function Ideation({ projectId, onGoToTask }: IdeationProps) {
     setActiveTab,
     setShowConfigDialog,
     setShowDismissed,
-    setShowArchived,
     setShowEnvConfigModal,
     setShowAddMoreDialog,
     setTypesToAdd,
@@ -66,7 +66,7 @@ export function Ideation({ projectId, onGoToTask }: IdeationProps) {
     toggleSelectIdea,
     clearSelection,
     getIdeasByType
-  } = useIdeation(projectId, { onGoToTask });
+  } = useIdeation(projectId, { onGoToTask, showArchived });
 
   // Show generation progress with streaming ideas (use isGenerating flag for reliable state)
   if (isGenerating) {
@@ -107,19 +107,19 @@ export function Ideation({ projectId, onGoToTask }: IdeationProps) {
           typesToAdd={[]}
           availableTypesToAdd={[]}
           onToggleIdeationType={toggleIdeationType}
-          onToggleTypeToAdd={() => { }}
+          onToggleTypeToAdd={() => {}}
           onSetConfig={setConfig}
           onCloseConfigDialog={() => setShowConfigDialog(false)}
-          onCloseAddMoreDialog={() => { }}
-          onConfirmAddMore={() => { }}
+          onCloseAddMoreDialog={() => {}}
+          onConfirmAddMore={() => {}}
         />
 
         <EnvConfigModal
           open={showEnvConfigModal}
           onOpenChange={setShowEnvConfigModal}
           onConfigured={handleEnvConfigured}
-          title={t('ideation:envConfig.title')}
-          description={t('ideation:envConfig.description')}
+          title="Claude Authentication Required"
+          description="A Claude Code OAuth token is required to generate AI-powered feature ideas."
           projectId={projectId}
         />
       </>
@@ -133,10 +133,8 @@ export function Ideation({ projectId, onGoToTask }: IdeationProps) {
         totalIdeas={summary.totalIdeas}
         ideaCountByType={summary.byType}
         showDismissed={showDismissed}
-        showArchived={showArchived}
         selectedCount={selectedIds.size}
         onToggleShowDismissed={() => setShowDismissed(!showDismissed)}
-        onToggleShowArchived={() => setShowArchived(!showArchived)}
         onOpenConfig={() => setShowConfigDialog(true)}
         onOpenAddMore={() => {
           setTypesToAdd([]);
@@ -171,7 +169,7 @@ export function Ideation({ projectId, onGoToTask }: IdeationProps) {
               ))}
               {activeIdeas.length === 0 && (
                 <div className="text-center py-8 text-muted-foreground">
-                  {t('ideation:common.noIdeas')}
+                  No ideas to display
                 </div>
               )}
             </div>
@@ -188,7 +186,7 @@ export function Ideation({ projectId, onGoToTask }: IdeationProps) {
               <TabsContent key={type} value={type} className="flex-1 overflow-auto p-4">
                 <div className="mb-4 p-3 bg-muted/50 rounded-lg">
                   <p className="text-sm text-muted-foreground">
-                    {t(`ideation:types.${type}.description`)}
+                    {IDEATION_TYPE_DESCRIPTIONS[type]}
                   </p>
                 </div>
                 <div className="grid gap-3">
@@ -242,8 +240,8 @@ export function Ideation({ projectId, onGoToTask }: IdeationProps) {
         open={showEnvConfigModal}
         onOpenChange={setShowEnvConfigModal}
         onConfigured={handleEnvConfigured}
-        title={t('ideation:envConfig.title')}
-        description={t('ideation:envConfig.description')}
+        title="Claude Authentication Required"
+        description="A Claude Code OAuth token is required to generate AI-powered feature ideas."
         projectId={projectId}
       />
     </div>

@@ -13,6 +13,7 @@ import {
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { ScrollArea } from './ui/scroll-area';
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -51,8 +52,7 @@ export function ChatHistorySidebar({
   onDeleteSession,
   onRenameSession
 }: ChatHistorySidebarProps) {
-  const { t } = useTranslation(['common', 'settings', 'insights']);
-
+  const { t } = useTranslation('common');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState('');
   const [deleteSessionId, setDeleteSessionId] = useState<string | null>(null);
@@ -89,11 +89,11 @@ export function ChatHistorySidebar({
     const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
     if (diffDays === 0) {
-      return t('insights:chatHistory.today');
+      return 'Today';
     } else if (diffDays === 1) {
-      return t('insights:chatHistory.yesterday');
+      return 'Yesterday';
     } else if (diffDays < 7) {
-      return t('insights:chatHistory.daysAgo', { count: diffDays });
+      return `${diffDays} days ago`;
     } else {
       return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
     }
@@ -113,16 +113,21 @@ export function ChatHistorySidebar({
     <div className="flex h-full w-64 flex-col border-r border-border bg-muted/30">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-border px-3 py-3">
-        <h3 className="text-sm font-medium text-foreground">{t('common:sidebar.chatHistory')}</h3>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-7 w-7"
-          onClick={onNewSession}
-          title={t("common:buttons.newChat")}
-        >
-          <Plus className="h-4 w-4" />
-        </Button>
+        <h3 className="text-sm font-medium text-foreground">Chat History</h3>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7"
+              onClick={onNewSession}
+              aria-label={t('accessibility.newConversationAriaLabel')}
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{t('accessibility.newConversationAriaLabel')}</TooltipContent>
+        </Tooltip>
       </div>
 
       {/* Session list */}
@@ -133,7 +138,7 @@ export function ChatHistorySidebar({
           </div>
         ) : sessions.length === 0 ? (
           <div className="px-3 py-8 text-center text-sm text-muted-foreground">
-            {t('common:messages.noConversations')}
+            No conversations yet
           </div>
         ) : (
           <div className="py-2">
@@ -167,16 +172,15 @@ export function ChatHistorySidebar({
       <AlertDialog open={!!deleteSessionId} onOpenChange={() => setDeleteSessionId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t('common:dialogs.deleteConversation')}</AlertDialogTitle>
+            <AlertDialogTitle>Delete conversation?</AlertDialogTitle>
             <AlertDialogDescription>
-              {t('common:dialogs.deleteConversationDesc')}
-              {' '}
-              {t('common:dialogs.cannotUndo')}
+              This will permanently delete this conversation and all its messages.
+              This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{t("common:buttons.cancel")}</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>{t("common:buttons.delete")}</AlertDialogAction>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -209,8 +213,7 @@ function SessionItem({
   onEditTitleChange,
   onDelete
 }: SessionItemProps) {
-  const { t } = useTranslation(['common', 'settings', 'insights']);
-
+  const { t } = useTranslation('common');
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -235,6 +238,7 @@ function SessionItem({
           size="icon"
           className="h-7 w-7 shrink-0"
           onClick={onSaveEdit}
+          aria-label={t('accessibility.saveEditAriaLabel')}
         >
           <Check className="h-3.5 w-3.5 text-success" />
         </Button>
@@ -243,6 +247,7 @@ function SessionItem({
           size="icon"
           className="h-7 w-7 shrink-0"
           onClick={onCancelEdit}
+          aria-label={t('accessibility.cancelEditAriaLabel')}
         >
           <X className="h-3.5 w-3.5 text-muted-foreground" />
         </Button>
@@ -276,7 +281,7 @@ function SessionItem({
             {session.title}
           </p>
           <p className="text-[11px] text-muted-foreground mt-0.5">
-            {t('insights:chatHistory.messageCount', { count: session.messageCount })}
+            {session.messageCount} message{session.messageCount !== 1 ? 's' : ''}
           </p>
         </div>
       </div>
@@ -288,6 +293,7 @@ function SessionItem({
             variant="ghost"
             size="icon"
             className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 opacity-0 group-hover:opacity-100 data-[state=open]:opacity-100 hover:bg-muted-foreground/20 transition-opacity"
+            aria-label={t('accessibility.moreOptionsAriaLabel')}
           >
             <MoreVertical className="h-3.5 w-3.5" />
           </Button>
@@ -295,13 +301,15 @@ function SessionItem({
         <DropdownMenuContent align="end" sideOffset={5} className="w-36 z-[100]">
           <DropdownMenuItem onSelect={onStartEdit}>
             <Pencil className="mr-2 h-3.5 w-3.5" />
-            {t('common:buttons.rename')}
+            Rename
           </DropdownMenuItem>
           <DropdownMenuItem
             onSelect={onDelete}
             className="text-destructive focus:text-destructive"
           >
-            <Trash2 className="mr-2 h-3.5 w-3.5" />{t("common:buttons.delete")}</DropdownMenuItem>
+            <Trash2 className="mr-2 h-3.5 w-3.5" />
+            Delete
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

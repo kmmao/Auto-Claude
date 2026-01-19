@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   MessageSquare,
@@ -16,6 +16,8 @@ import {
   PanelLeftClose,
   PanelLeft
 } from 'lucide-react';
+import ReactMarkdown, { type Components } from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 import { ScrollArea } from './ui/scroll-area';
@@ -39,23 +41,65 @@ import { ChatHistorySidebar } from './ChatHistorySidebar';
 import { InsightsModelSelector } from './InsightsModelSelector';
 import type { InsightsChatMessage, InsightsModelConfig } from '../../shared/types';
 import {
+  TASK_CATEGORY_LABELS,
   TASK_CATEGORY_COLORS,
+  TASK_COMPLEXITY_LABELS,
   TASK_COMPLEXITY_COLORS
 } from '../../shared/constants';
+
+// createSafeLink - factory function that creates a SafeLink component with i18n support
+const createSafeLink = (opensInNewWindowText: string) => {
+  return function SafeLink({ href, children, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
+    // Validate URL - only allow http, https, and relative links
+    const isValidUrl = href && (
+      href.startsWith('http://') ||
+      href.startsWith('https://') ||
+      href.startsWith('/') ||
+      href.startsWith('#')
+    );
+
+    if (!isValidUrl) {
+      // For invalid or potentially malicious URLs, render as plain text
+      return <span className="text-muted-foreground">{children}</span>;
+    }
+
+    // External links get security attributes and accessibility indicator
+    const isExternal = href?.startsWith('http://') || href?.startsWith('https://');
+
+    return (
+      <a
+        href={href}
+        {...props}
+        {...(isExternal && {
+          target: '_blank',
+          rel: 'noopener noreferrer',
+        })}
+        className="text-primary hover:underline"
+      >
+        {children}
+        {isExternal && <span className="sr-only"> {opensInNewWindowText}</span>}
+      </a>
+    );
+  };
+};
 
 interface InsightsProps {
   projectId: string;
 }
 
 export function Insights({ projectId }: InsightsProps) {
-  const { t } = useTranslation(['common', 'insights', 'tasks']);
-
+  const { t } = useTranslation('common');
   const session = useInsightsStore((state) => state.session);
   const sessions = useInsightsStore((state) => state.sessions);
   const status = useInsightsStore((state) => state.status);
   const streamingContent = useInsightsStore((state) => state.streamingContent);
   const currentTool = useInsightsStore((state) => state.currentTool);
   const isLoadingSessions = useInsightsStore((state) => state.isLoadingSessions);
+
+  // Create markdown components with translated accessibility text
+  const markdownComponents = useMemo(() => ({
+    a: createSafeLink(t('accessibility.opensInNewWindow')),
+  }), [t]);
 
   const [inputValue, setInputValue] = useState('');
   const [creatingTask, setCreatingTask] = useState<string | null>(null);
@@ -179,7 +223,7 @@ export function Insights({ projectId }: InsightsProps) {
               size="icon"
               className="h-8 w-8"
               onClick={() => setShowSidebar(!showSidebar)}
-              title={showSidebar ? t('insights:actions.hideSidebar') : t('insights:actions.showSidebar')}
+              title={showSidebar ? 'Hide sidebar' : 'Show sidebar'}
             >
               {showSidebar ? (
                 <PanelLeftClose className="h-4 w-4" />
@@ -191,9 +235,9 @@ export function Insights({ projectId }: InsightsProps) {
               <Sparkles className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h2 className="font-semibold text-foreground">{t('insights:title')}</h2>
+              <h2 className="font-semibold text-foreground">Insights</h2>
               <p className="text-sm text-muted-foreground">
-                {t('insights:subtitle')}
+                Ask questions about your codebase
               </p>
             </div>
           </div>
@@ -209,135 +253,139 @@ export function Insights({ projectId }: InsightsProps) {
               onClick={handleNewSession}
             >
               <Plus className="mr-2 h-4 w-4" />
-              {t('insights:actions.newChat')}
+              New Chat
             </Button>
           </div>
         </div>
 
-        {/* Messages */}
-        <ScrollArea className="flex-1 px-6 py-4">
-          {messages.length === 0 && !streamingContent ? (
-            <div className="flex h-full flex-col items-center justify-center text-center">
-              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-                <MessageSquare className="h-8 w-8 text-muted-foreground" />
-              </div>
-              <h3 className="mb-2 text-lg font-medium text-foreground">
-                {t('insights:emptyState.title')}
-              </h3>
-              <p className="max-w-md text-sm text-muted-foreground">
-                {t('insights:emptyState.description')}
-              </p>
-              <div className="mt-6 flex flex-wrap justify-center gap-2">
-                {[
-                  t('insights:emptyState.suggestions.architecture'),
-                  t('insights:emptyState.suggestions.quality'),
-                  t('insights:emptyState.suggestions.features'),
-                  t('insights:emptyState.suggestions.security')
-                ].map((suggestion) => (
-                  <Button
-                    key={suggestion}
-                    variant="outline"
-                    size="sm"
-                    className="text-xs"
-                    onClick={() => {
-                      setInputValue(suggestion);
-                      textareaRef.current?.focus();
-                    }}
-                  >
-                    {suggestion}
-                  </Button>
-                ))}
-              </div>
+      {/* Messages */}
+      <ScrollArea className="flex-1 px-6 py-4">
+        {messages.length === 0 && !streamingContent ? (
+          <div className="flex h-full flex-col items-center justify-center text-center">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+              <MessageSquare className="h-8 w-8 text-muted-foreground" />
             </div>
-          ) : (
-            <div className="space-y-6">
-              {messages.map((message) => (
-                <MessageBubble
-                  key={message.id}
-                  message={message}
-                  onCreateTask={() => handleCreateTask(message)}
-                  isCreatingTask={creatingTask === message.id}
-                  taskCreated={taskCreated.has(message.id)}
-                />
+            <h3 className="mb-2 text-lg font-medium text-foreground">
+              Start a Conversation
+            </h3>
+            <p className="max-w-md text-sm text-muted-foreground">
+              Ask questions about your codebase, get suggestions for improvements,
+              or discuss features you'd like to implement.
+            </p>
+            <div className="mt-6 flex flex-wrap justify-center gap-2">
+              {[
+                'What is the architecture of this project?',
+                'Suggest improvements for code quality',
+                'What features could I add next?',
+                'Are there any security concerns?'
+              ].map((suggestion) => (
+                <Button
+                  key={suggestion}
+                  variant="outline"
+                  size="sm"
+                  className="text-xs"
+                  onClick={() => {
+                    setInputValue(suggestion);
+                    textareaRef.current?.focus();
+                  }}
+                >
+                  {suggestion}
+                </Button>
               ))}
-
-              {/* Streaming message */}
-              {(streamingContent || currentTool) && (
-                <div className="flex gap-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                    <Bot className="h-4 w-4 text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="mb-1 text-sm font-medium text-foreground">
-                      {t('insights:roles.assistant')}
-                    </div>
-                    {streamingContent && (
-                      <div className="prose prose-sm dark:prose-invert max-w-none">
-                        <p className="whitespace-pre-wrap">{streamingContent}</p>
-                      </div>
-                    )}
-                    {/* Tool usage indicator */}
-                    {currentTool && (
-                      <ToolIndicator name={currentTool.name} input={currentTool.input} />
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Thinking indicator */}
-              {status.phase === 'thinking' && !streamingContent && !currentTool && (
-                <div className="flex gap-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                    <Bot className="h-4 w-4 text-primary" />
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    {t('insights:status.thinking')}
-                  </div>
-                </div>
-              )}
-
-              {/* Error message */}
-              {status.phase === 'error' && status.error && (
-                <div className="flex items-center gap-2 rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive">
-                  <AlertCircle className="h-4 w-4 shrink-0" />
-                  {status.error}
-                </div>
-              )}
-
-              <div ref={messagesEndRef} />
             </div>
-          )}
-        </ScrollArea>
-
-        {/* Input */}
-        <div className="border-t border-border p-4">
-          <div className="flex gap-2">
-            <Textarea
-              ref={textareaRef}
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={t('insights:input.placeholder')}
-              className="min-h-[80px] resize-none"
-              disabled={isLoading}
-            />
-            <Button
-              onClick={handleSend}
-              disabled={!inputValue.trim() || isLoading}
-              className="self-end"
-            >
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Send className="h-4 w-4" />
-              )}
-            </Button>
           </div>
-          <p className="mt-2 text-xs text-muted-foreground">
-            {t('insights:input.hint')}
-          </p>
+        ) : (
+          <div className="space-y-6">
+            {messages.map((message) => (
+              <MessageBubble
+                key={message.id}
+                message={message}
+                markdownComponents={markdownComponents}
+                onCreateTask={() => handleCreateTask(message)}
+                isCreatingTask={creatingTask === message.id}
+                taskCreated={taskCreated.has(message.id)}
+              />
+            ))}
+
+            {/* Streaming message */}
+            {(streamingContent || currentTool) && (
+              <div className="flex gap-3">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                  <Bot className="h-4 w-4 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <div className="mb-1 text-sm font-medium text-foreground">
+                    Assistant
+                  </div>
+                  {streamingContent && (
+                    <div className="prose prose-sm dark:prose-invert max-w-none">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                        {streamingContent}
+                      </ReactMarkdown>
+                    </div>
+                  )}
+                  {/* Tool usage indicator */}
+                  {currentTool && (
+                    <ToolIndicator name={currentTool.name} input={currentTool.input} />
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Thinking indicator */}
+            {status.phase === 'thinking' && !streamingContent && !currentTool && (
+              <div className="flex gap-3">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                  <Bot className="h-4 w-4 text-primary" />
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Thinking...
+                </div>
+              </div>
+            )}
+
+            {/* Error message */}
+            {status.phase === 'error' && status.error && (
+              <div className="flex items-center gap-2 rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                {status.error}
+              </div>
+            )}
+
+            <div ref={messagesEndRef} />
+          </div>
+        )}
+      </ScrollArea>
+
+      {/* Input */}
+      <div className="border-t border-border p-4">
+        <div className="flex gap-2">
+          <Textarea
+            ref={textareaRef}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Ask about your codebase..."
+            className="min-h-[80px] resize-none"
+            disabled={isLoading}
+          />
+          <Button
+            onClick={handleSend}
+            disabled={!inputValue.trim() || isLoading}
+            className="self-end"
+          >
+            {isLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
+          </Button>
         </div>
+        <p className="mt-2 text-xs text-muted-foreground">
+          Press Enter to send, Shift+Enter for new line
+        </p>
+      </div>
       </div>
     </div>
   );
@@ -345,6 +393,7 @@ export function Insights({ projectId }: InsightsProps) {
 
 interface MessageBubbleProps {
   message: InsightsChatMessage;
+  markdownComponents: Components;
   onCreateTask: () => void;
   isCreatingTask: boolean;
   taskCreated: boolean;
@@ -352,11 +401,11 @@ interface MessageBubbleProps {
 
 function MessageBubble({
   message,
+  markdownComponents,
   onCreateTask,
   isCreatingTask,
   taskCreated
 }: MessageBubbleProps) {
-  const { t } = useTranslation(['insights', 'common', 'tasks']);
   const isUser = message.role === 'user';
 
   return (
@@ -375,10 +424,12 @@ function MessageBubble({
       </div>
       <div className="flex-1 space-y-2">
         <div className="text-sm font-medium text-foreground">
-          {isUser ? t('insights:roles.user') : t('insights:roles.assistant')}
+          {isUser ? 'You' : 'Assistant'}
         </div>
         <div className="prose prose-sm dark:prose-invert max-w-none">
-          <p className="whitespace-pre-wrap">{message.content}</p>
+          <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+            {message.content}
+          </ReactMarkdown>
         </div>
 
         {/* Tool usage history for assistant messages */}
@@ -393,7 +444,7 @@ function MessageBubble({
               <div className="mb-2 flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-primary" />
                 <span className="text-sm font-medium text-primary">
-                  {t('insights:cards.suggestedTask')}
+                  Suggested Task
                 </span>
               </div>
               <h4 className="mb-2 font-medium text-foreground">
@@ -412,9 +463,8 @@ function MessageBubble({
                         TASK_CATEGORY_COLORS[message.suggestedTask.metadata.category]
                       )}
                     >
-                      {t(`tasks:category.${message.suggestedTask.metadata.category}`, {
-                        defaultValue: message.suggestedTask.metadata.category
-                      })}
+                      {TASK_CATEGORY_LABELS[message.suggestedTask.metadata.category] ||
+                        message.suggestedTask.metadata.category}
                     </Badge>
                   )}
                   {message.suggestedTask.metadata.complexity && (
@@ -425,9 +475,8 @@ function MessageBubble({
                         TASK_COMPLEXITY_COLORS[message.suggestedTask.metadata.complexity]
                       )}
                     >
-                      {t(`tasks:complexity.${message.suggestedTask.metadata.complexity}`, {
-                        defaultValue: message.suggestedTask.metadata.complexity
-                      })}
+                      {TASK_COMPLEXITY_LABELS[message.suggestedTask.metadata.complexity] ||
+                        message.suggestedTask.metadata.complexity}
                     </Badge>
                   )}
                 </div>
@@ -440,17 +489,17 @@ function MessageBubble({
                 {isCreatingTask ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {t('insights:actions.creating')}
+                    Creating...
                   </>
                 ) : taskCreated ? (
                   <>
                     <CheckCircle2 className="mr-2 h-4 w-4" />
-                    {t('insights:actions.taskCreated')}
+                    Task Created
                   </>
                 ) : (
                   <>
                     <Plus className="mr-2 h-4 w-4" />
-                    {t('insights:actions.createTask')}
+                    Create Task
                   </>
                 )}
               </Button>
@@ -472,7 +521,6 @@ interface ToolUsageHistoryProps {
 }
 
 function ToolUsageHistory({ tools }: ToolUsageHistoryProps) {
-  const { t } = useTranslation(['insights']);
   const [expanded, setExpanded] = useState(false);
 
   if (tools.length === 0) return null;
@@ -526,7 +574,7 @@ function ToolUsageHistory({ tools }: ToolUsageHistoryProps) {
             );
           })}
         </span>
-        <span>{t('insights:status.toolsUsed', { count: tools.length })}</span>
+        <span>{tools.length} tool{tools.length !== 1 ? 's' : ''} used</span>
         <span className="text-[10px]">{expanded ? '▲' : '▼'}</span>
       </button>
 
@@ -562,27 +610,25 @@ interface ToolIndicatorProps {
 }
 
 function ToolIndicator({ name, input }: ToolIndicatorProps) {
-  const { t } = useTranslation(['insights']);
-
   // Get friendly name and icon for each tool
   const getToolInfo = (toolName: string) => {
     switch (toolName) {
       case 'Read':
         return {
           icon: FileText,
-          label: t('insights:tools.reading'),
+          label: 'Reading file',
           color: 'text-blue-500 bg-blue-500/10'
         };
       case 'Glob':
         return {
           icon: FolderSearch,
-          label: t('insights:tools.searchingFiles'),
+          label: 'Searching files',
           color: 'text-amber-500 bg-amber-500/10'
         };
       case 'Grep':
         return {
           icon: Search,
-          label: t('insights:tools.searchingCode'),
+          label: 'Searching code',
           color: 'text-green-500 bg-green-500/10'
         };
       default:

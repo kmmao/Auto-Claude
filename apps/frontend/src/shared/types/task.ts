@@ -3,8 +3,9 @@
  */
 
 import type { ThinkingLevel, PhaseModelConfig, PhaseThinkingConfig } from './settings';
+import type { ExecutionPhase as ExecutionPhaseType } from '../constants/phase-protocol';
 
-export type TaskStatus = 'backlog' | 'in_progress' | 'ai_review' | 'human_review' | 'done';
+export type TaskStatus = 'backlog' | 'in_progress' | 'ai_review' | 'human_review' | 'pr_created' | 'done';
 
 // Reason why a task is in human_review status
 // - 'completed': All subtasks done and QA passed, ready for final approval/merge
@@ -15,8 +16,8 @@ export type ReviewReason = 'completed' | 'errors' | 'qa_rejected' | 'plan_review
 
 export type SubtaskStatus = 'pending' | 'in_progress' | 'completed' | 'failed';
 
-// Execution phases for visual progress tracking
-export type ExecutionPhase = 'idle' | 'planning' | 'coding' | 'qa_review' | 'qa_fixing' | 'complete' | 'failed';
+// Re-exported from constants - single source of truth
+export type ExecutionPhase = ExecutionPhaseType;
 
 export interface ExecutionProgress {
   phase: ExecutionPhase;
@@ -25,6 +26,7 @@ export interface ExecutionProgress {
   currentSubtask?: string;  // Current subtask being processed
   message?: string;  // Current status message
   startedAt?: Date;
+  sequenceNumber?: number;  // Monotonically increasing counter to detect stale updates
 }
 
 export interface Subtask {
@@ -168,7 +170,7 @@ export type TaskCategory =
 
 export interface TaskMetadata {
   // Origin tracking
-  sourceType?: 'ideation' | 'manual' | 'imported' | 'insights' | 'roadmap' | 'linear' | 'github';
+  sourceType?: 'ideation' | 'manual' | 'imported' | 'insights' | 'roadmap' | 'linear' | 'github' | 'gitlab';
   ideationType?: string;  // e.g., 'code_improvements', 'security_hardening'
   ideaId?: string;  // Reference to original idea if converted
   featureId?: string;  // Reference to roadmap feature if from roadmap
@@ -179,6 +181,8 @@ export interface TaskMetadata {
   githubIssueNumbers?: number[];  // Reference to multiple GitHub issues if from a batch
   githubUrl?: string;  // GitHub issue URL
   githubBatchTheme?: string;  // Theme/title of the GitHub issue batch
+  gitlabIssueIid?: number;  // Reference to GitLab issue IID if from GitLab
+  gitlabUrl?: string;  // GitLab issue URL
 
   // Classification
   category?: TaskCategory;
@@ -224,6 +228,8 @@ export interface TaskMetadata {
 
   // Git/Worktree configuration
   baseBranch?: string;  // Override base branch for this task's worktree
+  prUrl?: string;  // GitHub PR URL if task has been submitted as a PR
+  useWorktree?: boolean;  // If false, use direct mode (no worktree isolation) - default is true for safety
 
   // Archive status
   archivedAt?: string;  // ISO date when task was archived
@@ -331,6 +337,13 @@ export interface MergeConflict {
   type?: ConflictType; // 'semantic' = parallel task conflict, 'git' = branch divergence
 }
 
+// Path-mapped file that needs AI merge due to rename
+export interface PathMappedAIMerge {
+  oldPath: string;
+  newPath: string;
+  reason: string;
+}
+
 // Git-level conflict information (branch divergence)
 export interface GitConflictInfo {
   hasConflicts: boolean;
@@ -339,6 +352,10 @@ export interface GitConflictInfo {
   commitsBehind: number;
   baseBranch: string;
   specBranch: string;
+  // Files that need AI merge due to path mappings (file renames)
+  pathMappedAIMerges?: PathMappedAIMerge[];
+  // Total number of file renames detected
+  totalRenames?: number;
 }
 
 // Summary statistics from merge preview/execution
@@ -350,6 +367,8 @@ export interface MergeStats {
   aiResolved?: number;
   humanRequired?: number;
   hasGitConflicts?: boolean; // True if there are git-level conflicts requiring rebase
+  // Count of files needing AI merge due to path mappings (file renames)
+  pathMappedAIMergeCount?: number;
 }
 
 export interface WorktreeMergeResult {
@@ -384,6 +403,26 @@ export interface WorktreeMergeResult {
 export interface WorktreeDiscardResult {
   success: boolean;
   message: string;
+}
+
+/**
+ * Options for creating a PR from a worktree
+ */
+export interface WorktreeCreatePROptions {
+  targetBranch?: string;
+  title?: string;
+  draft?: boolean;
+}
+
+/**
+ * Result of creating a PR from a worktree
+ */
+export interface WorktreeCreatePRResult {
+  success: boolean;
+  prUrl?: string;
+  error?: string;
+  message?: string;  // Human-readable message for both success and error cases
+  alreadyExists?: boolean;
 }
 
 /**

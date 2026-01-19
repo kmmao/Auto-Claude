@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import type { Task, TaskStatus, ImplementationPlan, Subtask, TaskMetadata, ExecutionProgress, ExecutionPhase, ReviewReason, TaskDraft } from '../../shared/types';
+import type { Task, TaskStatus, SubtaskStatus, ImplementationPlan, Subtask, TaskMetadata, ExecutionProgress, ExecutionPhase, ReviewReason, TaskDraft } from '../../shared/types';
+import { debugLog } from '../../shared/utils/debug-logger';
 
 interface TaskState {
   tasks: Task[];
@@ -15,6 +16,7 @@ interface TaskState {
   updateTaskFromPlan: (taskId: string, plan: ImplementationPlan) => void;
   updateExecutionProgress: (taskId: string, progress: Partial<ExecutionProgress>) => void;
   appendLog: (taskId: string, log: string) => void;
+  batchAppendLogs: (taskId: string, logs: string[]) => void;
   selectTask: (taskId: string | null) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
@@ -23,6 +25,73 @@ interface TaskState {
   // Selectors
   getSelectedTask: () => Task | undefined;
   getTasksByStatus: (status: TaskStatus) => Task[];
+}
+
+/**
+ * Helper to find task index by id or specId.
+ * Returns -1 if not found.
+ */
+function findTaskIndex(tasks: Task[], taskId: string): number {
+  return tasks.findIndex((t) => t.id === taskId || t.specId === taskId);
+}
+
+/**
+ * Helper to update a single task efficiently.
+ * Uses slice instead of map to avoid iterating all tasks.
+ */
+function updateTaskAtIndex(tasks: Task[], index: number, updater: (task: Task) => Task): Task[] {
+  if (index < 0 || index >= tasks.length) return tasks;
+
+  const updatedTask = updater(tasks[index]);
+
+  // If the task reference didn't change, return original array
+  if (updatedTask === tasks[index]) {
+    return tasks;
+  }
+
+  // Create new array with only the changed task replaced
+  const newTasks = [...tasks];
+  newTasks[index] = updatedTask;
+
+  return newTasks;
+}
+
+/**
+ * Validates implementation plan data structure before processing.
+ * Returns true if valid, false if invalid/incomplete.
+ */
+function validatePlanData(plan: ImplementationPlan): boolean {
+  // Validate plan has phases array
+  if (!plan.phases || !Array.isArray(plan.phases)) {
+    console.warn('[validatePlanData] Invalid plan: missing or invalid phases array');
+    return false;
+  }
+
+  // Validate each phase has subtasks array
+  for (let i = 0; i < plan.phases.length; i++) {
+    const phase = plan.phases[i];
+    if (!phase || !phase.subtasks || !Array.isArray(phase.subtasks)) {
+      console.warn(`[validatePlanData] Invalid phase ${i}: missing or invalid subtasks array`);
+      return false;
+    }
+
+    // Validate each subtask has at minimum a description
+    for (let j = 0; j < phase.subtasks.length; j++) {
+      const subtask = phase.subtasks[j];
+      if (!subtask || typeof subtask !== 'object') {
+        console.warn(`[validatePlanData] Invalid subtask at phase ${i}, index ${j}: not an object`);
+        return false;
+      }
+
+      // Description is critical - we can't show a subtask without it
+      if (!subtask.description || typeof subtask.description !== 'string' || subtask.description.trim() === '') {
+        console.warn(`[validatePlanData] Invalid subtask at phase ${i}, index ${j}: missing or empty description`);
+        return false;
+      }
+    }
+  }
+
+  return true;
 }
 
 export const useTaskStore = create<TaskState>((set, get) => ({
@@ -39,114 +108,245 @@ export const useTaskStore = create<TaskState>((set, get) => ({
     })),
 
   updateTask: (taskId, updates) =>
-    set((state) => ({
-      tasks: state.tasks.map((t) =>
-        t.id === taskId || t.specId === taskId ? { ...t, ...updates } : t
-      )
-    })),
+    set((state) => {
+      const index = findTaskIndex(state.tasks, taskId);
+      if (index === -1) return state;
+
+      return {
+        tasks: updateTaskAtIndex(state.tasks, index, (t) => ({ ...t, ...updates }))
+      };
+    }),
 
   updateTaskStatus: (taskId, status) =>
-    set((state) => ({
-      tasks: state.tasks.map((t) => {
-        if (t.id !== taskId && t.specId !== taskId) return t;
+    set((state) => {
+      const index = findTaskIndex(state.tasks, taskId);
+      if (index === -1) return state;
 
-        // When status goes to backlog, reset execution progress to idle
-        // This ensures the planning/coding animation stops when task is stopped
-        const executionProgress = status === 'backlog'
-          ? { phase: 'idle' as ExecutionPhase, phaseProgress: 0, overallProgress: 0 }
-          : t.executionProgress;
+      return {
+        tasks: updateTaskAtIndex(state.tasks, index, (t) => {
+          // Determine execution progress based on status transition
+          let executionProgress = t.executionProgress;
 
-        return { ...t, status, executionProgress, updatedAt: new Date() };
-      })
-    })),
+          if (status === 'backlog') {
+            // When status goes to backlog, reset execution progress to idle
+            // This ensures the planning/coding animation stops when task is stopped
+            executionProgress = { phase: 'idle' as ExecutionPhase, phaseProgress: 0, overallProgress: 0 };
+          } else if (status === 'in_progress' && !t.executionProgress?.phase) {
+            // When starting a task and no phase is set yet, default to planning
+            // This prevents the "no active phase" UI state during startup race condition
+            executionProgress = { phase: 'planning' as ExecutionPhase, phaseProgress: 0, overallProgress: 0 };
+          }
+
+          return { ...t, status, executionProgress, updatedAt: new Date() };
+        })
+      };
+    }),
 
   updateTaskFromPlan: (taskId, plan) =>
-    set((state) => ({
-      tasks: state.tasks.map((t) => {
-        if (t.id !== taskId && t.specId !== taskId) return t;
+    set((state) => {
+      // FIX (PR Review): Gate debug logging to prevent production console clutter
+      debugLog('[updateTaskFromPlan] called with plan:', {
+        taskId,
+        feature: plan.feature,
+        phases: plan.phases?.length || 0,
+        totalSubtasks: plan.phases?.reduce((acc, p) => acc + (p.subtasks?.length || 0), 0) || 0
+        // Note: planData removed to avoid verbose output in logs
+      });
 
-        // Extract subtasks from plan
-        const subtasks: Subtask[] = plan.phases.flatMap((phase) =>
-          phase.subtasks.map((subtask) => ({
-            id: subtask.id,
-            title: subtask.description,
-            description: subtask.description,
-            status: subtask.status,
-            files: [],
-            verification: subtask.verification as Subtask['verification']
-          }))
-        );
+      const index = findTaskIndex(state.tasks, taskId);
+      if (index === -1) {
+        console.log('[updateTaskFromPlan] Task not found:', taskId);
+        return state;
+      }
 
-        // Determine status and reviewReason based on subtasks
-        // This logic must match the backend (project-store.ts) exactly
-        const allCompleted = subtasks.length > 0 && subtasks.every((s) => s.status === 'completed');
-        const anyInProgress = subtasks.some((s) => s.status === 'in_progress');
-        const anyFailed = subtasks.some((s) => s.status === 'failed');
-        const anyCompleted = subtasks.some((s) => s.status === 'completed');
+      // Validate plan data before processing
+      if (!validatePlanData(plan)) {
+        console.error('[updateTaskFromPlan] Invalid plan data, skipping update:', {
+          taskId,
+          plan
+        });
+        return state;
+      }
 
-        let status: TaskStatus = t.status;
-        let reviewReason: ReviewReason | undefined = t.reviewReason;
+      return {
+        tasks: updateTaskAtIndex(state.tasks, index, (t) => {
+          const subtasks: Subtask[] = plan.phases.flatMap((phase) =>
+            phase.subtasks.map((subtask) => {
+              // Ensure all required fields have valid values to prevent UI issues
+              // Use crypto.randomUUID() for stronger randomness when available
+              const id = subtask.id || (typeof crypto !== 'undefined' && crypto.randomUUID
+                ? crypto.randomUUID()
+                : `subtask-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
+              // Defensive fallback: validatePlanData() ensures description exists, but kept for safety
+              const description = subtask.description || 'No description available';
+              const title = description; // Title and description are the same for subtasks
+              const status = (subtask.status as SubtaskStatus) || 'pending';
 
-        if (allCompleted) {
-          // Manual tasks skip AI review and go directly to human review
-          status = t.metadata?.sourceType === 'manual' ? 'human_review' : 'ai_review';
-          if (t.metadata?.sourceType === 'manual') {
-            reviewReason = 'completed';
-          } else {
-            reviewReason = undefined;
+              return {
+                id,
+                title,
+                description,
+                status,
+                files: [],
+                verification: subtask.verification as Subtask['verification']
+              };
+            })
+          );
+
+          debugLog('[updateTaskFromPlan] Created subtasks:', {
+            taskId,
+            subtaskCount: subtasks.length,
+            subtasks: subtasks.map(s => ({
+              id: s.id,
+              title: s.title,
+              status: s.status
+            }))
+          });
+
+          const allCompleted = subtasks.every((s) => s.status === 'completed');
+          const anyFailed = subtasks.some((s) => s.status === 'failed');
+          const anyInProgress = subtasks.some((s) => s.status === 'in_progress');
+          const anyCompleted = subtasks.some((s) => s.status === 'completed');
+
+          let status: TaskStatus = t.status;
+          let reviewReason: ReviewReason | undefined = t.reviewReason;
+
+          // RACE CONDITION FIX: Don't let stale plan data override status during active execution
+          const activePhases: ExecutionPhase[] = ['planning', 'coding', 'qa_review', 'qa_fixing'];
+          const isInActivePhase = t.executionProgress?.phase && activePhases.includes(t.executionProgress.phase);
+
+          // FIX (Flip-Flop Bug): Terminal phases should NOT trigger status recalculation
+          // When phase is 'complete' or 'failed', the task has finished and status should be stable
+          const terminalPhases: ExecutionPhase[] = ['complete', 'failed'];
+          const isInTerminalPhase = t.executionProgress?.phase && terminalPhases.includes(t.executionProgress.phase);
+
+          // FIX (Flip-Flop Bug): Respect explicit human_review status from plan file
+          // When the plan explicitly says 'human_review', don't override it with calculated status
+          // Note: ImplementationPlan type already defines status?: TaskStatus
+          const planStatus = plan.status;
+          const isExplicitHumanReview = planStatus === 'human_review';
+
+          // Only recalculate status if:
+          // 1. NOT in an active execution phase (planning, coding, qa_review, qa_fixing)
+          // 2. NOT in a terminal phase (complete, failed) - status should be stable
+          // 3. Plan doesn't explicitly say human_review
+          if (!isInActivePhase && !isInTerminalPhase && !isExplicitHumanReview) {
+            if (allCompleted) {
+              // FIX (Flip-Flop Bug): Don't downgrade from terminal statuses to ai_review
+              // Once a task reaches human_review, pr_created, or done, it should stay there
+              // unless explicitly changed (these are finalized workflow states)
+              const terminalStatuses: TaskStatus[] = ['human_review', 'pr_created', 'done'];
+              if (!terminalStatuses.includes(t.status)) {
+                status = 'ai_review';
+              }
+            } else if (anyFailed) {
+              status = 'human_review';
+              reviewReason = 'errors';
+            } else if (anyInProgress || anyCompleted) {
+              status = 'in_progress';
+            }
           }
-        } else if (anyFailed) {
-          // Some subtasks failed - needs human attention
-          status = 'human_review';
-          reviewReason = 'errors';
-        } else if (anyInProgress || anyCompleted) {
-          // Work in progress
-          status = 'in_progress';
-          reviewReason = undefined;
-        }
 
-        return {
-          ...t,
-          title: plan.feature || t.title,
-          subtasks,
-          status,
-          reviewReason,
-          updatedAt: new Date()
-        };
-      })
-    })),
+          debugLog('[updateTaskFromPlan] Status computation:', {
+            taskId,
+            currentStatus: t.status,
+            newStatus: status,
+            isInActivePhase,
+            isInTerminalPhase,
+            isExplicitHumanReview,
+            planStatus,
+            currentPhase: t.executionProgress?.phase,
+            allCompleted,
+            anyFailed,
+            anyInProgress,
+            anyCompleted
+          });
+
+          return {
+            ...t,
+            title: plan.feature || t.title,
+            subtasks,
+            status,
+            reviewReason,
+            updatedAt: new Date()
+          };
+        })
+      };
+    }),
 
   updateExecutionProgress: (taskId, progress) =>
-    set((state) => ({
-      tasks: state.tasks.map((t) => {
-        if (t.id !== taskId && t.specId !== taskId) return t;
+    set((state) => {
+      const index = findTaskIndex(state.tasks, taskId);
+      if (index === -1) return state;
 
-        // Merge with existing progress
-        const existingProgress = t.executionProgress || {
-          phase: 'idle' as ExecutionPhase,
-          phaseProgress: 0,
-          overallProgress: 0
-        };
+      return {
+        tasks: updateTaskAtIndex(state.tasks, index, (t) => {
+          const existingProgress = t.executionProgress || {
+            phase: 'idle' as ExecutionPhase,
+            phaseProgress: 0,
+            overallProgress: 0,
+            sequenceNumber: 0
+          };
 
-        return {
-          ...t,
-          executionProgress: {
-            ...existingProgress,
-            ...progress
-          },
-          updatedAt: new Date()
-        };
-      })
-    })),
+          const incomingSeq = progress.sequenceNumber ?? 0;
+          const currentSeq = existingProgress.sequenceNumber ?? 0;
+          if (incomingSeq > 0 && currentSeq > 0 && incomingSeq < currentSeq) {
+            // FIX (ACS-55): Log when updates are dropped due to sequence numbers
+            // This helps debug phase transition issues
+            console.warn('[updateExecutionProgress] Dropping out-of-order update:', {
+              taskId,
+              incomingSeq,
+              currentSeq,
+              incomingPhase: progress.phase,
+              currentPhase: existingProgress.phase
+            });
+            return t; // Skip out-of-order update
+          }
+
+          // Only update updatedAt on phase transitions (not on every progress tick)
+          // This prevents unnecessary re-renders from the memo comparator
+          const phaseChanged = progress.phase && progress.phase !== existingProgress.phase;
+
+          return {
+            ...t,
+            executionProgress: {
+              ...existingProgress,
+              ...progress
+            },
+            // Only set updatedAt on phase changes to reduce re-renders
+            ...(phaseChanged ? { updatedAt: new Date() } : {})
+          };
+        })
+      };
+    }),
 
   appendLog: (taskId, log) =>
-    set((state) => ({
-      tasks: state.tasks.map((t) =>
-        t.id === taskId || t.specId === taskId
-          ? { ...t, logs: [...(t.logs || []), log] }
-          : t
-      )
-    })),
+    set((state) => {
+      const index = findTaskIndex(state.tasks, taskId);
+      if (index === -1) return state;
+
+      return {
+        tasks: updateTaskAtIndex(state.tasks, index, (t) => ({
+          ...t,
+          logs: [...(t.logs || []), log]
+        }))
+      };
+    }),
+
+  // Batch append multiple logs at once (single state update instead of N updates)
+  batchAppendLogs: (taskId, logs) =>
+    set((state) => {
+      if (logs.length === 0) return state;
+      const index = findTaskIndex(state.tasks, taskId);
+      if (index === -1) return state;
+
+      return {
+        tasks: updateTaskAtIndex(state.tasks, index, (t) => ({
+          ...t,
+          logs: [...(t.logs || []), ...logs]
+        }))
+      };
+    }),
 
   selectTask: (taskId) => set({ selectedTaskId: taskId }),
 

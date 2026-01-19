@@ -54,6 +54,14 @@ export const workspaceMock = {
     }
   }),
 
+  createWorktreePR: async () => ({
+    success: true,
+    data: {
+      success: true,
+      prUrl: 'https://github.com/example/repo/pull/123'
+    }
+  }),
+
   discardWorktree: async () => ({
     success: true,
     data: {
@@ -62,26 +70,37 @@ export const workspaceMock = {
     }
   }),
 
-  stashAndMergeWorktree: async () => ({
+  clearStagedState: async () => ({
     success: true,
-    data: {
-      success: true,
-      message: 'Changes stashed, merged, and restored successfully'
-    }
-  }),
-
-  forceMergeWorktree: async () => ({
-    success: true,
-    data: {
-      success: true,
-      message: 'Force merge completed successfully'
-    }
+    data: { cleared: true }
   }),
 
   listWorktrees: async () => ({
     success: true,
     data: {
       worktrees: []
+    }
+  }),
+
+  worktreeOpenInIDE: async () => ({
+    success: true,
+    data: { opened: true }
+  }),
+
+  worktreeOpenInTerminal: async () => ({
+    success: true,
+    data: { opened: true }
+  }),
+
+  worktreeDetectTools: async () => ({
+    success: true,
+    data: {
+      ides: [
+        { id: 'vscode', name: 'Visual Studio Code', path: '/Applications/Visual Studio Code.app', installed: true }
+      ],
+      terminals: [
+        { id: 'system', name: 'System Terminal', path: '', installed: true }
+      ]
     }
   })
 };

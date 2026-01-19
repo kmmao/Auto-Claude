@@ -5,8 +5,8 @@ import {
   AlertCircle,
   Loader2
 } from 'lucide-react';
-import { Button } from '../ui/button';
 import { useTranslation } from 'react-i18next';
+import { Button } from '../ui/button';
 import { Label } from '../ui/label';
 import { Switch } from '../ui/switch';
 import {
@@ -32,7 +32,6 @@ interface GeneralSettingsProps {
   isCheckingVersion: boolean;
   isUpdating: boolean;
   handleInitialize: () => Promise<void>;
-  handleUpdate: () => Promise<void>;
 }
 
 export function GeneralSettings({
@@ -42,24 +41,23 @@ export function GeneralSettings({
   versionInfo,
   isCheckingVersion,
   isUpdating,
-  handleInitialize,
-  handleUpdate: _handleUpdate
+  handleInitialize
 }: GeneralSettingsProps) {
-  const { t } = useTranslation(['common', 'settings']);
+  const { t } = useTranslation(['settings']);
 
   return (
     <>
       {/* Auto-Build Integration */}
       <section className="space-y-4">
-        <h3 className="text-sm font-semibold text-foreground">{t("settings:project.general.autoBuild.title")}</h3>
+        <h3 className="text-sm font-semibold text-foreground">Auto-Build Integration</h3>
         {!project.autoBuildPath ? (
           <div className="rounded-lg border border-border bg-muted/50 p-4">
             <div className="flex items-start gap-3">
               <AlertCircle className="h-5 w-5 text-warning mt-0.5 shrink-0" />
               <div className="flex-1">
-                <p className="text-sm font-medium text-foreground">{t("settings:project.general.autoBuild.notInitialized")}</p>
+                <p className="text-sm font-medium text-foreground">Not Initialized</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {t("settings:project.general.autoBuild.initializeDesc")}
+                  Initialize Auto-Build to enable task creation and agent workflows.
                 </p>
                 <Button
                   size="sm"
@@ -70,12 +68,12 @@ export function GeneralSettings({
                   {isUpdating ? (
                     <>
                       <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                      {t("settings:project.general.autoBuild.initializing")}
+                      Initializing...
                     </>
                   ) : (
                     <>
                       <Download className="mr-2 h-4 w-4" />
-                      {t("settings:project.general.autoBuild.initialize")}
+                      Initialize Auto-Build
                     </>
                   )}
                 </Button>
@@ -87,7 +85,7 @@ export function GeneralSettings({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-success" />
-                <span className="text-sm font-medium text-foreground">{t("settings:project.general.autoBuild.initialized")}</span>
+                <span className="text-sm font-medium text-foreground">Initialized</span>
               </div>
               <code className="text-xs bg-background px-2 py-1 rounded">
                 {project.autoBuildPath}
@@ -96,11 +94,11 @@ export function GeneralSettings({
             {isCheckingVersion ? (
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <Loader2 className="h-3 w-3 animate-spin" />
-                {t("settings:project.general.autoBuild.checkingStatus")}
+                Checking status...
               </div>
             ) : versionInfo && (
               <div className="text-xs text-muted-foreground">
-                {versionInfo.isInitialized ? t("settings:project.general.autoBuild.initialized") : t("settings:project.general.autoBuild.notInitialized")}
+                {versionInfo.isInitialized ? 'Initialized' : 'Not initialized'}
               </div>
             )}
           </div>
@@ -113,9 +111,9 @@ export function GeneralSettings({
 
           {/* Agent Settings */}
           <section className="space-y-4">
-            <h3 className="text-sm font-semibold text-foreground">{t("settings:project.general.agent.title")}</h3>
+            <h3 className="text-sm font-semibold text-foreground">Agent Configuration</h3>
             <div className="space-y-2">
-              <Label htmlFor="model" className="text-sm font-medium text-foreground">{t("settings:project.general.model")}</Label>
+              <Label htmlFor="model" className="text-sm font-medium text-foreground">Model</Label>
               <Select
                 value={settings.model}
                 onValueChange={(value) => setSettings({ ...settings, model: value })}
@@ -132,16 +130,32 @@ export function GeneralSettings({
                 </SelectContent>
               </Select>
             </div>
+            <div className="flex items-center justify-between pt-2">
+              <div className="space-y-0.5">
+                <Label className="font-normal text-foreground">
+                  {t('projectSections.general.useClaudeMd')}
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  {t('projectSections.general.useClaudeMdDescription')}
+                </p>
+              </div>
+              <Switch
+                checked={settings.useClaudeMd ?? true}
+                onCheckedChange={(checked) =>
+                  setSettings({ ...settings, useClaudeMd: checked })
+                }
+              />
+            </div>
           </section>
 
           <Separator />
 
           {/* Notifications */}
           <section className="space-y-4">
-            <h3 className="text-sm font-semibold text-foreground">{t("settings:notifications.title")}</h3>
+            <h3 className="text-sm font-semibold text-foreground">Notifications</h3>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <Label className="font-normal text-foreground">{t("settings:notifications.onTaskComplete.label")}</Label>
+                <Label className="font-normal text-foreground">On Task Complete</Label>
                 <Switch
                   checked={settings.notifications.onTaskComplete}
                   onCheckedChange={(checked) =>
@@ -156,7 +170,7 @@ export function GeneralSettings({
                 />
               </div>
               <div className="flex items-center justify-between">
-                <Label className="font-normal text-foreground">{t("settings:notifications.onTaskFailed.label")}</Label>
+                <Label className="font-normal text-foreground">On Task Failed</Label>
                 <Switch
                   checked={settings.notifications.onTaskFailed}
                   onCheckedChange={(checked) =>
@@ -171,7 +185,7 @@ export function GeneralSettings({
                 />
               </div>
               <div className="flex items-center justify-between">
-                <Label className="font-normal text-foreground">{t("settings:notifications.onReviewNeeded.label")}</Label>
+                <Label className="font-normal text-foreground">On Review Needed</Label>
                 <Switch
                   checked={settings.notifications.onReviewNeeded}
                   onCheckedChange={(checked) =>
@@ -186,7 +200,7 @@ export function GeneralSettings({
                 />
               </div>
               <div className="flex items-center justify-between">
-                <Label className="font-normal text-foreground">{t("settings:notifications.sound.label")}</Label>
+                <Label className="font-normal text-foreground">Sound</Label>
                 <Switch
                   checked={settings.notifications.sound}
                   onCheckedChange={(checked) =>

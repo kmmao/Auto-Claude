@@ -1,7 +1,8 @@
 import type { BrowserWindow } from 'electron';
 import path from 'path';
-import { existsSync, readFileSync, writeFileSync } from 'fs';
-import { IPC_CHANNELS, getSpecsDir, AUTO_BUILD_PATHS } from '../../shared/constants';
+import { existsSync } from 'fs';
+import { IPC_CHANNELS, AUTO_BUILD_PATHS, getSpecsDir } from '../../shared/constants';
+import { wouldPhaseRegress, isTerminalPhase, isValidExecutionPhase, type ExecutionPhase } from '../../shared/constants/phase-protocol';
 import type {
   SDKRateLimitInfo,
   Task,
@@ -15,6 +16,57 @@ import { titleGenerator } from '../title-generator';
 import { fileWatcher } from '../file-watcher';
 import { projectStore } from '../project-store';
 import { notificationService } from '../notification-service';
+import { persistPlanStatusSync, getPlanPath } from './task/plan-file-utils';
+import { findTaskWorktree } from '../worktree-paths';
+import { findTaskAndProject } from './task/shared';
+
+
+/**
+ * Validates status transitions to prevent invalid state changes.
+ * FIX (ACS-55, ACS-71): Adds guardrails against bad status transitions.
+ * FIX (PR Review): Uses comprehensive wouldPhaseRegress() utility instead of hardcoded checks.
+ *
+ * @param task - The current task (may be undefined if not found)
+ * @param newStatus - The proposed new status
+ * @param phase - The execution phase that triggered this transition
+ * @returns true if transition is valid, false if it should be blocked
+ */
+function validateStatusTransition(
+  task: Task | undefined,
+  newStatus: TaskStatus,
+  phase: string
+): boolean {
+  // Can't validate without task data - allow the transition
+  if (!task) return true;
+
+  // Don't allow human_review without subtasks
+  // This prevents tasks from jumping to review before planning is complete
+  if (newStatus === 'human_review' && (!task.subtasks || task.subtasks.length === 0)) {
+    console.warn(`[validateStatusTransition] Blocking human_review - task ${task.id} has no subtasks (phase: ${phase})`);
+    return false;
+  }
+
+  // FIX (PR Review): Use comprehensive phase regression check instead of hardcoded checks
+  // This handles all phase regressions (qa_review→coding, complete→coding, etc.)
+  // not just the specific coding→planning case
+  const currentPhase = task.executionProgress?.phase;
+  if (currentPhase && isValidExecutionPhase(currentPhase) && isValidExecutionPhase(phase)) {
+    // Block transitions from terminal phases (complete/failed)
+    if (isTerminalPhase(currentPhase)) {
+      console.warn(`[validateStatusTransition] Blocking transition from terminal phase: ${currentPhase} for task ${task.id}`);
+      return false;
+    }
+
+    // Block any phase regression (going backwards in the workflow)
+    // Note: Cast phase to ExecutionPhase since isValidExecutionPhase() type guard doesn't narrow through function calls
+    if (wouldPhaseRegress(currentPhase, phase as ExecutionPhase)) {
+      console.warn(`[validateStatusTransition] Blocking phase regression: ${currentPhase} -> ${phase} for task ${task.id}`);
+      return false;
+    }
+  }
+
+  return true;
+}
 
 
 /**
@@ -31,14 +83,18 @@ export function registerAgenteventsHandlers(
   agentManager.on('log', (taskId: string, log: string) => {
     const mainWindow = getMainWindow();
     if (mainWindow) {
-      mainWindow.webContents.send(IPC_CHANNELS.TASK_LOG, taskId, log);
+      // Include projectId for multi-project filtering (issue #723)
+      const { project } = findTaskAndProject(taskId);
+      mainWindow.webContents.send(IPC_CHANNELS.TASK_LOG, taskId, log, project?.id);
     }
   });
 
   agentManager.on('error', (taskId: string, error: string) => {
     const mainWindow = getMainWindow();
     if (mainWindow) {
-      mainWindow.webContents.send(IPC_CHANNELS.TASK_ERROR, taskId, error);
+      // Include projectId for multi-project filtering (issue #723)
+      const { project } = findTaskAndProject(taskId);
+      mainWindow.webContents.send(IPC_CHANNELS.TASK_ERROR, taskId, error, project?.id);
     }
   });
 
@@ -61,37 +117,35 @@ export function registerAgenteventsHandlers(
   agentManager.on('exit', (taskId: string, code: number | null, processType: ProcessType) => {
     const mainWindow = getMainWindow();
     if (mainWindow) {
-      // Stop file watcher
-      fileWatcher.unwatch(taskId);
+      // Get project info early for multi-project filtering (issue #723)
+      const { project: exitProject } = findTaskAndProject(taskId);
+      const exitProjectId = exitProject?.id;
 
-      // Determine new status based on process type and exit code
-      // Flow: Planning → In Progress → AI Review (QA agent) → Human Review (QA passed)
-      let newStatus: TaskStatus;
-
-      if (processType === 'task-execution') {
-        // Task execution completed (includes spec_runner → run.py chain)
-        // Success (code 0) = QA agent signed off → Human Review
-        // Failure = needs human attention → Human Review
-        newStatus = 'human_review';
-      } else if (processType === 'qa-process') {
-        // QA retry process completed
-        newStatus = 'human_review';
-      } else if (processType === 'spec-creation') {
-        // Pure spec creation (shouldn't happen with current flow, but handle it)
-        // Stay in backlog/planning
-        console.warn(`[Task ${taskId}] Spec creation completed with code ${code}`);
-        return;
-      } else {
-        // Unknown process type
-        newStatus = 'human_review';
+      // Send final plan state to renderer BEFORE unwatching
+      // This ensures the renderer has the final subtask data (fixes 0/0 subtask bug)
+      const finalPlan = fileWatcher.getCurrentPlan(taskId);
+      if (finalPlan) {
+        mainWindow.webContents.send(IPC_CHANNELS.TASK_PROGRESS, taskId, finalPlan, exitProjectId);
       }
 
-      // Find task and project for status persistence and notifications
+      fileWatcher.unwatch(taskId);
+
+      if (processType === 'spec-creation') {
+        console.warn(`[Task ${taskId}] Spec creation completed with code ${code}`);
+        return;
+      }
+
       let task: Task | undefined;
       let project: Project | undefined;
 
       try {
         const projects = projectStore.getProjects();
+
+        // IMPORTANT: Invalidate cache for all projects to ensure we get fresh data
+        // This prevents race conditions where cached task data has stale status
+        for (const p of projects) {
+          projectStore.invalidateTasksCache(p.id);
+        }
 
         for (const p of projects) {
           const tasks = projectStore.getTasks(p.id);
@@ -102,72 +156,153 @@ export function registerAgenteventsHandlers(
           }
         }
 
-        // Persist status to disk so it survives hot reload
-        // This is a backup in case the Python backend didn't sync properly
         if (task && project) {
-          const specsBaseDir = getSpecsDir(project.autoBuildPath);
-          const specDir = path.join(project.path, specsBaseDir, task.specId);
-          const planPath = path.join(specDir, AUTO_BUILD_PATHS.IMPLEMENTATION_PLAN);
+          const taskTitle = task.title || task.specId;
+          const mainPlanPath = getPlanPath(project, task);
+          const projectId = project.id; // Capture for closure
 
-          if (existsSync(planPath)) {
-            const planContent = readFileSync(planPath, 'utf-8');
-            const plan = JSON.parse(planContent);
+          // Capture task values for closure
+          const taskSpecId = task.specId;
+          const projectPath = project.path;
+          const autoBuildPath = project.autoBuildPath;
 
-            // Only update if not already set to a "further along" status
-            // (e.g., don't override 'done' with 'human_review')
-            const currentStatus = plan.status;
-            const shouldUpdate = !currentStatus ||
-              currentStatus === 'in_progress' ||
-              currentStatus === 'ai_review' ||
-              currentStatus === 'backlog' ||
-              currentStatus === 'pending';
-
-            if (shouldUpdate) {
-              plan.status = newStatus;
-              plan.planStatus = 'review';
-              plan.updated_at = new Date().toISOString();
-              writeFileSync(planPath, JSON.stringify(plan, null, 2));
-              console.warn(`[Task ${taskId}] Persisted status '${newStatus}' to implementation_plan.json`);
+          // Use shared utility for persisting status (prevents race conditions)
+          // Persist to both main project AND worktree (if exists) for consistency
+          const persistStatus = (status: TaskStatus) => {
+            // Persist to main project
+            const mainPersisted = persistPlanStatusSync(mainPlanPath, status, projectId);
+            if (mainPersisted) {
+              console.warn(`[Task ${taskId}] Persisted status to main plan: ${status}`);
             }
+
+            // Also persist to worktree if it exists
+            const worktreePath = findTaskWorktree(projectPath, taskSpecId);
+            if (worktreePath) {
+              const specsBaseDir = getSpecsDir(autoBuildPath);
+              const worktreePlanPath = path.join(
+                worktreePath,
+                specsBaseDir,
+                taskSpecId,
+                AUTO_BUILD_PATHS.IMPLEMENTATION_PLAN
+              );
+              if (existsSync(worktreePlanPath)) {
+                const worktreePersisted = persistPlanStatusSync(worktreePlanPath, status, projectId);
+                if (worktreePersisted) {
+                  console.warn(`[Task ${taskId}] Persisted status to worktree plan: ${status}`);
+                }
+              }
+            }
+          };
+
+          if (code === 0) {
+            notificationService.notifyReviewNeeded(taskTitle, project.id, taskId);
+
+            // Fallback: Ensure status is updated even if COMPLETE phase event was missed
+            // This prevents tasks from getting stuck in ai_review status
+            // FIX (ACS-71): Only move to human_review if subtasks exist AND are all completed
+            // If no subtasks exist, the task is still in planning and shouldn't move to human_review
+            const isActiveStatus = task.status === 'in_progress' || task.status === 'ai_review';
+            const hasSubtasks = task.subtasks && task.subtasks.length > 0;
+            const hasIncompleteSubtasks = hasSubtasks &&
+              task.subtasks.some((s) => s.status !== 'completed');
+
+            if (isActiveStatus && hasSubtasks && !hasIncompleteSubtasks) {
+              // All subtasks completed - safe to move to human_review
+              console.warn(`[Task ${taskId}] Fallback: Moving to human_review (process exited successfully, all ${task.subtasks.length} subtasks completed)`);
+              persistStatus('human_review');
+              // Include projectId for multi-project filtering (issue #723)
+              mainWindow.webContents.send(
+                IPC_CHANNELS.TASK_STATUS_CHANGE,
+                taskId,
+                'human_review' as TaskStatus,
+                projectId
+              );
+            } else if (isActiveStatus && !hasSubtasks) {
+              // No subtasks yet - task is still in planning phase, don't change status
+              // This prevents the bug where tasks jump to human_review before planning completes
+              console.warn(`[Task ${taskId}] Process exited but no subtasks created yet - keeping current status (${task.status})`);
+            }
+          } else {
+            notificationService.notifyTaskFailed(taskTitle, project.id, taskId);
+            persistStatus('human_review');
+            // Include projectId for multi-project filtering (issue #723)
+            mainWindow.webContents.send(
+              IPC_CHANNELS.TASK_STATUS_CHANGE,
+              taskId,
+              'human_review' as TaskStatus,
+              projectId
+            );
           }
         }
-      } catch (persistError) {
-        console.error(`[Task ${taskId}] Failed to persist status:`, persistError);
+      } catch (error) {
+        console.error(`[Task ${taskId}] Exit handler error:`, error);
       }
-
-      // Send notifications based on task completion status
-      if (task && project) {
-        const taskTitle = task.title || task.specId;
-
-        if (code === 0) {
-          // Task completed successfully - ready for review
-          notificationService.notifyReviewNeeded(taskTitle, project.id, taskId);
-        } else {
-          // Task failed
-          notificationService.notifyTaskFailed(taskTitle, project.id, taskId);
-        }
-      }
-
-      mainWindow.webContents.send(
-        IPC_CHANNELS.TASK_STATUS_CHANGE,
-        taskId,
-        newStatus
-      );
     }
   });
 
   agentManager.on('execution-progress', (taskId: string, progress: ExecutionProgressData) => {
     const mainWindow = getMainWindow();
     if (mainWindow) {
-      mainWindow.webContents.send(IPC_CHANNELS.TASK_EXECUTION_PROGRESS, taskId, progress);
+      // Use shared helper to find task and project (issue #723 - deduplicate lookup)
+      const { task, project } = findTaskAndProject(taskId);
+      const taskProjectId = project?.id;
 
-      // Auto-move task to AI Review when entering qa_review phase
-      if (progress.phase === 'qa_review') {
+      // Include projectId in execution progress event for multi-project filtering
+      mainWindow.webContents.send(IPC_CHANNELS.TASK_EXECUTION_PROGRESS, taskId, progress, taskProjectId);
+
+      const phaseToStatus: Record<string, TaskStatus | null> = {
+        'idle': null,
+        'planning': 'in_progress',
+        'coding': 'in_progress',
+        'qa_review': 'ai_review',
+        'qa_fixing': 'ai_review',
+        'complete': 'human_review',
+        'failed': 'human_review'
+      };
+
+      const newStatus = phaseToStatus[progress.phase];
+      // FIX (ACS-55, ACS-71): Validate status transition before sending/persisting
+      if (newStatus && validateStatusTransition(task, newStatus, progress.phase)) {
+        // Include projectId in status change event for multi-project filtering
         mainWindow.webContents.send(
           IPC_CHANNELS.TASK_STATUS_CHANGE,
           taskId,
-          'ai_review'
+          newStatus,
+          taskProjectId
         );
+
+        // CRITICAL: Persist status to plan file(s) to prevent flip-flop on task list refresh
+        // When getTasks() is called, it reads status from the plan file. Without persisting,
+        // the status in the file might differ from the UI, causing inconsistent state.
+        // Uses shared utility with locking to prevent race conditions.
+        // IMPORTANT: We persist to BOTH main project AND worktree (if exists) to ensure
+        // consistency, since getTasks() prefers the worktree version.
+        if (task && project) {
+          try {
+            // Persist to main project plan file
+            const mainPlanPath = getPlanPath(project, task);
+            persistPlanStatusSync(mainPlanPath, newStatus, project.id);
+
+            // Also persist to worktree plan file if it exists
+            // This ensures consistency since getTasks() prefers worktree version
+            const worktreePath = findTaskWorktree(project.path, task.specId);
+            if (worktreePath) {
+              const specsBaseDir = getSpecsDir(project.autoBuildPath);
+              const worktreePlanPath = path.join(
+                worktreePath,
+                specsBaseDir,
+                task.specId,
+                AUTO_BUILD_PATHS.IMPLEMENTATION_PLAN
+              );
+              if (existsSync(worktreePlanPath)) {
+                persistPlanStatusSync(worktreePlanPath, newStatus, project.id);
+              }
+            }
+          } catch (err) {
+            // Ignore persistence errors - UI will still work, just might flip on refresh
+            console.warn('[execution-progress] Could not persist status:', err);
+          }
+        }
       }
     }
   });
@@ -179,14 +314,18 @@ export function registerAgenteventsHandlers(
   fileWatcher.on('progress', (taskId: string, plan: ImplementationPlan) => {
     const mainWindow = getMainWindow();
     if (mainWindow) {
-      mainWindow.webContents.send(IPC_CHANNELS.TASK_PROGRESS, taskId, plan);
+      // Use shared helper to find project (issue #723 - deduplicate lookup)
+      const { project } = findTaskAndProject(taskId);
+      mainWindow.webContents.send(IPC_CHANNELS.TASK_PROGRESS, taskId, plan, project?.id);
     }
   });
 
   fileWatcher.on('error', (taskId: string, error: string) => {
     const mainWindow = getMainWindow();
     if (mainWindow) {
-      mainWindow.webContents.send(IPC_CHANNELS.TASK_ERROR, taskId, error);
+      // Include projectId for multi-project filtering (issue #723)
+      const { project } = findTaskAndProject(taskId);
+      mainWindow.webContents.send(IPC_CHANNELS.TASK_ERROR, taskId, error, project?.id);
     }
   });
 }

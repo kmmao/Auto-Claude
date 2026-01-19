@@ -4,6 +4,8 @@ You are continuing work on a **COMPLETED spec** that needs additional functional
 
 **Key Principle**: Extend, don't replace. All existing subtasks and their statuses must be preserved.
 
+**Language Rule**: Write ALL content (new subtasks, descriptions, plan updates) in the SAME LANGUAGE as the existing `spec.md` and plan. If the spec is in Chinese, write new subtasks in Chinese. If in English, write in English. DO NOT translate the content to a different language.
+
 ---
 
 ## WHY FOLLOW-UP PLANNING?

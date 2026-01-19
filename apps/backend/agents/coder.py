@@ -7,6 +7,7 @@ Main autonomous agent loop that runs the coder agent to implement subtasks.
 
 import asyncio
 import logging
+import os
 from pathlib import Path
 
 from core.client import create_client
@@ -18,6 +19,7 @@ from linear_updater import (
     linear_task_stuck,
 )
 from phase_config import get_phase_model, get_phase_thinking_budget
+from phase_event import ExecutionPhase, emit_phase
 from progress import (
     count_subtasks,
     count_subtasks_detailed,
@@ -36,6 +38,7 @@ from prompt_generator import (
 )
 from prompts import is_first_run
 from recovery import RecoveryManager
+from security.constants import PROJECT_DIR_ENV_VAR
 from task_logger import (
     LogPhase,
     get_task_logger,
@@ -61,7 +64,7 @@ from .utils import (
     get_commit_count,
     get_latest_commit,
     load_implementation_plan,
-    sync_plan_to_source,
+    sync_spec_to_source,
 )
 
 logger = logging.getLogger(__name__)
@@ -89,6 +92,10 @@ async def run_autonomous_agent(
         verbose: Whether to show detailed output
         source_spec_dir: Original spec directory in main project (for syncing from worktree)
     """
+    # Set environment variable for security hooks to find the correct project directory
+    # This is needed because os.getcwd() may return the wrong directory in worktree mode
+    os.environ[PROJECT_DIR_ENV_VAR] = str(project_dir.resolve())
+
     # Initialize recovery manager (handles memory persistence)
     recovery_manager = RecoveryManager(spec_dir, project_dir)
 
@@ -146,6 +153,7 @@ async def run_autonomous_agent(
 
         # Update status for planning phase
         status_manager.update(state=BuildState.PLANNING)
+        emit_phase(ExecutionPhase.PLANNING, "Creating implementation plan")
         is_planning_phase = True
         current_log_phase = LogPhase.PLANNING
 
@@ -172,6 +180,9 @@ async def run_autonomous_agent(
         # Start/continue coding phase in task logger
         if task_logger:
             task_logger.start_phase(LogPhase.CODING, "Continuing implementation...")
+
+        # Emit phase event when continuing build
+        emit_phase(ExecutionPhase.CODING, "Continuing implementation")
 
     # Show human intervention hint
     content = [
@@ -252,16 +263,33 @@ async def run_autonomous_agent(
         phase_thinking_budget = get_phase_thinking_budget(spec_dir, current_phase)
 
         # Create client (fresh context) with phase-specific model and thinking
+        # Use appropriate agent_type for correct tool permissions and thinking budget
         client = create_client(
             project_dir,
             spec_dir,
             phase_model,
+            agent_type="planner" if first_run else "coder",
             max_thinking_tokens=phase_thinking_budget,
         )
 
         # Generate appropriate prompt
         if first_run:
             prompt = generate_planner_prompt(spec_dir, project_dir)
+
+            # Retrieve Graphiti memory context for planning phase
+            # This gives the planner knowledge of previous patterns, gotchas, and insights
+            planner_context = await get_graphiti_context(
+                spec_dir,
+                project_dir,
+                {
+                    "description": "Planning implementation for new feature",
+                    "id": "planner",
+                },
+            )
+            if planner_context:
+                prompt += "\n\n" + planner_context
+                print_status("Graphiti memory context loaded for planner", "success")
+
             first_run = False
             current_log_phase = LogPhase.PLANNING
 
@@ -273,6 +301,7 @@ async def run_autonomous_agent(
             if is_planning_phase:
                 is_planning_phase = False
                 current_log_phase = LogPhase.CODING
+                emit_phase(ExecutionPhase.CODING, "Starting implementation")
                 if task_logger:
                     task_logger.end_phase(
                         LogPhase.PLANNING,
@@ -381,15 +410,16 @@ async def run_autonomous_agent(
                     print_status("Linear notified of stuck subtask", "info")
         elif is_planning_phase and source_spec_dir:
             # After planning phase, sync the newly created implementation plan back to source
-            if sync_plan_to_source(spec_dir, source_spec_dir):
+            if sync_spec_to_source(spec_dir, source_spec_dir):
                 print_status("Implementation plan synced to main project", "success")
 
         # Handle session status
         if status == "complete":
+            # Don't emit COMPLETE here - subtasks are done but QA hasn't run yet
+            # QA loop will emit COMPLETE after actual approval
             print_build_complete_banner(spec_dir)
             status_manager.update(state=BuildState.COMPLETE)
 
-            # End coding phase in task logger
             if task_logger:
                 task_logger.end_phase(
                     LogPhase.CODING,
@@ -397,7 +427,6 @@ async def run_autonomous_agent(
                     message="All subtasks completed successfully",
                 )
 
-            # Notify Linear that build is complete (moving to QA)
             if linear_task and linear_task.task_id:
                 await linear_build_complete(spec_dir)
                 print_status("Linear notified: build complete, ready for QA", "success")
@@ -432,6 +461,7 @@ async def run_autonomous_agent(
             await asyncio.sleep(AUTO_CONTINUE_DELAY_SECONDS)
 
         elif status == "error":
+            emit_phase(ExecutionPhase.FAILED, "Session encountered an error")
             print_status("Session encountered an error", "error")
             print(muted("Will retry with a fresh session..."))
             status_manager.update(state=BuildState.ERROR)

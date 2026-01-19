@@ -1,45 +1,36 @@
 {
-  "title": "Agent Terminals",
-  "emptyState": {
-    "title": "Agent Terminals",
-    "description": "Spawn multiple terminals to run Claude agents in parallel. Use",
-    "shortcut": "Ctrl+T",
-    "action": "to create a new terminal.",
-    "button": "New Terminal"
+  "expand": {
+    "expand": "Expand terminal",
+    "collapse": "Collapse terminal"
   },
-  "actions": {
-    "newTerminal": "New Terminal",
-    "closeTerminal": "Close Terminal",
-    "clearTerminal": "Clear Terminal",
-    "renameTerminal": "Rename Terminal",
-    "duplicateTerminal": "Duplicate Terminal",
-    "invokeClaudeAll": "Invoke Claude All",
-    "restoreSessions": "Restore sessions from...",
-    "history": "History"
+  "auth": {
+    "terminalTitle": "Auth: {{profileName}}",
+    "maxTerminalsReached": "Cannot open auth terminal: maximum terminals reached. Close a terminal first."
   },
-  "session": "session",
-  "sessions": "sessions",
-  "status": {
-    "running": "Running",
-    "idle": "Idle",
-    "error": "Error",
-    "starting": "Starting",
-    "stopping": "Stopping"
-  },
-  "messages": {
-    "noTerminals": "No terminals yet",
-    "createFirst": "Create your first terminal to get started",
-    "terminalClosed": "Terminal closed",
-    "terminalError": "Terminal error"
-  },
-  "taskSelector": {
-    "selectTask": "Select task...",
-    "currentTask": "Current task",
-    "switchTo": "Switch to...",
-    "clearTask": "Clear task",
-    "availableTasks": "Available tasks",
-    "noTasksAvailable": "No tasks available",
-    "addNewTask": "Add new task",
-    "createTasksHint": "Create tasks in the Kanban board"
+  "worktree": {
+    "create": "Worktree",
+    "createNew": "New Worktree",
+    "existing": "Existing Worktrees",
+    "createTitle": "Create Terminal Worktree",
+    "createDescription": "Create an isolated workspace for this terminal. All work will happen in the worktree directory.",
+    "name": "Worktree Name",
+    "namePlaceholder": "my-feature",
+    "nameRequired": "Worktree name is required",
+    "nameInvalid": "Name must start and end with a letter or number",
+    "nameHelp": "Lowercase letters, numbers, dashes, and underscores only",
+    "associateTask": "Link to Task",
+    "selectTask": "Select a task...",
+    "noTask": "No task (standalone worktree)",
+    "createBranch": "Create Git Branch",
+    "branchHelp": "Creates branch: {{branch}}",
+    "baseBranch": "Base Branch",
+    "selectBaseBranch": "Select base branch...",
+    "useProjectDefault": "Use project default ({{branch}})",
+    "baseBranchHelp": "The branch to create the worktree from",
+    "openInIDE": "Open in IDE",
+    "maxReached": "Maximum of 12 terminal worktrees reached",
+    "alreadyExists": "A worktree with this name already exists",
+    "deleteTitle": "Delete Worktree?",
+    "deleteDescription": "This will permanently delete the worktree and its branch. Any uncommitted changes will be lost."
   }
 }

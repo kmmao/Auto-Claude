@@ -12,12 +12,6 @@
     "empty": "No projects yet",
     "emptyDescription": "Create a new project or open an existing one to get started",
     "openFolder": "Open Folder",
-    "initialized": "Initialized"
-  },
-  "time": {
-    "justNow": "Just now",
-    "minutesAgo": "{{count}}m ago",
-    "hoursAgo": "{{count}}h ago",
-    "daysAgo": "{{count}}d ago"
+    "openProjectAriaLabel": "Open project {{name}}"
   }
 }

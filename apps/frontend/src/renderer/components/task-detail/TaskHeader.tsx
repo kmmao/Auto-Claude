@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { X, Pencil, AlertTriangle } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
@@ -5,7 +6,6 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { cn } from '../../lib/utils';
 import { TASK_STATUS_LABELS } from '../../../shared/constants';
 import type { Task } from '../../../shared/types';
-import { useTranslation } from 'react-i18next';
 
 interface TaskHeaderProps {
   task: Task;
@@ -26,7 +26,7 @@ export function TaskHeader({
   onClose,
   onEdit
 }: TaskHeaderProps) {
-  const { t } = useTranslation(['common', 'taskDetail', 'kanban']);
+  const { t } = useTranslation('tasks');
 
   return (
     <div className="flex items-start justify-between p-4 pb-3">
@@ -50,16 +50,16 @@ export function TaskHeader({
           {isStuck ? (
             <Badge variant="warning" className="text-xs flex items-center gap-1 animate-pulse">
               <AlertTriangle className="h-3 w-3" />
-              {t('taskDetail:status.stuck')}
+              Stuck
             </Badge>
           ) : isIncomplete ? (
             <>
               <Badge variant="warning" className="text-xs flex items-center gap-1">
                 <AlertTriangle className="h-3 w-3" />
-                {t('taskDetail:status.incomplete')}
+                Incomplete
               </Badge>
               <Badge variant="outline" className="text-xs text-orange-400">
-                {t('taskDetail:subtasks.count', { completed: taskProgress.completed, total: taskProgress.total })}
+                {taskProgress.completed}/{taskProgress.total} subtasks
               </Badge>
             </>
           ) : (
@@ -68,16 +68,16 @@ export function TaskHeader({
                 variant={task.status === 'done' ? 'success' : task.status === 'human_review' ? 'purple' : task.status === 'in_progress' ? 'info' : 'secondary'}
                 className={cn('text-xs', (task.status === 'in_progress' && !isStuck) && 'status-running')}
               >
-                {t(`kanban:columns.${task.status === 'backlog' ? 'planning' : task.status === 'in_progress' ? 'inProgress' : task.status === 'ai_review' ? 'aiReview' : task.status === 'human_review' ? 'humanReview' : 'done'}`)}
+                {t(TASK_STATUS_LABELS[task.status])}
               </Badge>
               {task.status === 'human_review' && task.reviewReason && (
                 <Badge
                   variant={task.reviewReason === 'completed' ? 'success' : task.reviewReason === 'errors' ? 'destructive' : 'warning'}
                   className="text-xs"
                 >
-                  {task.reviewReason === 'completed' ? t('taskDetail:status.review.completed') :
-                    task.reviewReason === 'errors' ? t('taskDetail:status.review.hasErrors') :
-                      task.reviewReason === 'plan_review' ? t('taskDetail:status.review.approvePlan') : t('taskDetail:status.review.qaIssues')}
+                  {task.reviewReason === 'completed' ? 'Completed' :
+                   task.reviewReason === 'errors' ? 'Has Errors' :
+                   task.reviewReason === 'plan_review' ? 'Approve Plan' : 'QA Issues'}
                 </Badge>
               )}
             </>
@@ -94,16 +94,17 @@ export function TaskHeader({
                 className="hover:bg-primary/10 hover:text-primary transition-colors"
                 onClick={onEdit}
                 disabled={isRunning && !isStuck}
+                aria-label={isRunning && !isStuck ? t('kanban.cannotEditWhileRunning') : t('kanban.editTask')}
               >
                 <Pencil className="h-4 w-4" />
               </Button>
             </span>
           </TooltipTrigger>
           <TooltipContent side="bottom">
-            {isRunning && !isStuck ? t('taskDetail:header.editDisabledTooltip') : t('taskDetail:header.editTooltip')}
+            {isRunning && !isStuck ? t('kanban.cannotEditWhileRunning') : t('kanban.editTask')}
           </TooltipContent>
         </Tooltip>
-        <Button variant="ghost" size="icon" className="hover:bg-destructive/10 hover:text-destructive transition-colors" onClick={onClose}>
+        <Button variant="ghost" size="icon" className="hover:bg-destructive/10 hover:text-destructive transition-colors" onClick={onClose} aria-label={t('kanban.closeTaskDetailsAriaLabel')}>
           <X className="h-4 w-4" />
         </Button>
       </div>

@@ -1,8 +1,9 @@
+import { useTranslation } from 'react-i18next';
 import { ChevronRight, ExternalLink, Lightbulb, Play, X } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
-import { useTranslation } from 'react-i18next';
 import {
+  IDEATION_TYPE_LABELS,
   IDEATION_TYPE_COLORS,
   IDEATION_STATUS_COLORS
 } from '../../../shared/constants';
@@ -32,8 +33,7 @@ interface IdeaDetailPanelProps {
 }
 
 export function IdeaDetailPanel({ idea, onClose, onConvert, onGoToTask, onDismiss }: IdeaDetailPanelProps) {
-  const { t } = useTranslation(['common', 'settings', 'ideation']);
-
+  const { t } = useTranslation('common');
   const isDismissed = idea.status === 'dismissed';
   const isConverted = idea.status === 'converted';
 
@@ -46,7 +46,7 @@ export function IdeaDetailPanel({ idea, onClose, onConvert, onGoToTask, onDismis
             <div className="flex items-center gap-2 mb-2">
               <Badge variant="outline" className={IDEATION_TYPE_COLORS[idea.type]}>
                 <TypeIcon type={idea.type} />
-                <span className="ml-1">{t(`ideation:types.${idea.type}.label`)}</span>
+                <span className="ml-1">{IDEATION_TYPE_LABELS[idea.type]}</span>
               </Badge>
               {idea.status !== 'draft' && (
                 <Badge variant="outline" className={IDEATION_STATUS_COLORS[idea.status]}>
@@ -56,7 +56,7 @@ export function IdeaDetailPanel({ idea, onClose, onConvert, onGoToTask, onDismis
             </div>
             <h2 className="font-semibold">{idea.title}</h2>
           </div>
-          <Button variant="ghost" size="icon" onClick={onClose}>
+          <Button variant="ghost" size="icon" onClick={onClose} aria-label={t('accessibility.closePanelAriaLabel')}>
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
@@ -66,7 +66,7 @@ export function IdeaDetailPanel({ idea, onClose, onConvert, onGoToTask, onDismis
       <div className="flex-1 overflow-auto p-4 space-y-6">
         {/* Description */}
         <div>
-          <h3 className="text-sm font-medium mb-2">{t('common:common.description')}</h3>
+          <h3 className="text-sm font-medium mb-2">Description</h3>
           <p className="text-sm text-muted-foreground">{idea.description}</p>
         </div>
 
@@ -74,7 +74,7 @@ export function IdeaDetailPanel({ idea, onClose, onConvert, onGoToTask, onDismis
         <div>
           <h3 className="text-sm font-medium mb-2 flex items-center gap-2">
             <Lightbulb className="h-4 w-4" />
-            {t('ideation:details.rationale')}
+            Rationale
           </h3>
           <p className="text-sm text-muted-foreground">{idea.rationale}</p>
         </div>
@@ -93,15 +93,18 @@ export function IdeaDetailPanel({ idea, onClose, onConvert, onGoToTask, onDismis
         <div className="shrink-0 p-4 border-t border-border space-y-2">
           <Button className="w-full" onClick={() => onConvert(idea)}>
             <Play className="h-4 w-4 mr-2" />
-            {t('ideation:details.actions.convert')}
+            Convert to Auto-Build Task
           </Button>
           <Button
             variant="outline"
             className="w-full"
-            onClick={() => onDismiss(idea)}
+            onClick={() => {
+              onDismiss(idea);
+              onClose();
+            }}
           >
             <X className="h-4 w-4 mr-2" />
-            {t('ideation:details.actions.dismiss')}
+            Dismiss Idea
           </Button>
         </div>
       )}
@@ -109,7 +112,7 @@ export function IdeaDetailPanel({ idea, onClose, onConvert, onGoToTask, onDismis
         <div className="shrink-0 p-4 border-t border-border">
           <Button className="w-full" onClick={() => onGoToTask(idea.taskId!)}>
             <ExternalLink className="h-4 w-4 mr-2" />
-            {t('ideation:common.tooltips.goToTask')}
+            Go to Task
           </Button>
         </div>
       )}

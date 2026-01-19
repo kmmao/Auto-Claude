@@ -15,10 +15,6 @@ _PARENT_DIR = Path(__file__).parent.parent
 if str(_PARENT_DIR) not in sys.path:
     sys.path.insert(0, str(_PARENT_DIR))
 
-from ui import (
-    Icons,
-    icon,
-)
 
 from .batch_commands import (
     handle_batch_cleanup_command,
@@ -42,6 +38,7 @@ from .utils import (
 )
 from .workspace_commands import (
     handle_cleanup_worktrees_command,
+    handle_create_pr_command,
     handle_discard_command,
     handle_list_worktrees_command,
     handle_merge_command,
@@ -157,6 +154,30 @@ Environment Variables:
         action="store_true",
         help="Discard an existing build (requires confirmation)",
     )
+    build_group.add_argument(
+        "--create-pr",
+        action="store_true",
+        help="Push branch and create a GitHub Pull Request",
+    )
+
+    # PR options
+    parser.add_argument(
+        "--pr-target",
+        type=str,
+        metavar="BRANCH",
+        help="With --create-pr: target branch for PR (default: auto-detect)",
+    )
+    parser.add_argument(
+        "--pr-title",
+        type=str,
+        metavar="TITLE",
+        help="With --create-pr: custom PR title (default: generated from spec name)",
+    )
+    parser.add_argument(
+        "--pr-draft",
+        action="store_true",
+        help="With --create-pr: create as draft PR",
+    )
 
     # Merge options
     parser.add_argument(
@@ -199,13 +220,6 @@ Environment Variables:
         "--review-status",
         action="store_true",
         help="Show human review/approval status for a spec",
-    )
-
-    # Dev mode (deprecated)
-    parser.add_argument(
-        "--dev",
-        action="store_true",
-        help="[Deprecated] No longer has any effect - kept for compatibility",
     )
 
     # Non-interactive mode (for UI/automation)
@@ -287,19 +301,14 @@ def main() -> None:
     project_dir = get_project_dir(args.project_dir)
     debug("run.py", f"Using project directory: {project_dir}")
 
-    # Get model (with env var fallback)
-    model = args.model or os.environ.get("AUTO_BUILD_MODEL", DEFAULT_MODEL)
-
-    # Note: --dev flag is deprecated but kept for API compatibility
-    if args.dev:
-        print(
-            f"\n{icon(Icons.GEAR)} Note: --dev flag is deprecated. All specs now use .auto-claude/specs/\n"
-        )
+    # Get model from CLI arg or env var (None if not explicitly set)
+    # This allows get_phase_model() to fall back to task_metadata.json
+    model = args.model or os.environ.get("AUTO_BUILD_MODEL")
 
     # Handle --list command
     if args.list:
         print_banner()
-        print_specs_list(project_dir, args.dev)
+        print_specs_list(project_dir)
         return
 
     # Handle --list-worktrees command
@@ -337,14 +346,14 @@ def main() -> None:
         sys.exit(1)
 
     # Find the spec
-    debug("run.py", "Finding spec", spec_identifier=args.spec, dev_mode=args.dev)
-    spec_dir = find_spec(project_dir, args.spec, args.dev)
+    debug("run.py", "Finding spec", spec_identifier=args.spec)
+    spec_dir = find_spec(project_dir, args.spec)
     if not spec_dir:
         debug_error("run.py", "Spec not found", spec=args.spec)
         print_banner()
         print(f"\nError: Spec '{args.spec}' not found")
         print("\nAvailable specs:")
-        print_specs_list(project_dir, args.dev)
+        print_specs_list(project_dir)
         sys.exit(1)
 
     debug_success("run.py", "Spec found", spec_dir=str(spec_dir))
@@ -379,6 +388,21 @@ def main() -> None:
 
     if args.discard:
         handle_discard_command(project_dir, spec_dir.name)
+        return
+
+    if args.create_pr:
+        # Pass args.pr_target directly - WorktreeManager._detect_base_branch
+        # handles base branch detection internally when target_branch is None
+        result = handle_create_pr_command(
+            project_dir=project_dir,
+            spec_name=spec_dir.name,
+            target_branch=args.pr_target,
+            title=args.pr_title,
+            draft=args.pr_draft,
+        )
+        # JSON output is already printed by handle_create_pr_command
+        if not result.get("success"):
+            sys.exit(1)
         return
 
     # Handle QA commands

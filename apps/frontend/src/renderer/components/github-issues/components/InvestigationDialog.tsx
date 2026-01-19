@@ -147,7 +147,10 @@ export function InvestigationDialog({
                     {selectedCommentIds.length === comments.length ? t('github:investigation.deselectAll') : t('github:investigation.selectAll')}
                   </Button>
                 </div>
-                <ScrollArea className="flex-1 min-h-0 border rounded-md">
+                <ScrollArea
+                  className="flex min-h-0 border rounded-md"
+                  viewportClassName="h-auto"
+                >
                   <div className="p-2 space-y-2">
                     {comments.map((comment) => (
                       <div

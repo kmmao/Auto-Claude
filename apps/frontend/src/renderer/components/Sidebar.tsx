@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Plus,
@@ -13,11 +13,14 @@ import {
   Download,
   RefreshCw,
   Github,
+  GitlabIcon,
   GitPullRequest,
+  GitMerge,
   FileText,
   Sparkles,
   GitBranch,
-  HelpCircle
+  HelpCircle,
+  Wrench
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { ScrollArea } from './ui/scroll-area';
@@ -40,17 +43,16 @@ import { cn } from '../lib/utils';
 import {
   useProjectStore,
   removeProject,
-  initializeProject,
-  checkProjectVersion,
-  updateProjectAutoBuild
+  initializeProject
 } from '../stores/project-store';
 import { useSettingsStore } from '../stores/settings-store';
 import { AddProjectModal } from './AddProjectModal';
 import { GitSetupModal } from './GitSetupModal';
 import { RateLimitIndicator } from './RateLimitIndicator';
-import type { Project, AutoBuildVersionInfo, GitStatus } from '../../shared/types';
+import { ClaudeCodeStatusBadge } from './ClaudeCodeStatusBadge';
+import type { Project, AutoBuildVersionInfo, GitStatus, ProjectEnvConfig } from '../../shared/types';
 
-export type SidebarView = 'kanban' | 'terminals' | 'roadmap' | 'context' | 'ideation' | 'github-issues' | 'github-prs' | 'changelog' | 'insights' | 'worktrees' | 'agent-tools';
+export type SidebarView = 'kanban' | 'terminals' | 'roadmap' | 'context' | 'ideation' | 'github-issues' | 'gitlab-issues' | 'github-prs' | 'gitlab-merge-requests' | 'changelog' | 'insights' | 'worktrees' | 'agent-tools';
 
 interface SidebarProps {
   onSettingsClick: () => void;
@@ -61,26 +63,34 @@ interface SidebarProps {
 
 interface NavItem {
   id: SidebarView;
-  label: string;
+  labelKey: string;
   icon: React.ElementType;
   shortcut?: string;
 }
 
-// Navigation items - labels will be translated dynamically
-const getProjectNavItems = (t: (key: string) => string): NavItem[] => [
-  { id: 'kanban', label: t('sidebar:navigation.kanban'), icon: LayoutGrid, shortcut: 'K' },
-  { id: 'terminals', label: t('sidebar:navigation.terminals'), icon: Terminal, shortcut: 'A' },
-  { id: 'insights', label: t('sidebar:navigation.insights'), icon: Sparkles, shortcut: 'N' },
-  { id: 'roadmap', label: t('sidebar:navigation.roadmap'), icon: Map, shortcut: 'D' },
-  { id: 'ideation', label: t('sidebar:navigation.ideation'), icon: Lightbulb, shortcut: 'I' },
-  { id: 'changelog', label: t('sidebar:navigation.changelog'), icon: FileText, shortcut: 'L' },
-  { id: 'context', label: t('sidebar:navigation.context'), icon: BookOpen, shortcut: 'C' }
+// Base nav items always shown
+const baseNavItems: NavItem[] = [
+  { id: 'kanban', labelKey: 'navigation:items.kanban', icon: LayoutGrid, shortcut: 'K' },
+  { id: 'terminals', labelKey: 'navigation:items.terminals', icon: Terminal, shortcut: 'A' },
+  { id: 'insights', labelKey: 'navigation:items.insights', icon: Sparkles, shortcut: 'N' },
+  { id: 'roadmap', labelKey: 'navigation:items.roadmap', icon: Map, shortcut: 'D' },
+  { id: 'ideation', labelKey: 'navigation:items.ideation', icon: Lightbulb, shortcut: 'I' },
+  { id: 'changelog', labelKey: 'navigation:items.changelog', icon: FileText, shortcut: 'L' },
+  { id: 'context', labelKey: 'navigation:items.context', icon: BookOpen, shortcut: 'C' },
+  { id: 'agent-tools', labelKey: 'navigation:items.agentTools', icon: Wrench, shortcut: 'M' },
+  { id: 'worktrees', labelKey: 'navigation:items.worktrees', icon: GitBranch, shortcut: 'W' }
 ];
 
-const getToolsNavItems = (t: (key: string) => string): NavItem[] => [
-  { id: 'github-issues', label: t('sidebar:navigation.githubIssues'), icon: Github, shortcut: 'G' },
-  { id: 'github-prs', label: t('sidebar:navigation.githubPRs'), icon: GitPullRequest, shortcut: 'P' },
-  { id: 'worktrees', label: t('sidebar:navigation.worktrees'), icon: GitBranch, shortcut: 'W' }
+// GitHub nav items shown when GitHub is enabled
+const githubNavItems: NavItem[] = [
+  { id: 'github-issues', labelKey: 'navigation:items.githubIssues', icon: Github, shortcut: 'G' },
+  { id: 'github-prs', labelKey: 'navigation:items.githubPRs', icon: GitPullRequest, shortcut: 'P' }
+];
+
+// GitLab nav items shown when GitLab is enabled
+const gitlabNavItems: NavItem[] = [
+  { id: 'gitlab-issues', labelKey: 'navigation:items.gitlabIssues', icon: GitlabIcon, shortcut: 'B' },
+  { id: 'gitlab-merge-requests', labelKey: 'navigation:items.gitlabMRs', icon: GitMerge, shortcut: 'R' }
 ];
 
 export function Sidebar({
@@ -89,26 +99,57 @@ export function Sidebar({
   activeView = 'kanban',
   onViewChange
 }: SidebarProps) {
-  const { t } = useTranslation(['sidebar', 'common']);
+  const { t } = useTranslation(['navigation', 'dialogs', 'common']);
   const projects = useProjectStore((state) => state.projects);
   const selectedProjectId = useProjectStore((state) => state.selectedProjectId);
   const selectProject = useProjectStore((state) => state.selectProject);
   const settings = useSettingsStore((state) => state.settings);
 
-  // Get translated navigation items
-  const projectNavItems = getProjectNavItems(t);
-  const toolsNavItems = getToolsNavItems(t);
-
   const [showAddProjectModal, setShowAddProjectModal] = useState(false);
   const [showInitDialog, setShowInitDialog] = useState(false);
-  const [showUpdateDialog, setShowUpdateDialog] = useState(false);
   const [showGitSetupModal, setShowGitSetupModal] = useState(false);
   const [gitStatus, setGitStatus] = useState<GitStatus | null>(null);
   const [pendingProject, setPendingProject] = useState<Project | null>(null);
-  const [_versionInfo, setVersionInfo] = useState<AutoBuildVersionInfo | null>(null);
   const [isInitializing, setIsInitializing] = useState(false);
+  const [envConfig, setEnvConfig] = useState<ProjectEnvConfig | null>(null);
 
   const selectedProject = projects.find((p) => p.id === selectedProjectId);
+
+  // Load env config when project changes to check GitHub/GitLab enabled state
+  useEffect(() => {
+    const loadEnvConfig = async () => {
+      if (selectedProject?.autoBuildPath) {
+        try {
+          const result = await window.electronAPI.getProjectEnv(selectedProject.id);
+          if (result.success && result.data) {
+            setEnvConfig(result.data);
+          } else {
+            setEnvConfig(null);
+          }
+        } catch {
+          setEnvConfig(null);
+        }
+      } else {
+        setEnvConfig(null);
+      }
+    };
+    loadEnvConfig();
+  }, [selectedProject?.id, selectedProject?.autoBuildPath]);
+
+  // Compute visible nav items based on GitHub/GitLab enabled state
+  const visibleNavItems = useMemo(() => {
+    const items = [...baseNavItems];
+
+    if (envConfig?.githubEnabled) {
+      items.push(...githubNavItems);
+    }
+
+    if (envConfig?.gitlabEnabled) {
+      items.push(...gitlabNavItems);
+    }
+
+    return items;
+  }, [envConfig?.githubEnabled, envConfig?.gitlabEnabled]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -131,9 +172,8 @@ export function Sidebar({
 
       const key = e.key.toUpperCase();
 
-      // Find matching nav item
-      const allNavItems = [...projectNavItems, ...toolsNavItems];
-      const matchedItem = allNavItems.find((item) => item.shortcut === key);
+      // Find matching nav item from visible items only
+      const matchedItem = visibleNavItems.find((item) => item.shortcut === key);
 
       if (matchedItem) {
         e.preventDefault();
@@ -143,21 +183,7 @@ export function Sidebar({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedProjectId, onViewChange]);
-
-  // Check for updates when project changes
-  useEffect(() => {
-    const checkUpdates = async () => {
-      if (selectedProjectId && settings.autoUpdateAutoBuild) {
-        const info = await checkProjectVersion(selectedProjectId);
-        if (info?.updateAvailable) {
-          setVersionInfo(info);
-          setShowUpdateDialog(true);
-        }
-      }
-    };
-    checkUpdates();
-  }, [selectedProjectId, settings.autoUpdateAutoBuild]);
+  }, [selectedProjectId, onViewChange, visibleNavItems]);
 
   // Check git status when project changes
   useEffect(() => {
@@ -216,26 +242,6 @@ export function Sidebar({
     setPendingProject(null);
   };
 
-  const _handleUpdate = async () => {
-    if (!selectedProjectId) return;
-
-    setIsInitializing(true);
-    try {
-      const result = await updateProjectAutoBuild(selectedProjectId);
-      if (result?.success) {
-        setShowUpdateDialog(false);
-        setVersionInfo(null);
-      }
-    } finally {
-      setIsInitializing(false);
-    }
-  };
-
-  const _handleSkipUpdate = () => {
-    setShowUpdateDialog(false);
-    setVersionInfo(null);
-  };
-
   const handleGitInitialized = async () => {
     // Refresh git status after initialization
     if (selectedProject) {
@@ -270,6 +276,7 @@ export function Sidebar({
         key={item.id}
         onClick={() => handleNavClick(item.id)}
         disabled={!selectedProjectId}
+        aria-keyshortcuts={item.shortcut}
         className={cn(
           'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200',
           'hover:bg-accent hover:text-accent-foreground',
@@ -278,7 +285,7 @@ export function Sidebar({
         )}
       >
         <Icon className="h-4 w-4 shrink-0" />
-        <span className="flex-1 text-left">{item.label}</span>
+        <span className="flex-1 text-left">{t(item.labelKey)}</span>
         {item.shortcut && (
           <kbd className="pointer-events-none hidden h-5 select-none items-center gap-1 rounded-md border border-border bg-secondary px-1.5 font-mono text-[10px] font-medium text-muted-foreground sm:flex">
             {item.shortcut}
@@ -305,22 +312,12 @@ export function Sidebar({
         <ScrollArea className="flex-1">
           <div className="px-3 py-4">
             {/* Project Section */}
-            <div className="mb-6">
-              <h3 className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {t('sidebar:sections.project')}
-              </h3>
-              <nav className="space-y-1">
-                {projectNavItems.map(renderNavItem)}
-              </nav>
-            </div>
-
-            {/* Tools Section */}
             <div>
               <h3 className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {t('sidebar:sections.tools')}
+                {t('sections.project')}
               </h3>
               <nav className="space-y-1">
-                {toolsNavItems.map(renderNavItem)}
+                {visibleNavItems.map(renderNavItem)}
               </nav>
             </div>
           </div>
@@ -333,6 +330,9 @@ export function Sidebar({
 
         {/* Bottom section with Settings, Help, and New Task */}
         <div className="p-4 space-y-3">
+          {/* Claude Code Status Badge */}
+          <ClaudeCodeStatusBadge />
+
           {/* Settings and Help row */}
           <div className="flex items-center gap-2">
             <Tooltip>
@@ -344,10 +344,10 @@ export function Sidebar({
                   onClick={onSettingsClick}
                 >
                   <Settings className="h-4 w-4" />
-                  {t('sidebar:buttons.settings')}
+                  {t('actions.settings')}
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="top">{t('sidebar:tooltips.settings')}</TooltipContent>
+              <TooltipContent side="top">{t('tooltips.settings')}</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -355,11 +355,12 @@ export function Sidebar({
                   variant="ghost"
                   size="icon"
                   onClick={() => window.open('https://github.com/AndyMik90/Auto-Claude/issues', '_blank')}
+                  aria-label={t('tooltips.help')}
                 >
                   <HelpCircle className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="top">{t('sidebar:tooltips.help')}</TooltipContent>
+              <TooltipContent side="top">{t('tooltips.help')}</TooltipContent>
             </Tooltip>
           </div>
 
@@ -370,11 +371,11 @@ export function Sidebar({
             disabled={!selectedProjectId || !selectedProject?.autoBuildPath}
           >
             <Plus className="mr-2 h-4 w-4" />
-            {t('sidebar:buttons.newTask')}
+            {t('actions.newTask')}
           </Button>
           {selectedProject && !selectedProject.autoBuildPath && (
             <p className="mt-2 text-xs text-muted-foreground text-center">
-              {t('sidebar:messages.initializeRequired')}
+              {t('messages.initializeToCreateTasks')}
             </p>
           )}
         </div>
@@ -391,19 +392,19 @@ export function Sidebar({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Download className="h-5 w-5" />
-              {t('sidebar:dialogs.initialize.title')}
+              {t('dialogs:initialize.title')}
             </DialogTitle>
             <DialogDescription>
-              {t('sidebar:dialogs.initialize.description')}
+              {t('dialogs:initialize.description')}
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
             <div className="rounded-lg bg-muted p-4 text-sm">
-              <p className="font-medium mb-2">{t('sidebar:dialogs.initialize.willDo')}</p>
+              <p className="font-medium mb-2">{t('dialogs:initialize.willDo')}</p>
               <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                <li>{t('sidebar:dialogs.initialize.step1')}</li>
-                <li>{t('sidebar:dialogs.initialize.step2')}</li>
-                <li>{t('sidebar:dialogs.initialize.step3')}</li>
+                <li>{t('dialogs:initialize.createFolder')}</li>
+                <li>{t('dialogs:initialize.copyFramework')}</li>
+                <li>{t('dialogs:initialize.setupSpecs')}</li>
               </ul>
             </div>
             {!settings.autoBuildPath && (
@@ -411,9 +412,9 @@ export function Sidebar({
                 <div className="flex items-start gap-2">
                   <AlertCircle className="h-4 w-4 text-warning mt-0.5 shrink-0" />
                   <div>
-                    <p className="font-medium text-warning">{t('sidebar:dialogs.initialize.warning.title')}</p>
+                    <p className="font-medium text-warning">{t('dialogs:initialize.sourcePathNotConfigured')}</p>
                     <p className="text-muted-foreground mt-1">
-                      {t('sidebar:dialogs.initialize.warning.message')}
+                      {t('dialogs:initialize.sourcePathNotConfiguredDescription')}
                     </p>
                   </div>
                 </div>
@@ -431,34 +432,14 @@ export function Sidebar({
               {isInitializing ? (
                 <>
                   <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                  {t('sidebar:dialogs.initialize.initializing')}
+                  {t('common:labels.initializing')}
                 </>
               ) : (
                 <>
                   <Download className="mr-2 h-4 w-4" />
-                  {t('sidebar:dialogs.initialize.initializeButton')}
+                  {t('common:buttons.initialize')}
                 </>
               )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Update Auto Claude Dialog - Deprecated, updateAvailable is always false now */}
-      <Dialog open={showUpdateDialog} onOpenChange={setShowUpdateDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <RefreshCw className="h-5 w-5" />
-              Auto Claude
-            </DialogTitle>
-            <DialogDescription>
-              Project is initialized.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowUpdateDialog(false)}>
-              {t('common:buttons.close')}
             </Button>
           </DialogFooter>
         </DialogContent>

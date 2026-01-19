@@ -1,10 +1,10 @@
 import { CheckCircle2, Clock, XCircle, AlertCircle, ListChecks, FileCode } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Badge } from '../ui/badge';
 import { ScrollArea } from '../ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { cn, calculateProgress } from '../../lib/utils';
 import type { Task } from '../../../shared/types';
-import { useTranslation } from 'react-i18next';
 
 interface TaskSubtasksProps {
   task: Task;
@@ -24,8 +24,7 @@ function getSubtaskStatusIcon(status: string) {
 }
 
 export function TaskSubtasks({ task }: TaskSubtasksProps) {
-  const { t } = useTranslation(['common', 'taskDetail']);
-
+  const { t } = useTranslation(['tasks']);
   const progress = calculateProgress(task.subtasks);
 
   return (
@@ -34,16 +33,16 @@ export function TaskSubtasks({ task }: TaskSubtasksProps) {
         {task.subtasks.length === 0 ? (
           <div className="text-center py-12">
             <ListChecks className="h-10 w-10 mx-auto mb-3 text-muted-foreground/30" />
-            <p className="text-sm font-medium text-muted-foreground mb-1">{t('taskDetail:subtasks.noSubtasks')}</p>
+            <p className="text-sm font-medium text-muted-foreground mb-1">No subtasks defined</p>
             <p className="text-xs text-muted-foreground/70">
-              {t('taskDetail:subtasks.planningPending')}
+              Implementation subtasks will appear here after planning
             </p>
           </div>
         ) : (
           <>
             {/* Progress summary */}
             <div className="flex items-center justify-between text-xs text-muted-foreground pb-2 border-b border-border/50">
-              <span>{t('taskDetail:subtasks.progressSummary', { completed: task.subtasks.filter(c => c.status === 'completed').length, total: task.subtasks.length })}</span>
+              <span>{task.subtasks.filter(c => c.status === 'completed').length} of {task.subtasks.length} completed</span>
               <span className="tabular-nums">{progress}%</span>
             </div>
             {task.subtasks.map((subtask, index) => (
@@ -63,20 +62,20 @@ export function TaskSubtasks({ task }: TaskSubtasksProps) {
                       <span className={cn(
                         'text-[10px] font-medium px-1.5 py-0.5 rounded-full',
                         subtask.status === 'completed' ? 'bg-success/20 text-success' :
-                          subtask.status === 'in_progress' ? 'bg-info/20 text-info' :
-                            subtask.status === 'failed' ? 'bg-destructive/20 text-destructive' :
-                              'bg-muted text-muted-foreground'
+                        subtask.status === 'in_progress' ? 'bg-info/20 text-info' :
+                        subtask.status === 'failed' ? 'bg-destructive/20 text-destructive' :
+                        'bg-muted text-muted-foreground'
                       )}>
                         #{index + 1}
                       </span>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <span className="text-sm font-medium text-foreground truncate cursor-default">
-                            {subtask.id}
+                            {subtask.title || t('tasks:subtasks.untitled')}
                           </span>
                         </TooltipTrigger>
                         <TooltipContent side="top" className="max-w-xs">
-                          <p className="font-mono text-xs">{subtask.id}</p>
+                          <p className="text-xs">{subtask.title || t('tasks:subtasks.untitled')}</p>
                         </TooltipContent>
                       </Tooltip>
                     </div>

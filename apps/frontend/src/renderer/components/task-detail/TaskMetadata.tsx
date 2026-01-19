@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   Target,
   Bug,
@@ -9,18 +10,26 @@ import {
   Lightbulb,
   Users,
   GitBranch,
+  GitPullRequest,
   ListChecks,
-  Clock
+  Clock,
+  ExternalLink
 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { Badge } from '../ui/badge';
-import { useTranslation } from 'react-i18next';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
-import { cn, formatRelativeTime, sanitizeMarkdownForDisplay } from '../../lib/utils';
+import { cn, formatRelativeTime } from '../../lib/utils';
 import {
+  TASK_CATEGORY_LABELS,
   TASK_CATEGORY_COLORS,
+  TASK_COMPLEXITY_LABELS,
   TASK_COMPLEXITY_COLORS,
+  TASK_IMPACT_LABELS,
   TASK_IMPACT_COLORS,
-  TASK_PRIORITY_COLORS
+  TASK_PRIORITY_LABELS,
+  TASK_PRIORITY_COLORS,
+  IDEATION_TYPE_LABELS
 } from '../../../shared/constants';
 import type { Task, TaskCategory } from '../../../shared/types';
 
@@ -42,8 +51,7 @@ interface TaskMetadataProps {
 }
 
 export function TaskMetadata({ task }: TaskMetadataProps) {
-  const { t } = useTranslation(['common', 'taskDetail', 'ideation']);
-
+  const { t } = useTranslation(['tasks']);
   const hasClassification = task.metadata && (
     task.metadata.category ||
     task.metadata.priority ||
@@ -70,7 +78,7 @@ export function TaskMetadata({ task }: TaskMetadataProps) {
                   const Icon = CategoryIcon[task.metadata.category!];
                   return <Icon className="h-3 w-3 mr-1" />;
                 })()}
-                {t(`taskDetail:labels.${task.metadata.category}`)}
+                {TASK_CATEGORY_LABELS[task.metadata.category]}
               </Badge>
             )}
             {/* Priority */}
@@ -79,7 +87,7 @@ export function TaskMetadata({ task }: TaskMetadataProps) {
                 variant="outline"
                 className={cn('text-xs', TASK_PRIORITY_COLORS[task.metadata.priority])}
               >
-                {t(`taskDetail:labels.${task.metadata.priority}`)}
+                {TASK_PRIORITY_LABELS[task.metadata.priority]}
               </Badge>
             )}
             {/* Complexity */}
@@ -88,7 +96,7 @@ export function TaskMetadata({ task }: TaskMetadataProps) {
                 variant="outline"
                 className={cn('text-xs', TASK_COMPLEXITY_COLORS[task.metadata.complexity])}
               >
-                {t(`taskDetail:labels.${task.metadata.complexity}`)}
+                {TASK_COMPLEXITY_LABELS[task.metadata.complexity]}
               </Badge>
             )}
             {/* Impact */}
@@ -97,7 +105,7 @@ export function TaskMetadata({ task }: TaskMetadataProps) {
                 variant="outline"
                 className={cn('text-xs', TASK_IMPACT_COLORS[task.metadata.impact])}
               >
-                {t(`taskDetail:labels.${task.metadata.impact}`)}
+                {TASK_IMPACT_LABELS[task.metadata.impact]}
               </Badge>
             )}
             {/* Security Severity */}
@@ -107,15 +115,15 @@ export function TaskMetadata({ task }: TaskMetadataProps) {
                 className={cn('text-xs', TASK_IMPACT_COLORS[task.metadata.securitySeverity])}
               >
                 <Shield className="h-3 w-3 mr-1" />
-                {t(`taskDetail:metadata.securitySeverity`)}: {task.metadata.securitySeverity}
+                {task.metadata.securitySeverity}
               </Badge>
             )}
             {/* Source Type */}
             {task.metadata?.sourceType && (
               <Badge variant="secondary" className="text-xs">
                 {task.metadata.sourceType === 'ideation' && task.metadata.ideationType
-                  ? t(`ideation:types.${task.metadata.ideationType}.label`, { defaultValue: task.metadata.ideationType })
-                  : t(`taskDetail:sourceType.${task.metadata.sourceType}`)}
+                  ? IDEATION_TYPE_LABELS[task.metadata.ideationType] || task.metadata.ideationType
+                  : task.metadata.sourceType}
               </Badge>
             )}
           </div>
@@ -125,19 +133,24 @@ export function TaskMetadata({ task }: TaskMetadataProps) {
         <div className="flex items-center gap-4 text-xs text-muted-foreground">
           <span className="flex items-center gap-1.5">
             <Clock className="h-3 w-3" />
-            {t('taskDetail:metadata.created')} {formatRelativeTime(task.createdAt)}
+            Created {formatRelativeTime(task.createdAt)}
           </span>
           <span className="text-border">•</span>
-          <span>{t('taskDetail:metadata.updated')} {formatRelativeTime(task.updatedAt)}</span>
+          <span>Updated {formatRelativeTime(task.updatedAt)}</span>
         </div>
       </div>
 
       {/* Description - Primary Content */}
       {task.description && (
-        <div>
-          <p className="text-sm text-foreground/90 leading-relaxed">
-            {sanitizeMarkdownForDisplay(task.description, 800)}
-          </p>
+        <div className="bg-muted/30 rounded-lg px-4 py-3 border border-border/50 overflow-hidden max-w-full">
+          <div
+            className="prose prose-sm prose-invert max-w-none overflow-hidden prose-p:text-foreground/90 prose-p:leading-relaxed prose-headings:text-foreground prose-strong:text-foreground prose-li:text-foreground/90 prose-ul:my-2 prose-li:my-0.5 prose-a:break-all prose-pre:overflow-x-auto prose-img:max-w-full [&_img]:!max-w-full [&_img]:h-auto [&_code]:break-all [&_code]:whitespace-pre-wrap [&_*]:max-w-full"
+            style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}
+          >
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {task.description}
+            </ReactMarkdown>
+          </div>
         </div>
       )}
 
@@ -149,7 +162,7 @@ export function TaskMetadata({ task }: TaskMetadataProps) {
             <div>
               <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
                 <Lightbulb className="h-3 w-3 text-warning" />
-                {t('taskDetail:metadata.rationale')}
+                Rationale
               </h3>
               <p className="text-sm text-foreground/80">{task.metadata.rationale}</p>
             </div>
@@ -160,7 +173,7 @@ export function TaskMetadata({ task }: TaskMetadataProps) {
             <div>
               <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
                 <Target className="h-3 w-3 text-success" />
-                {t('taskDetail:metadata.problemSolved')}
+                Problem Solved
               </h3>
               <p className="text-sm text-foreground/80">{task.metadata.problemSolved}</p>
             </div>
@@ -171,7 +184,7 @@ export function TaskMetadata({ task }: TaskMetadataProps) {
             <div>
               <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
                 <Users className="h-3 w-3 text-info" />
-                {t('taskDetail:metadata.targetAudience')}
+                Target Audience
               </h3>
               <p className="text-sm text-foreground/80">{task.metadata.targetAudience}</p>
             </div>
@@ -182,7 +195,7 @@ export function TaskMetadata({ task }: TaskMetadataProps) {
             <div>
               <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
                 <GitBranch className="h-3 w-3 text-purple-400" />
-                {t('taskDetail:metadata.dependencies')}
+                Dependencies
               </h3>
               <ul className="text-sm text-foreground/80 list-disc list-inside space-y-0.5">
                 {task.metadata.dependencies.map((dep, idx) => (
@@ -192,12 +205,30 @@ export function TaskMetadata({ task }: TaskMetadataProps) {
             </div>
           )}
 
+          {/* Pull Request */}
+          {task.metadata.prUrl && (
+            <div>
+              <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
+                <GitPullRequest className="h-3 w-3 text-info" />
+                {t('tasks:metadata.pullRequest')}
+              </h3>
+              <button
+                type="button"
+                onClick={() => window.electronAPI.openExternal(task.metadata!.prUrl!)}
+                className="text-sm text-info hover:underline flex items-center gap-1.5 bg-transparent border-none cursor-pointer p-0 text-left"
+              >
+                {task.metadata.prUrl}
+                <ExternalLink className="h-3 w-3" />
+              </button>
+            </div>
+          )}
+
           {/* Acceptance Criteria */}
           {task.metadata.acceptanceCriteria && task.metadata.acceptanceCriteria.length > 0 && (
             <div>
               <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
                 <ListChecks className="h-3 w-3 text-success" />
-                {t('taskDetail:metadata.acceptanceCriteria')}
+                Acceptance Criteria
               </h3>
               <ul className="text-sm text-foreground/80 list-disc list-inside space-y-0.5">
                 {task.metadata.acceptanceCriteria.map((criteria, idx) => (
@@ -212,7 +243,7 @@ export function TaskMetadata({ task }: TaskMetadataProps) {
             <div>
               <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
                 <FileCode className="h-3 w-3" />
-                {t('taskDetail:metadata.affectedFiles')}
+                Affected Files
               </h3>
               <div className="flex flex-wrap gap-1">
                 {task.metadata.affectedFiles.map((file, idx) => (

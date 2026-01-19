@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useTranslation, Trans } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import {
   Key,
   Eye,
@@ -17,7 +17,8 @@ import {
   LogIn,
   ChevronDown,
   ChevronRight,
-  Users
+  Users,
+  Lock
 } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -25,6 +26,7 @@ import { Label } from '../ui/label';
 import { Card, CardContent } from '../ui/card';
 import { cn } from '../../lib/utils';
 import { loadClaudeProfiles as loadGlobalClaudeProfiles } from '../../stores/claude-profile-store';
+import { useClaudeLoginTerminal } from '../../hooks/useClaudeLoginTerminal';
 import type { ClaudeProfile } from '../../../shared/types';
 
 interface OAuthStepProps {
@@ -39,7 +41,7 @@ interface OAuthStepProps {
  * reusing patterns from IntegrationSettings.tsx.
  */
 export function OAuthStep({ onNext, onBack, onSkip }: OAuthStepProps) {
-  const { t } = useTranslation(['common', 'settings']);
+  const { t } = useTranslation('onboarding');
 
   // Claude Profiles state
   const [claudeProfiles, setClaudeProfiles] = useState<ClaudeProfile[]>([]);
@@ -80,7 +82,7 @@ export function OAuthStep({ onNext, onBack, onSkip }: OAuthStepProps) {
         await loadGlobalClaudeProfiles();
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('onboarding:oauth.alerts.loadFailed'));
+      setError(err instanceof Error ? err.message : 'Failed to load profiles');
     } finally {
       setIsLoadingProfiles(false);
     }
@@ -91,6 +93,9 @@ export function OAuthStep({ onNext, onBack, onSkip }: OAuthStepProps) {
     loadClaudeProfiles();
   }, []);
 
+  // Listen for login terminal creation - makes the terminal visible so user can see OAuth flow
+  useClaudeLoginTerminal();
+
   // Listen for OAuth authentication completion
   useEffect(() => {
     const unsubscribe = window.electronAPI.onTerminalOAuthToken(async (info) => {
@@ -98,7 +103,7 @@ export function OAuthStep({ onNext, onBack, onSkip }: OAuthStepProps) {
         // Reload profiles to show updated state
         await loadClaudeProfiles();
         // Show simple success notification
-        alert(t('onboarding:oauth.alerts.authSuccess', { account: info.email || t('onboarding:oauth.profile.authenticated') }));
+        alert(`✅ Profile authenticated successfully!\n\n${info.email ? `Account: ${info.email}` : 'Authentication complete.'}\n\nYou can now use this profile.`);
       }
     });
 
@@ -113,7 +118,19 @@ export function OAuthStep({ onNext, onBack, onSkip }: OAuthStepProps) {
     setError(null);
     try {
       const profileName = newProfileName.trim();
-      const profileSlug = profileName.toLowerCase().replace(/\s+/g, '-');
+      // Sanitize slug: only allow alphanumeric and dashes, remove leading/trailing dashes
+      const profileSlug = profileName
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
+
+      // Validate that sanitized slug is not empty (e.g., "!!!" becomes "")
+      if (!profileSlug) {
+        setError('Profile name must contain at least one letter or number');
+        setIsAddingProfile(false);
+        return;
+      }
 
       const result = await window.electronAPI.saveClaudeProfile({
         id: `profile-${Date.now()}`,
@@ -131,15 +148,16 @@ export function OAuthStep({ onNext, onBack, onSkip }: OAuthStepProps) {
           await loadClaudeProfiles();
           setNewProfileName('');
 
-          alert(t('onboarding:oauth.alerts.authenticating', { name: profileName }));
+          // Note: The terminal is now visible in the UI via the onTerminalAuthCreated event
+          // Users can see the 'claude setup-token' output directly
         } else {
           await loadClaudeProfiles();
-          alert(t('onboarding:oauth.alerts.authFailed', { error: initResult.error || t('common:status.failed') }));
+          alert(`Failed to start authentication: ${initResult.error || 'Please try again.'}`);
         }
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('onboarding:oauth.alerts.addFailed'));
-      alert(t('onboarding:oauth.alerts.addFailed'));
+      setError(err instanceof Error ? err.message : 'Failed to add profile');
+      alert('Failed to add profile. Please try again.');
     } finally {
       setIsAddingProfile(false);
     }
@@ -154,7 +172,7 @@ export function OAuthStep({ onNext, onBack, onSkip }: OAuthStepProps) {
         await loadClaudeProfiles();
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('onboarding:oauth.alerts.deleteFailed'));
+      setError(err instanceof Error ? err.message : 'Failed to delete profile');
     } finally {
       setDeletingProfileId(null);
     }
@@ -180,7 +198,7 @@ export function OAuthStep({ onNext, onBack, onSkip }: OAuthStepProps) {
         await loadClaudeProfiles();
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('onboarding:oauth.alerts.renameFailed'));
+      setError(err instanceof Error ? err.message : 'Failed to rename profile');
     } finally {
       setEditingProfileId(null);
       setEditingProfileName('');
@@ -196,7 +214,7 @@ export function OAuthStep({ onNext, onBack, onSkip }: OAuthStepProps) {
         await loadGlobalClaudeProfiles();
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('onboarding:oauth.alerts.setActiveFailed'));
+      setError(err instanceof Error ? err.message : 'Failed to set active profile');
     }
   };
 
@@ -205,16 +223,14 @@ export function OAuthStep({ onNext, onBack, onSkip }: OAuthStepProps) {
     setError(null);
     try {
       const initResult = await window.electronAPI.initializeClaudeProfile(profileId);
-      if (initResult.success) {
-        // Find profile name
-        const profile = claudeProfiles.find(p => p.id === profileId);
-        alert(t('onboarding:oauth.alerts.authenticating', { name: profile?.name || '' }));
-      } else {
-        alert(t('onboarding:oauth.alerts.authFailed', { error: initResult.error || t('common:status.failed') }));
+      if (!initResult.success) {
+        alert(`Failed to start authentication: ${initResult.error || 'Please try again.'}`);
       }
+      // Note: If successful, the terminal is now visible in the UI via the onTerminalAuthCreated event
+      // Users can see the 'claude setup-token' output and complete OAuth flow directly
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('onboarding:oauth.alerts.authFailed', { error: '' }));
-      alert(t('onboarding:oauth.alerts.authFailed', { error: '' }));
+      setError(err instanceof Error ? err.message : 'Failed to authenticate profile');
+      alert('Failed to start authentication. Please try again.');
     } finally {
       setAuthenticatingProfileId(null);
     }
@@ -252,11 +268,11 @@ export function OAuthStep({ onNext, onBack, onSkip }: OAuthStepProps) {
         setManualTokenEmail('');
         setShowManualToken(false);
       } else {
-        alert(t('onboarding:oauth.alerts.saveTokenFailed', { error: result.error || t('common:status.failed') }));
+        alert(`Failed to save token: ${result.error || 'Please try again.'}`);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('onboarding:oauth.alerts.saveTokenFailed', { error: '' }));
-      alert(t('onboarding:oauth.alerts.saveTokenFailed', { error: '' }));
+      setError(err instanceof Error ? err.message : 'Failed to save token');
+      alert('Failed to save token. Please try again.');
     } finally {
       setSavingTokenProfileId(null);
     }
@@ -277,10 +293,10 @@ export function OAuthStep({ onNext, onBack, onSkip }: OAuthStepProps) {
             </div>
           </div>
           <h1 className="text-2xl font-bold text-foreground tracking-tight">
-            {t('onboarding:oauth.title')}
+            Configure Claude Authentication
           </h1>
           <p className="mt-2 text-muted-foreground">
-            {t('onboarding:oauth.subtitle')}
+            Add your Claude accounts to enable AI features
           </p>
         </div>
 
@@ -313,18 +329,37 @@ export function OAuthStep({ onNext, onBack, onSkip }: OAuthStepProps) {
                   <Info className="h-5 w-5 text-info shrink-0 mt-0.5" />
                   <div className="flex-1">
                     <p className="text-sm text-muted-foreground">
-                      {t('onboarding:oauth.info')}
+                      Add multiple Claude subscriptions to automatically switch between them when you hit rate limits.
                     </p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
+            {/* Keychain explanation - macOS only */}
+            {navigator.platform.toLowerCase().includes('mac') && (
+              <Card className="border border-border bg-muted/30">
+                <CardContent className="p-5">
+                  <div className="flex items-start gap-4">
+                    <Lock className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-foreground mb-1">
+                        {t('oauth.keychainTitle')}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {t('oauth.keychainDescription')}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Profile list */}
             <div className="rounded-lg bg-muted/30 border border-border p-4">
               {claudeProfiles.length === 0 ? (
                 <div className="rounded-lg border border-dashed border-border p-4 text-center mb-4">
-                  <p className="text-sm text-muted-foreground">{t('onboarding:oauth.noAccounts')}</p>
+                  <p className="text-sm text-muted-foreground">No accounts configured yet</p>
                 </div>
               ) : (
                 <div className="space-y-2 mb-4">
@@ -386,22 +421,22 @@ export function OAuthStep({ onNext, onBack, onSkip }: OAuthStepProps) {
                                 <div className="flex items-center gap-2 flex-wrap">
                                   <span className="text-sm font-medium text-foreground">{profile.name}</span>
                                   {profile.isDefault && (
-                                    <span className="text-xs bg-muted px-1.5 py-0.5 rounded">{t('onboarding:oauth.profile.default')}</span>
+                                    <span className="text-xs bg-muted px-1.5 py-0.5 rounded">Default</span>
                                   )}
                                   {profile.id === activeProfileId && (
                                     <span className="text-xs bg-primary/20 text-primary px-1.5 py-0.5 rounded flex items-center gap-1">
                                       <Star className="h-3 w-3" />
-                                      {t('onboarding:oauth.profile.active')}
+                                      Active
                                     </span>
                                   )}
                                   {(profile.oauthToken || (profile.isDefault && profile.configDir)) ? (
                                     <span className="text-xs bg-success/20 text-success px-1.5 py-0.5 rounded flex items-center gap-1">
                                       <Check className="h-3 w-3" />
-                                      {t('onboarding:oauth.profile.authenticated')}
+                                      Authenticated
                                     </span>
                                   ) : (
                                     <span className="text-xs bg-warning/20 text-warning px-1.5 py-0.5 rounded">
-                                      {t('onboarding:oauth.profile.needsAuth')}
+                                      Needs Auth
                                     </span>
                                   )}
                                 </div>
@@ -428,7 +463,7 @@ export function OAuthStep({ onNext, onBack, onSkip }: OAuthStepProps) {
                                 ) : (
                                   <LogIn className="h-3 w-3" />
                                 )}
-                                {t('onboarding:oauth.actions.authenticate')}
+                                Authenticate
                               </Button>
                             )}
                             {profile.id !== activeProfileId && (
@@ -439,7 +474,7 @@ export function OAuthStep({ onNext, onBack, onSkip }: OAuthStepProps) {
                                 className="gap-1 h-7 text-xs"
                               >
                                 <Check className="h-3 w-3" />
-                                {t('onboarding:oauth.actions.setActive')}
+                                Set Active
                               </Button>
                             )}
                             {/* Toggle token entry button */}
@@ -448,7 +483,7 @@ export function OAuthStep({ onNext, onBack, onSkip }: OAuthStepProps) {
                               size="icon"
                               onClick={() => toggleTokenEntry(profile.id)}
                               className="h-7 w-7 text-muted-foreground hover:text-foreground"
-                              title={expandedTokenProfileId === profile.id ? t('onboarding:oauth.actions.hideToken') : t('onboarding:oauth.actions.enterToken')}
+                              title={expandedTokenProfileId === profile.id ? "Hide token entry" : "Enter token manually"}
                             >
                               {expandedTokenProfileId === profile.id ? (
                                 <ChevronDown className="h-3 w-3" />
@@ -461,7 +496,7 @@ export function OAuthStep({ onNext, onBack, onSkip }: OAuthStepProps) {
                               size="icon"
                               onClick={() => startEditingProfile(profile)}
                               className="h-7 w-7 text-muted-foreground hover:text-foreground"
-                              title={t('onboarding:oauth.profile.rename')}
+                              title="Rename profile"
                             >
                               <Pencil className="h-3 w-3" />
                             </Button>
@@ -472,7 +507,7 @@ export function OAuthStep({ onNext, onBack, onSkip }: OAuthStepProps) {
                                 onClick={() => handleDeleteProfile(profile.id)}
                                 disabled={deletingProfileId === profile.id}
                                 className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10"
-                                title={t('onboarding:oauth.profile.delete')}
+                                title="Delete profile"
                               >
                                 {deletingProfileId === profile.id ? (
                                   <Loader2 className="h-3 w-3 animate-spin" />
@@ -491,16 +526,10 @@ export function OAuthStep({ onNext, onBack, onSkip }: OAuthStepProps) {
                           <div className="bg-muted/30 rounded-lg p-3 mt-3 space-y-3">
                             <div className="flex items-center justify-between">
                               <Label className="text-xs font-medium text-muted-foreground">
-                                {t('onboarding:oauth.actions.manualToken')}
+                                Manual Token Entry
                               </Label>
                               <span className="text-xs text-muted-foreground">
-                                <Trans
-                                  i18nKey="onboarding:oauth.actions.tokenHint"
-                                  values={{ command: 'claude setup-token' }}
-                                  components={{
-                                    1: <code className="px-1 py-0.5 bg-muted rounded font-mono text-xs" />
-                                  }}
-                                />
+                                Run <code className="px-1 py-0.5 bg-muted rounded font-mono text-xs">claude setup-token</code> to get your token
                               </span>
                             </div>
 
@@ -508,7 +537,7 @@ export function OAuthStep({ onNext, onBack, onSkip }: OAuthStepProps) {
                               <div className="relative">
                                 <Input
                                   type={showManualToken ? 'text' : 'password'}
-                                  placeholder={t('onboarding:oauth.placeholders.token')}
+                                  placeholder="sk-ant-oat01-..."
                                   value={manualToken}
                                   onChange={(e) => setManualToken(e.target.value)}
                                   className="pr-10 font-mono text-xs h-8"
@@ -524,7 +553,7 @@ export function OAuthStep({ onNext, onBack, onSkip }: OAuthStepProps) {
 
                               <Input
                                 type="email"
-                                placeholder={t('onboarding:oauth.placeholders.email')}
+                                placeholder="Email (optional, for display)"
                                 value={manualTokenEmail}
                                 onChange={(e) => setManualTokenEmail(e.target.value)}
                                 className="text-xs h-8"
@@ -537,7 +566,9 @@ export function OAuthStep({ onNext, onBack, onSkip }: OAuthStepProps) {
                                 size="sm"
                                 onClick={() => toggleTokenEntry(profile.id)}
                                 className="h-7 text-xs"
-                              >{t("common:buttons.cancel")}</Button>
+                              >
+                                Cancel
+                              </Button>
                               <Button
                                 size="sm"
                                 onClick={() => handleSaveManualToken(profile.id)}
@@ -549,7 +580,7 @@ export function OAuthStep({ onNext, onBack, onSkip }: OAuthStepProps) {
                                 ) : (
                                   <Check className="h-3 w-3" />
                                 )}
-                                {t('onboarding:oauth.actions.saveToken')}
+                                Save Token
                               </Button>
                             </div>
                           </div>
@@ -563,7 +594,7 @@ export function OAuthStep({ onNext, onBack, onSkip }: OAuthStepProps) {
               {/* Add new account input */}
               <div className="flex items-center gap-2">
                 <Input
-                  placeholder={t('onboarding:oauth.placeholders.accountName')}
+                  placeholder="Account name (e.g., Work, Personal)"
                   value={newProfileName}
                   onChange={(e) => setNewProfileName(e.target.value)}
                   className="flex-1 h-8 text-sm"
@@ -584,7 +615,7 @@ export function OAuthStep({ onNext, onBack, onSkip }: OAuthStepProps) {
                   ) : (
                     <Plus className="h-3 w-3" />
                   )}
-                  {t('onboarding:oauth.actions.add')}
+                  Add
                 </Button>
               </div>
             </div>
@@ -596,7 +627,7 @@ export function OAuthStep({ onNext, onBack, onSkip }: OAuthStepProps) {
                   <div className="flex items-start gap-3">
                     <CheckCircle2 className="h-5 w-5 text-success shrink-0 mt-0.5" />
                     <p className="text-sm text-success">
-                      {t('onboarding:oauth.success')}
+                      You have at least one authenticated Claude account. You can continue to the next step.
                     </p>
                   </div>
                 </CardContent>
@@ -611,18 +642,22 @@ export function OAuthStep({ onNext, onBack, onSkip }: OAuthStepProps) {
             variant="ghost"
             onClick={onBack}
             className="text-muted-foreground hover:text-foreground"
-          >{t("common:buttons.back")}</Button>
+          >
+            Back
+          </Button>
           <div className="flex gap-4">
             <Button
               variant="ghost"
               onClick={onSkip}
               className="text-muted-foreground hover:text-foreground"
-            >{t("common:buttons.skip")}</Button>
+            >
+              Skip
+            </Button>
             <Button
               onClick={handleContinue}
               disabled={!hasAuthenticatedProfile}
             >
-              {t("common:buttons.next")}
+              Continue
             </Button>
           </div>
         </div>

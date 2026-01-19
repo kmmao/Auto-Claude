@@ -1,4 +1,6 @@
+import { useTranslation } from 'react-i18next';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
+import { useToast } from '../../hooks/use-toast';
 import { Separator } from '../ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import { ScrollArea } from '../ui/scroll-area';
@@ -6,7 +8,6 @@ import { TooltipProvider } from '../ui/tooltip';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Progress } from '../ui/progress';
-import { useTranslation } from 'react-i18next';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,11 +27,12 @@ import {
   Loader2,
   AlertTriangle,
   Pencil,
-  X
+  X,
+  GitPullRequest
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { calculateProgress } from '../../lib/utils';
-import { startTask, stopTask, submitReview, recoverStuckTask, deleteTask } from '../../stores/task-store';
+import { startTask, stopTask, submitReview, recoverStuckTask, deleteTask, useTaskStore } from '../../stores/task-store';
 import { TASK_STATUS_LABELS } from '../../../shared/constants';
 import { TaskEditDialog } from '../TaskEditDialog';
 import { useTaskDetail } from './hooks/useTaskDetail';
@@ -38,18 +40,19 @@ import { TaskMetadata } from './TaskMetadata';
 import { TaskWarnings } from './TaskWarnings';
 import { TaskSubtasks } from './TaskSubtasks';
 import { TaskLogs } from './TaskLogs';
+import { TaskFiles } from './TaskFiles';
 import { TaskReview } from './TaskReview';
-import type { Task } from '../../../shared/types';
+import type { Task, WorktreeCreatePROptions } from '../../../shared/types';
 
 interface TaskDetailModalProps {
   open: boolean;
   task: Task | null;
   onOpenChange: (open: boolean) => void;
+  onSwitchToTerminals?: () => void;
+  onOpenInbuiltTerminal?: (id: string, cwd: string) => void;
 }
 
-export function TaskDetailModal({ open, task, onOpenChange }: TaskDetailModalProps) {
-  const { t } = useTranslation(['common', 'taskDetail', 'kanban']);
-
+export function TaskDetailModal({ open, task, onOpenChange, onSwitchToTerminals, onOpenInbuiltTerminal }: TaskDetailModalProps) {
   // Don't render anything if no task
   if (!task) {
     return null;
@@ -60,23 +63,46 @@ export function TaskDetailModal({ open, task, onOpenChange }: TaskDetailModalPro
       open={open}
       task={task}
       onOpenChange={onOpenChange}
+      onSwitchToTerminals={onSwitchToTerminals}
+      onOpenInbuiltTerminal={onOpenInbuiltTerminal}
     />
   );
 }
 
+// Feature flag for Files tab (enabled by default, can be disabled via localStorage)
+const isFilesTabEnabled = () => {
+  const flag = localStorage.getItem('use_files_tab');
+  return flag === null || flag === 'true'; // Enabled by default
+};
+
 // Separate component to use hooks only when task exists
-function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; task: Task; onOpenChange: (open: boolean) => void }) {
-  const { t } = useTranslation(['common', 'taskDetail', 'kanban']);
+function TaskDetailModalContent({ open, task, onOpenChange, onSwitchToTerminals, onOpenInbuiltTerminal }: { open: boolean; task: Task; onOpenChange: (open: boolean) => void; onSwitchToTerminals?: () => void; onOpenInbuiltTerminal?: (id: string, cwd: string) => void }) {
+  const { t } = useTranslation(['tasks']);
+  const { toast } = useToast();
   const state = useTaskDetail({ task });
+  const showFilesTab = isFilesTabEnabled();
   const progressPercent = calculateProgress(task.subtasks);
   const completedSubtasks = task.subtasks.filter(s => s.status === 'completed').length;
   const totalSubtasks = task.subtasks.length;
 
   // Event Handlers
-  const handleStartStop = () => {
+  const handleStartStop = async () => {
     if (state.isRunning && !state.isStuck) {
       stopTask(task.id);
     } else {
+      // If task is incomplete, validate and reload plan before starting
+      if (state.isIncomplete) {
+        const isValid = await state.reloadPlanForIncompleteTask();
+        if (!isValid) {
+          toast({
+            title: 'Cannot Resume Task',
+            description: 'Failed to load implementation plan. Please try again or check the task files.',
+            variant: 'destructive',
+            duration: 5000,
+          });
+          return;
+        }
+      }
       startTask(task.id);
     }
   };
@@ -109,7 +135,7 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
       state.setShowDeleteDialog(false);
       onOpenChange(false);
     } else {
-      state.setDeleteError(result.error || t('taskDetail:deleteDialog.error'));
+      state.setDeleteError(result.error || 'Failed to delete task');
     }
     state.setIsDeleting(false);
   };
@@ -122,17 +148,17 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
       if (result.success && result.data?.success) {
         if (state.stageOnly && result.data.staged) {
           state.setWorkspaceError(null);
-          state.setStagedSuccess(result.data.message || t('taskDetail:messages.stagedSuccess'));
+          state.setStagedSuccess(result.data.message || 'Changes staged in main project');
           state.setStagedProjectPath(result.data.projectPath);
           state.setSuggestedCommitMessage(result.data.suggestedCommitMessage);
         } else {
           onOpenChange(false);
         }
       } else {
-        state.setWorkspaceError(result.data?.message || result.error || t('taskDetail:messages.mergeError'));
+        state.setWorkspaceError(result.data?.message || result.error || 'Failed to merge changes');
       }
     } catch (error) {
-      state.setWorkspaceError(error instanceof Error ? error.message : t('taskDetail:messages.unknownError'));
+      state.setWorkspaceError(error instanceof Error ? error.message : 'Unknown error during merge');
     } finally {
       state.setIsMerging(false);
     }
@@ -146,13 +172,61 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
       state.setShowDiscardDialog(false);
       onOpenChange(false);
     } else {
-      state.setWorkspaceError(result.data?.message || result.error || t('taskDetail:messages.discardError'));
+      state.setWorkspaceError(result.data?.message || result.error || 'Failed to discard changes');
     }
     state.setIsDiscarding(false);
   };
 
+  const handleCreatePR = async (options: WorktreeCreatePROptions) => {
+    state.setIsCreatingPR(true);
+    try {
+      const result = await window.electronAPI.createWorktreePR(task.id, options);
+      if (result.success && result.data) {
+        // Update single task in store with new status and prUrl (more efficient than reloading all tasks)
+        if (result.data.success && result.data.prUrl && !result.data.alreadyExists) {
+          useTaskStore.getState().updateTask(task.id, {
+            status: 'pr_created',
+            metadata: { ...task.metadata, prUrl: result.data.prUrl }
+          });
+        }
+        return result.data;
+      }
+      // Propagate IPC error; let CreatePRDialog use its i18n fallback
+      return { success: false, error: result.error, prUrl: undefined, alreadyExists: false };
+    } catch (error) {
+      // Propagate actual error message; let CreatePRDialog handle i18n fallback for undefined
+      return { success: false, error: error instanceof Error ? error.message : undefined, prUrl: undefined, alreadyExists: false };
+    } finally {
+      state.setIsCreatingPR(false);
+    }
+  };
+
   const handleClose = () => {
+    // Show toast notification if task is running
+    if (state.isRunning && !state.isStuck) {
+      toast({
+        title: t('tasks:notifications.backgroundTaskTitle'),
+        description: t('tasks:notifications.backgroundTaskDescription'),
+        duration: 4000,
+      });
+    }
     onOpenChange(false);
+  };
+
+  // Helper function to get status badge variant
+  const getStatusBadgeVariant = (status: string, isStuck: boolean) => {
+    if (isStuck) return 'warning';
+    switch (status) {
+      case 'done':
+      case 'pr_created':
+        return 'success';
+      case 'human_review':
+        return 'purple';
+      case 'in_progress':
+        return 'info';
+      default:
+        return 'secondary';
+    }
   };
 
   // Render primary action button based on state
@@ -167,12 +241,12 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
           {state.isRecovering ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {t('taskDetail:actions.recovering')}
+              Recovering...
             </>
           ) : (
             <>
               <RotateCcw className="mr-2 h-4 w-4" />
-              {t('taskDetail:actions.recover')}
+              Recover Task
             </>
           )}
         </Button>
@@ -181,9 +255,18 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
 
     if (state.isIncomplete) {
       return (
-        <Button variant="default" onClick={handleStartStop}>
-          <Play className="mr-2 h-4 w-4" />
-          {t('taskDetail:actions.resume')}
+        <Button variant="default" onClick={handleStartStop} disabled={state.isLoadingPlan}>
+          {state.isLoadingPlan ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Loading Plan...
+            </>
+          ) : (
+            <>
+              <Play className="mr-2 h-4 w-4" />
+              Resume Task
+            </>
+          )}
         </Button>
       );
     }
@@ -197,12 +280,12 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
           {state.isRunning ? (
             <>
               <Square className="mr-2 h-4 w-4" />
-              {t('taskDetail:actions.stop')}
+              Stop Task
             </>
           ) : (
             <>
               <Play className="mr-2 h-4 w-4" />
-              {t('taskDetail:actions.start')}
+              Start Task
             </>
           )}
         </Button>
@@ -213,7 +296,28 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
       return (
         <div className="completion-state text-sm flex items-center gap-2 text-success">
           <CheckCircle2 className="h-5 w-5" />
-          <span className="font-medium">{t('taskDetail:status.completed')}</span>
+          <span className="font-medium">{t('tasks:status.complete')}</span>
+        </div>
+      );
+    }
+
+    if (task.status === 'pr_created') {
+      return (
+        <div className="flex items-center gap-4">
+          <div className="completion-state text-sm flex items-center gap-2 text-success">
+            <CheckCircle2 className="h-5 w-5" />
+            <span className="font-medium">{t('tasks:status.complete')}</span>
+          </div>
+           {task.metadata?.prUrl && (
+             <button
+               type="button"
+               onClick={() => window.electronAPI?.openExternal(task.metadata!.prUrl!)}
+               className="completion-state text-sm flex items-center gap-2 text-info cursor-pointer hover:underline bg-transparent border-none p-0"
+             >
+              <GitPullRequest className="h-5 w-5" />
+              <span className="font-medium">{t(TASK_STATUS_LABELS[task.status])}</span>
+            </button>
+          )}
         </div>
       );
     }
@@ -264,31 +368,31 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
                       {state.isStuck ? (
                         <Badge variant="warning" className="text-xs flex items-center gap-1 animate-pulse">
                           <AlertTriangle className="h-3 w-3" />
-                          {t('taskDetail:status.stuck')}
+                          Stuck
                         </Badge>
                       ) : state.isIncomplete ? (
                         <>
                           <Badge variant="warning" className="text-xs flex items-center gap-1">
                             <AlertTriangle className="h-3 w-3" />
-                            {t('taskDetail:status.incomplete')}
+                            Incomplete
                           </Badge>
                         </>
                       ) : (
                         <>
-                          <Badge
-                            variant={task.status === 'done' ? 'success' : task.status === 'human_review' ? 'purple' : task.status === 'in_progress' ? 'info' : 'secondary'}
-                            className={cn('text-xs', (task.status === 'in_progress' && !state.isStuck) && 'status-running')}
-                          >
-                            {t(`kanban:columns.${task.status === 'backlog' ? 'planning' : task.status === 'in_progress' ? 'inProgress' : task.status === 'ai_review' ? 'aiReview' : task.status === 'human_review' ? 'humanReview' : 'done'}`)}
-                          </Badge>
+                           <Badge
+                             variant={getStatusBadgeVariant(task.status, state.isStuck)}
+                             className={cn('text-xs', (task.status === 'in_progress' && !state.isStuck) && 'status-running')}
+                           >
+                             {t(TASK_STATUS_LABELS[task.status])}
+                           </Badge>
                           {task.status === 'human_review' && task.reviewReason && (
                             <Badge
                               variant={task.reviewReason === 'completed' ? 'success' : task.reviewReason === 'errors' ? 'destructive' : 'warning'}
                               className="text-xs"
                             >
-                              {task.reviewReason === 'completed' ? t('taskDetail:status.review.completed') :
-                                task.reviewReason === 'errors' ? t('taskDetail:status.review.hasErrors') :
-                                  task.reviewReason === 'plan_review' ? t('taskDetail:status.review.approvePlan') : t('taskDetail:status.review.qaIssues')}
+                              {task.reviewReason === 'completed' ? 'Completed' :
+                               task.reviewReason === 'errors' ? 'Has Errors' :
+                               task.reviewReason === 'plan_review' ? 'Approve Plan' : 'QA Issues'}
                             </Badge>
                           )}
                         </>
@@ -296,7 +400,7 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
                       {/* Compact progress indicator */}
                       {totalSubtasks > 0 && (
                         <span className="text-xs text-muted-foreground ml-1">
-                          {t('taskDetail:subtasks.count', { completed: completedSubtasks, total: totalSubtasks })}
+                          {completedSubtasks}/{totalSubtasks} subtasks
                         </span>
                       )}
                     </div>
@@ -319,7 +423,7 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
                       className="hover:bg-muted transition-colors"
                     >
                       <X className="h-5 w-5" />
-                      <span className="sr-only">{t("common:buttons.close")}</span>
+                      <span className="sr-only">Close</span>
                     </Button>
                   </DialogPrimitive.Close>
                 </div>
@@ -356,26 +460,34 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
                     value="overview"
                     className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2.5 text-sm"
                   >
-                    {t('taskDetail:tabs.overview')}
+                    Overview
                   </TabsTrigger>
                   <TabsTrigger
                     value="subtasks"
                     className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2.5 text-sm"
                   >
-                    {t('taskDetail:tabs.subtasks')} ({task.subtasks.length})
+                    Subtasks ({task.subtasks.length})
                   </TabsTrigger>
                   <TabsTrigger
                     value="logs"
                     className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2.5 text-sm"
                   >
-                    {t('taskDetail:tabs.logs')}
+                    Logs
                   </TabsTrigger>
+                  {showFilesTab && (
+                    <TabsTrigger
+                      value="files"
+                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2.5 text-sm"
+                    >
+                      {t('tasks:files.tab')}
+                    </TabsTrigger>
+                  )}
                 </TabsList>
 
                 {/* Overview Tab */}
                 <TabsContent value="overview" className="flex-1 min-h-0 overflow-hidden mt-0">
                   <ScrollArea className="h-full">
-                    <div className="p-5 space-y-5">
+                    <div className="p-5 space-y-5 overflow-x-hidden max-w-full">
                       {/* Metadata */}
                       <TaskMetadata task={task} />
 
@@ -412,6 +524,13 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
                             onShowConflictDialog={state.setShowConflictDialog}
                             onLoadMergePreview={state.loadMergePreview}
                             onClose={handleClose}
+                            onSwitchToTerminals={onSwitchToTerminals}
+                            onOpenInbuiltTerminal={onOpenInbuiltTerminal}
+                            onReviewAgain={state.handleReviewAgain}
+                            showPRDialog={state.showPRDialog}
+                            isCreatingPR={state.isCreatingPR}
+                            onShowPRDialog={state.setShowPRDialog}
+                            onCreatePR={handleCreatePR}
                           />
                         </>
                       )}
@@ -438,6 +557,13 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
                     onTogglePhase={state.togglePhase}
                   />
                 </TabsContent>
+
+                {/* Files Tab */}
+                {showFilesTab && (
+                  <TabsContent value="files" className="flex-1 min-h-0 overflow-hidden mt-0">
+                    <TaskFiles task={task} />
+                  </TabsContent>
+                )}
               </Tabs>
             </div>
 
@@ -451,11 +577,13 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
                 disabled={state.isRunning && !state.isStuck}
               >
                 <Trash2 className="mr-2 h-4 w-4" />
-                {t('taskDetail:actions.delete')}
+                Delete Task
               </Button>
               <div className="flex-1" />
               {renderPrimaryAction()}
-              <Button variant="outline" onClick={handleClose}>{t("common:buttons.close")}</Button>
+              <Button variant="outline" onClick={handleClose}>
+                Close
+              </Button>
             </div>
           </DialogPrimitive.Content>
         </DialogPrimitive.Portal>
@@ -474,15 +602,15 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-destructive" />
-              {t('taskDetail:deleteDialog.title')}
+              Delete Task
             </AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="text-sm text-muted-foreground space-y-3">
                 <p>
-                  {t('taskDetail:deleteDialog.description', { title: task.title })}
+                  Are you sure you want to delete <strong className="text-foreground">"{task.title}"</strong>?
                 </p>
                 <p className="text-destructive">
-                  {t('taskDetail:deleteDialog.warning')}
+                  This action cannot be undone. All task files, including the spec, implementation plan, and any generated code will be permanently deleted from the project.
                 </p>
                 {state.deleteError && (
                   <p className="text-destructive bg-destructive/10 px-3 py-2 rounded-lg text-sm">
@@ -493,7 +621,7 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={state.isDeleting}>{t("common:buttons.cancel")}</AlertDialogCancel>
+            <AlertDialogCancel disabled={state.isDeleting}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
@@ -505,12 +633,12 @@ function TaskDetailModalContent({ open, task, onOpenChange }: { open: boolean; t
               {state.isDeleting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {t('taskDetail:actions.deleting')}
+                  Deleting...
                 </>
               ) : (
                 <>
                   <Trash2 className="mr-2 h-4 w-4" />
-                  {t('taskDetail:actions.deletePermanently')}
+                  Delete Permanently
                 </>
               )}
             </AlertDialogAction>

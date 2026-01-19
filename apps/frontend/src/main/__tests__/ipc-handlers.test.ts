@@ -4,11 +4,12 @@
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { EventEmitter } from 'events';
-import { mkdirSync, writeFileSync, rmSync, existsSync } from 'fs';
+import { mkdirSync, mkdtempSync, writeFileSync, rmSync, existsSync } from 'fs';
+import { tmpdir } from 'os';
 import path from 'path';
 
 // Test data directory
-const TEST_DIR = '/tmp/ipc-handlers-test';
+const TEST_DIR = mkdtempSync(path.join(tmpdir(), 'ipc-handlers-test-'));
 const TEST_PROJECT_PATH = path.join(TEST_DIR, 'test-project');
 
 // Mock electron-updater before importing
@@ -45,6 +46,38 @@ vi.mock('../updater/version-manager', () => ({
   getBundledVersion: vi.fn(() => '0.1.0'),
   parseVersionFromTag: vi.fn((tag: string) => tag.replace('v', '')),
   compareVersions: vi.fn(() => 0)
+}));
+
+vi.mock('../notification-service', () => ({
+  notificationService: {
+    initialize: vi.fn(),
+    notifyReviewNeeded: vi.fn(),
+    notifyTaskFailed: vi.fn()
+  }
+}));
+
+// Mock electron-log to prevent Electron binary dependency
+vi.mock('electron-log/main.js', () => ({
+  default: {
+    initialize: vi.fn(),
+    transports: {
+      file: {
+        maxSize: 10 * 1024 * 1024,
+        format: '',
+        fileName: 'main.log',
+        level: 'info',
+        getFile: vi.fn(() => ({ path: '/tmp/test.log' }))
+      },
+      console: {
+        level: 'warn',
+        format: ''
+      }
+    },
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn()
+  }
 }));
 
 // Mock modules before importing
@@ -106,7 +139,8 @@ function cleanupTestDirs(): void {
   }
 }
 
-describe('IPC Handlers', () => {
+// Increase timeout for all tests in this file due to dynamic imports and setup overhead
+describe('IPC Handlers', { timeout: 15000 }, () => {
   let ipcMain: EventEmitter & {
     handlers: Map<string, Function>;
     invokeHandler: (channel: string, event: unknown, ...args: unknown[]) => Promise<unknown>;
@@ -486,7 +520,8 @@ describe('IPC Handlers', () => {
       expect(mockMainWindow.webContents.send).toHaveBeenCalledWith(
         'task:log',
         'task-1',
-        'Test log message'
+        'Test log message',
+        undefined // projectId is undefined when task not found
       );
     });
 
@@ -499,21 +534,33 @@ describe('IPC Handlers', () => {
       expect(mockMainWindow.webContents.send).toHaveBeenCalledWith(
         'task:error',
         'task-1',
-        'Test error message'
+        'Test error message',
+        undefined // projectId is undefined when task not found
       );
     });
 
-    it('should forward exit events with status change', async () => {
+    it('should forward exit events with status change on failure', async () => {
       const { setupIpcHandlers } = await import('../ipc-handlers');
       setupIpcHandlers(mockAgentManager as never, mockTerminalManager as never, () => mockMainWindow as never, mockPythonEnvManager as never);
 
-      // Exit event with task-execution processType should result in human_review status
-      mockAgentManager.emit('exit', 'task-1', 0, 'task-execution');
+      // Add project first
+      await ipcMain.invokeHandler('project:add', {}, TEST_PROJECT_PATH);
+
+      // Create a spec/task directory with implementation_plan.json
+      const specDir = path.join(TEST_PROJECT_PATH, '.auto-claude', 'specs', 'task-1');
+      mkdirSync(specDir, { recursive: true });
+      writeFileSync(
+        path.join(specDir, 'implementation_plan.json'),
+        JSON.stringify({ feature: 'Test Task', status: 'in_progress' })
+      );
+
+      mockAgentManager.emit('exit', 'task-1', 1, 'task-execution');
 
       expect(mockMainWindow.webContents.send).toHaveBeenCalledWith(
         'task:statusChange',
         'task-1',
-        'human_review'
+        'human_review',
+        expect.any(String) // projectId for multi-project filtering
       );
     });
   });

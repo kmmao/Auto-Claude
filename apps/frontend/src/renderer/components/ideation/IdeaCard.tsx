@@ -1,11 +1,12 @@
+import { useTranslation } from 'react-i18next';
 import { ExternalLink, Play, X } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import { Card } from '../ui/card';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import { Checkbox } from '../ui/checkbox';
-import { useTranslation } from 'react-i18next';
 import {
+  IDEATION_TYPE_LABELS,
   IDEATION_TYPE_COLORS,
   IDEATION_STATUS_COLORS,
   IDEATION_EFFORT_COLORS,
@@ -45,8 +46,7 @@ interface IdeaCardProps {
 }
 
 export function IdeaCard({ idea, isSelected, onClick, onConvert, onGoToTask, onDismiss, onToggleSelect }: IdeaCardProps) {
-  const { t } = useTranslation(['common', 'settings', 'ideation']);
-
+  const { t } = useTranslation('common');
   const isDismissed = idea.status === 'dismissed';
   const isArchived = idea.status === 'archived';
   const isConverted = idea.status === 'converted';
@@ -54,8 +54,9 @@ export function IdeaCard({ idea, isSelected, onClick, onConvert, onGoToTask, onD
 
   return (
     <Card
-      className={`p-4 hover:bg-muted/50 cursor-pointer transition-colors ${isInactive ? 'opacity-50' : ''
-        } ${isSelected ? 'ring-2 ring-primary bg-primary/5' : ''}`}
+      className={`p-4 hover:bg-muted/50 cursor-pointer transition-colors ${
+        isInactive ? 'opacity-50' : ''
+      } ${isSelected ? 'ring-2 ring-primary bg-primary/5' : ''}`}
       onClick={onClick}
     >
       <div className="flex items-start gap-3">
@@ -71,56 +72,57 @@ export function IdeaCard({ idea, isSelected, onClick, onConvert, onGoToTask, onD
             checked={isSelected}
             onCheckedChange={() => onToggleSelect(idea.id)}
             className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+            aria-label={t('accessibility.selectIdeaAriaLabel', { title: idea.title })}
           />
         </div>
 
         <div className="flex-1 flex items-start justify-between">
           <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1">
-              <Badge variant="outline" className={IDEATION_TYPE_COLORS[idea.type]}>
-                <TypeIcon type={idea.type} />
-                <span className="ml-1">{t(`ideation:types.${idea.type}.label`)}</span>
+          <div className="flex items-center gap-2 mb-1">
+            <Badge variant="outline" className={IDEATION_TYPE_COLORS[idea.type]}>
+              <TypeIcon type={idea.type} />
+              <span className="ml-1">{IDEATION_TYPE_LABELS[idea.type]}</span>
+            </Badge>
+            {idea.status !== 'draft' && (
+              <Badge variant="outline" className={IDEATION_STATUS_COLORS[idea.status]}>
+                {idea.status}
               </Badge>
-              {idea.status !== 'draft' && (
-                <Badge variant="outline" className={IDEATION_STATUS_COLORS[idea.status]}>
-                  {t(`ideation:status.${idea.status}`)}
-                </Badge>
-              )}
-              {isCodeImprovementIdea(idea) && (
-                <Badge variant="outline" className={IDEATION_EFFORT_COLORS[(idea as CodeImprovementIdea).estimatedEffort]}>
-                  {t(`ideation:effort.${(idea as CodeImprovementIdea).estimatedEffort}`)}
-                </Badge>
-              )}
-              {isUIUXIdea(idea) && (
-                <Badge variant="outline">
-                  {t(`ideation:categories.uiux.${(idea as UIUXImprovementIdea).category}`)}
-                </Badge>
-              )}
-              {isDocumentationGapIdea(idea) && (
-                <Badge variant="outline">
-                  {t(`ideation:categories.documentation.${(idea as DocumentationGapIdea).category}`)}
-                </Badge>
-              )}
-              {isSecurityHardeningIdea(idea) && (
-                <Badge variant="outline" className={SECURITY_SEVERITY_COLORS[(idea as SecurityHardeningIdea).severity]}>
-                  {t(`ideation:severity.${(idea as SecurityHardeningIdea).severity}`)}
-                </Badge>
-              )}
-              {isPerformanceOptimizationIdea(idea) && (
-                <Badge variant="outline" className={IDEATION_IMPACT_COLORS[(idea as PerformanceOptimizationIdea).impact]}>
-                  {t(`ideation:impact.${(idea as PerformanceOptimizationIdea).impact}`)}
-                </Badge>
-              )}
-              {isCodeQualityIdea(idea) && (
-                <Badge variant="outline" className={CODE_QUALITY_SEVERITY_COLORS[(idea as CodeQualityIdea).severity]}>
-                  {t(`ideation:severity.${(idea as CodeQualityIdea).severity}`)}
-                </Badge>
-              )}
-            </div>
-            <h3 className={`font-medium ${isInactive ? 'line-through' : ''}`}>
-              {idea.title}
-            </h3>
-            <p className="text-sm text-muted-foreground line-clamp-2">{idea.description}</p>
+            )}
+            {isCodeImprovementIdea(idea) && (
+              <Badge variant="outline" className={IDEATION_EFFORT_COLORS[(idea as CodeImprovementIdea).estimatedEffort]}>
+                {(idea as CodeImprovementIdea).estimatedEffort}
+              </Badge>
+            )}
+            {isUIUXIdea(idea) && (
+              <Badge variant="outline">
+                {UIUX_CATEGORY_LABELS[(idea as UIUXImprovementIdea).category]}
+              </Badge>
+            )}
+            {isDocumentationGapIdea(idea) && (
+              <Badge variant="outline">
+                {DOCUMENTATION_CATEGORY_LABELS[(idea as DocumentationGapIdea).category]}
+              </Badge>
+            )}
+            {isSecurityHardeningIdea(idea) && (
+              <Badge variant="outline" className={SECURITY_SEVERITY_COLORS[(idea as SecurityHardeningIdea).severity]}>
+                {(idea as SecurityHardeningIdea).severity}
+              </Badge>
+            )}
+            {isPerformanceOptimizationIdea(idea) && (
+              <Badge variant="outline" className={IDEATION_IMPACT_COLORS[(idea as PerformanceOptimizationIdea).impact]}>
+                {(idea as PerformanceOptimizationIdea).impact} impact
+              </Badge>
+            )}
+            {isCodeQualityIdea(idea) && (
+              <Badge variant="outline" className={CODE_QUALITY_SEVERITY_COLORS[(idea as CodeQualityIdea).severity]}>
+                {(idea as CodeQualityIdea).severity}
+              </Badge>
+            )}
+          </div>
+          <h3 className={`font-medium ${isInactive ? 'line-through' : ''}`}>
+            {idea.title}
+          </h3>
+          <p className="text-sm text-muted-foreground line-clamp-2">{idea.description}</p>
           </div>
           {/* Action buttons */}
           {!isInactive && !isConverted && (
@@ -135,11 +137,12 @@ export function IdeaCard({ idea, isSelected, onClick, onConvert, onGoToTask, onD
                       e.stopPropagation();
                       onConvert(idea);
                     }}
+                    aria-label={t('accessibility.convertToTaskAriaLabel')}
                   >
                     <Play className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>{t('ideation:common.tooltips.convertToTask')}</TooltipContent>
+                <TooltipContent>{t('accessibility.convertToTaskAriaLabel')}</TooltipContent>
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -151,11 +154,12 @@ export function IdeaCard({ idea, isSelected, onClick, onConvert, onGoToTask, onD
                       e.stopPropagation();
                       onDismiss(idea);
                     }}
+                    aria-label={t('accessibility.dismissAriaLabel')}
                   >
                     <X className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>{t('ideation:common.tooltips.dismiss')}</TooltipContent>
+                <TooltipContent>{t('accessibility.dismissAriaLabel')}</TooltipContent>
               </Tooltip>
             </div>
           )}
@@ -172,11 +176,12 @@ export function IdeaCard({ idea, isSelected, onClick, onConvert, onGoToTask, onD
                       e.stopPropagation();
                       onGoToTask(idea.taskId!);
                     }}
+                    aria-label={t('accessibility.goToTaskAriaLabel')}
                   >
                     <ExternalLink className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>{t('ideation:common.tooltips.goToTask')}</TooltipContent>
+                <TooltipContent>{t('accessibility.goToTaskAriaLabel')}</TooltipContent>
               </Tooltip>
             </div>
           )}
@@ -193,11 +198,12 @@ export function IdeaCard({ idea, isSelected, onClick, onConvert, onGoToTask, onD
                       e.stopPropagation();
                       onGoToTask(idea.taskId!);
                     }}
+                    aria-label={t('accessibility.goToTaskAriaLabel')}
                   >
                     <ExternalLink className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>{t('ideation:common.tooltips.goToTask')}</TooltipContent>
+                <TooltipContent>{t('accessibility.goToTaskAriaLabel')}</TooltipContent>
               </Tooltip>
             </div>
           )}

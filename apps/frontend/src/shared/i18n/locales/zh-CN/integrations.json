@@ -1,0 +1,92 @@
+{
+  "title": "集成",
+  "description": "API 密钥和 Claude 账户",
+  "github": {
+    "title": "GitHub 集成",
+    "description": "连接到 GitHub 进行问题跟踪和任务导入",
+    "enable": "启用 GitHub 问题",
+    "auth": "GitHub 身份验证",
+    "token": "个人访问令牌",
+    "tokenPlaceholder": "ghp_...",
+    "repository": "仓库",
+    "repositoryPlaceholder": "owner/repo"
+  },
+  "linear": {
+    "title": "Linear 集成",
+    "description": "连接到 Linear 以进行问题跟踪 and 任务同步",
+    "enable": "启用 Linear 同步",
+    "apiKey": "API 密钥",
+    "apiKeyPlaceholder": "lin_api_...",
+    "realtime": "实时同步",
+    "realtimeDesc": "自动从 Linear 导入新问题"
+  },
+  "claude": {
+    "title": "Claude 账号",
+    "description": "添加多个 Claude 订阅，以便在达到速率限制时自动切换。",
+    "noAccounts": "尚未配置账号",
+    "status": {
+      "default": "默认",
+      "active": "激活",
+      "authenticated": "已认证",
+      "needsAuth": "需要认证"
+    },
+    "actions": {
+      "authenticate": "认证",
+      "reauthenticate": "重新认证配置",
+      "setActive": "设为活跃",
+      "rename": "重命名配置",
+      "delete": "删除配置",
+      "hideToken": "隐藏令牌输入",
+      "manualToken": "手动输入令牌",
+      "manualTokenEntry": "手动令牌输入",
+      "manualTokenHint": "运行 <1>claude setup-token</1> 获取您的令牌",
+      "saveToken": "保存令牌",
+      "baseUrlPlaceholder": "https://api.anthropic.com",
+      "add": "添加",
+      "addPlaceholder": "账号名称 (例如：工作、个人)",
+      "currentConfig": "当前配置",
+      "authSource": "认证来源",
+      "envConfigLabel": "env 配置",
+      "manualConfigLabel": "手动配置 Token",
+      "suggestConfig": "⚠️ 建议补充 Email 和 Base URL 配置",
+      "authMethod": "认证方式",
+      "tokenStatus": "Token 状态",
+      "configured": "✓ 已配置",
+      "createdAt": "创建时间",
+      "editHint": "使用 <1>open ~/.claude/settings.json</1> 编辑配置"
+    },
+    "autoSwitch": {
+      "title": "自动账号切换",
+      "description": "在 Claude 账号之间自动切换以避免中断。配置主动监控以在达到限制前进行切换。",
+      "enable": "启用自动切换",
+      "enableDesc": "所有自动切换功能的主开关",
+      "proactive": {
+        "title": "主动监控",
+        "description": "定期检查使用情况并在达到限制前进行切换",
+        "interval": "检查周期",
+        "intervals": {
+          "15s": "15 秒",
+          "30s": "30 秒 (推荐)",
+          "1m": "1 分钟",
+          "disabled": "已禁用"
+        },
+        "session": "会话使用阈值",
+        "sessionDesc": "当会话使用量达到此级别时进行切换 (推荐: 95%)",
+        "weekly": "每周使用阈值",
+        "weeklyDesc": "当每周使用量达到此级别时进行切换 (推荐: 99%)"
+      },
+      "reactive": {
+        "title": "响应式恢复",
+        "description": "当遇到意外的速率限制时自动切换"
+      }
+    }
+  },
+  "apiKeys": {
+    "title": "API 密钥",
+    "hint": "此处设置的密钥将作为默认值。单个项目可以在其设置中覆盖这些值。",
+    "openai": {
+      "title": "OpenAI API 密钥",
+      "description": "Graphiti 内存后端 (embeddings) 所需"
+    }
+  }
+}

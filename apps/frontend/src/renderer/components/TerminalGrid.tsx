@@ -1,9 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
-  PanelGroup,
+  Group,
   Panel,
-  PanelResizeHandle,
+  Separator,
 } from 'react-resizable-panels';
 import {
   DndContext,
@@ -11,11 +10,17 @@ import {
   type DragEndEvent,
   type DragStartEvent,
   PointerSensor,
+  KeyboardSensor,
   useSensor,
   useSensors
 } from '@dnd-kit/core';
-import { Plus, Sparkles, Grid2X2, FolderTree, File, Folder, History, ChevronDown, Loader2 } from 'lucide-react';
-import { Terminal } from './Terminal';
+import {
+  SortableContext,
+  rectSortingStrategy,
+  sortableKeyboardCoordinates,
+} from '@dnd-kit/sortable';
+import { Plus, Sparkles, Grid2X2, FolderTree, File, Folder, History, ChevronDown, Loader2, TerminalSquare } from 'lucide-react';
+import { SortableTerminalWrapper } from './SortableTerminalWrapper';
 import { Button } from './ui/button';
 import {
   DropdownMenu,
@@ -38,15 +43,24 @@ interface TerminalGridProps {
 }
 
 export function TerminalGrid({ projectPath, onNewTaskClick, isActive = false }: TerminalGridProps) {
-  const { t } = useTranslation(['common', 'terminal']);
-
-  const terminals = useTerminalStore((state) => state.terminals);
+  const allTerminals = useTerminalStore((state) => state.terminals);
+  // Filter terminals to show only those belonging to the current project
+  // Also include legacy terminals without projectPath (created before this change)
+  // Exclude exited terminals as they are no longer functional
+  const terminals = useMemo(() => {
+    const filtered = projectPath
+      ? allTerminals.filter(t => t.projectPath === projectPath || !t.projectPath)
+      : allTerminals;
+    // Exclude exited terminals from the visible list
+    return filtered.filter(t => t.status !== 'exited');
+  }, [allTerminals, projectPath]);
   const activeTerminalId = useTerminalStore((state) => state.activeTerminalId);
   const addTerminal = useTerminalStore((state) => state.addTerminal);
   const removeTerminal = useTerminalStore((state) => state.removeTerminal);
   const setActiveTerminal = useTerminalStore((state) => state.setActiveTerminal);
   const canAddTerminal = useTerminalStore((state) => state.canAddTerminal);
   const setClaudeMode = useTerminalStore((state) => state.setClaudeMode);
+  const reorderTerminals = useTerminalStore((state) => state.reorderTerminals);
 
   // Get tasks from task store for task selection dropdown in terminals
   const tasks = useTaskStore((state) => state.tasks);
@@ -59,6 +73,9 @@ export function TerminalGrid({ projectPath, onNewTaskClick, isActive = false }: 
   const [sessionDates, setSessionDates] = useState<SessionDateInfo[]>([]);
   const [isLoadingDates, setIsLoadingDates] = useState(false);
   const [isRestoring, setIsRestoring] = useState(false);
+
+  // Expanded terminal state - when set, this terminal takes up the full grid space
+  const [expandedTerminalId, setExpandedTerminalId] = useState<string | null>(null);
 
   // Fetch available session dates when project changes
   useEffect(() => {
@@ -150,26 +167,37 @@ export function TerminalGrid({ projectPath, onNewTaskClick, isActive = false }: 
     }
   }, [projectPath, terminals, removeTerminal, addRestoredTerminal, isRestoring]);
 
-  // Setup drag sensors
+  // Setup drag sensors for both file and terminal drag operations
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
         distance: 8, // 8px movement required before drag starts
       },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
     })
   );
 
-  // Track dragging state for overlay
+  // Track dragging state for file overlay
   const [activeDragData, setActiveDragData] = React.useState<{
     path: string;
     name: string;
     isDirectory: boolean;
   } | null>(null);
 
+  // Track dragging terminal for overlay
+  const [draggingTerminalId, setDraggingTerminalId] = React.useState<string | null>(null);
+  const draggingTerminal = terminals.find(t => t.id === draggingTerminalId);
+
   const handleCloseTerminal = useCallback((id: string) => {
     window.electronAPI.destroyTerminal(id);
     removeTerminal(id);
-  }, [removeTerminal]);
+    // Clear expanded state if the closed terminal was expanded
+    if (expandedTerminalId === id) {
+      setExpandedTerminalId(null);
+    }
+  }, [removeTerminal, expandedTerminalId]);
 
   // Handle keyboard shortcut for new terminal (only when this view is active)
   useEffect(() => {
@@ -179,8 +207,8 @@ export function TerminalGrid({ projectPath, onNewTaskClick, isActive = false }: 
       // Ctrl+T or Cmd+T for new terminal
       if ((e.ctrlKey || e.metaKey) && e.key === 't') {
         e.preventDefault();
-        if (canAddTerminal()) {
-          addTerminal(projectPath);
+        if (canAddTerminal(projectPath)) {
+          addTerminal(projectPath, projectPath);
         }
       }
       // Ctrl+W or Cmd+W to close active terminal
@@ -195,10 +223,15 @@ export function TerminalGrid({ projectPath, onNewTaskClick, isActive = false }: 
   }, [isActive, addTerminal, canAddTerminal, projectPath, activeTerminalId, handleCloseTerminal]);
 
   const handleAddTerminal = useCallback(() => {
-    if (canAddTerminal()) {
-      addTerminal(projectPath);
+    if (canAddTerminal(projectPath)) {
+      addTerminal(projectPath, projectPath);
     }
   }, [addTerminal, canAddTerminal, projectPath]);
+
+  // Toggle terminal expand state
+  const handleToggleExpand = useCallback((terminalId: string) => {
+    setExpandedTerminalId(prev => prev === terminalId ? null : terminalId);
+  }, []);
 
   const handleInvokeClaudeAll = useCallback(() => {
     terminals.forEach((terminal) => {
@@ -213,42 +246,63 @@ export function TerminalGrid({ projectPath, onNewTaskClick, isActive = false }: 
   const handleDragStart = useCallback((event: DragStartEvent) => {
     const data = event.active.data.current as {
       type: string;
-      path: string;
-      name: string;
-      isDirectory: boolean;
+      path?: string;
+      name?: string;
+      isDirectory?: boolean;
+      terminalId?: string;
     } | undefined;
 
-    if (data?.type === 'file') {
+    if (data?.type === 'file' && data.path && data.name !== undefined) {
       setActiveDragData({
         path: data.path,
         name: data.name,
-        isDirectory: data.isDirectory
+        isDirectory: data.isDirectory ?? false
       });
+    } else if (data?.type === 'terminal-panel') {
+      setDraggingTerminalId(event.active.id.toString());
     }
   }, []);
 
-  // Handle drag end - insert file path into terminal
+  // Handle drag end - insert file path into terminal or reorder terminals
   const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event;
+    const activeData = active.data.current as { type?: string; path?: string } | undefined;
 
+    // Clear drag states
     setActiveDragData(null);
+    setDraggingTerminalId(null);
 
     if (!over) return;
 
-    // Check if dropped on a terminal
+    // Handle terminal reordering
+    if (activeData?.type === 'terminal-panel') {
+      const activeId = active.id.toString();
+      let overId = over.id.toString();
+
+      // Handle case where over is the file drop zone (terminal-xyz) instead of sortable item (xyz)
+      if (overId.startsWith('terminal-')) {
+        overId = overId.replace('terminal-', '');
+      }
+
+      if (activeId !== overId && terminals.some(t => t.id === overId)) {
+        reorderTerminals(activeId, overId);
+      }
+      return;
+    }
+
+    // Handle file drop on terminal
     const overId = over.id.toString();
     if (overId.startsWith('terminal-')) {
       const terminalId = overId.replace('terminal-', '');
-      const data = active.data.current as { path?: string } | undefined;
 
-      if (data?.path) {
+      if (activeData?.path) {
         // Quote the path if it contains spaces
-        const quotedPath = data.path.includes(' ') ? `"${data.path}"` : data.path;
+        const quotedPath = activeData.path.includes(' ') ? `"${activeData.path}"` : activeData.path;
         // Insert the file path into the terminal with a trailing space
         window.electronAPI.sendTerminalInput(terminalId, quotedPath + ' ');
       }
     }
-  }, []);
+  }, [reorderTerminals]);
 
   // Calculate grid layout based on number of terminals
   const gridLayout = useMemo(() => {
@@ -274,6 +328,9 @@ export function TerminalGrid({ projectPath, onNewTaskClick, isActive = false }: 
     return rows;
   }, [terminals, gridLayout]);
 
+  // Terminal IDs for SortableContext
+  const terminalIds = useMemo(() => terminals.map(t => t.id), [terminals]);
+
   // Empty state
   if (terminals.length === 0) {
     return (
@@ -283,15 +340,16 @@ export function TerminalGrid({ projectPath, onNewTaskClick, isActive = false }: 
             <Grid2X2 className="h-8 w-8 text-muted-foreground" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-foreground">{t('terminal:emptyState.title')}</h2>
+            <h2 className="text-lg font-semibold text-foreground">Agent Terminals</h2>
             <p className="mt-1 text-sm text-muted-foreground max-w-md">
-              {t('terminal:emptyState.description')} <kbd className="px-1.5 py-0.5 text-xs bg-card border border-border rounded">{t('terminal:emptyState.shortcut')}</kbd> {t('terminal:emptyState.action')}
+              Spawn multiple terminals to run Claude agents in parallel.
+              Use <kbd className="px-1.5 py-0.5 text-xs bg-card border border-border rounded">Ctrl+T</kbd> to create a new terminal.
             </p>
           </div>
         </div>
         <Button onClick={handleAddTerminal} className="gap-2">
           <Plus className="h-4 w-4" />
-          {t('terminal:emptyState.button')}
+          New Terminal
         </Button>
       </div>
     );
@@ -308,7 +366,7 @@ export function TerminalGrid({ projectPath, onNewTaskClick, isActive = false }: 
         <div className="flex h-10 items-center justify-between border-b border-border bg-card/30 px-3">
           <div className="flex items-center gap-2">
             <span className="text-xs font-medium text-muted-foreground">
-              {terminals.length} / 12 {t('terminal:title').toLowerCase()}
+              {terminals.length} / 12 terminals
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -327,13 +385,13 @@ export function TerminalGrid({ projectPath, onNewTaskClick, isActive = false }: 
                     ) : (
                       <History className="h-3 w-3" />
                     )}
-                    {t('terminal:actions.history')}
+                    History
                     <ChevronDown className="h-3 w-3" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                   <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
-                    {t('terminal:actions.restoreSessions')}
+                    Restore sessions from...
                   </div>
                   <DropdownMenuSeparator />
                   {sessionDates.map((dateInfo) => (
@@ -344,7 +402,7 @@ export function TerminalGrid({ projectPath, onNewTaskClick, isActive = false }: 
                     >
                       <span>{dateInfo.label}</span>
                       <span className="text-xs text-muted-foreground">
-                        {dateInfo.sessionCount} {dateInfo.sessionCount === 1 ? t('terminal:session') : t('terminal:sessions')}
+                        {dateInfo.sessionCount} session{dateInfo.sessionCount !== 1 ? 's' : ''}
                       </span>
                     </DropdownMenuItem>
                   ))}
@@ -359,7 +417,7 @@ export function TerminalGrid({ projectPath, onNewTaskClick, isActive = false }: 
                 onClick={handleInvokeClaudeAll}
               >
                 <Sparkles className="h-3 w-3" />
-                {t('terminal:actions.invokeClaudeAll')}
+                Invoke Claude All
               </Button>
             )}
             <Button
@@ -367,10 +425,10 @@ export function TerminalGrid({ projectPath, onNewTaskClick, isActive = false }: 
               size="sm"
               className="h-7 text-xs gap-1.5"
               onClick={handleAddTerminal}
-              disabled={!canAddTerminal()}
+              disabled={!canAddTerminal(projectPath)}
             >
               <Plus className="h-3 w-3" />
-              {t('terminal:actions.newTerminal')}
+              New Terminal
               <kbd className="ml-1 text-[10px] text-muted-foreground">
                 {navigator.platform.includes('Mac') ? '⌘' : 'Ctrl'}+T
               </kbd>
@@ -384,7 +442,7 @@ export function TerminalGrid({ projectPath, onNewTaskClick, isActive = false }: 
                 onClick={toggleFileExplorer}
               >
                 <FolderTree className="h-3 w-3" />
-                {t('common:buttons.files')}
+                Files
               </Button>
             )}
           </div>
@@ -397,40 +455,71 @@ export function TerminalGrid({ projectPath, onNewTaskClick, isActive = false }: 
             "flex-1 overflow-hidden p-2 transition-all duration-300 ease-out",
             fileExplorerOpen && "pr-0"
           )}>
-            <PanelGroup direction="vertical" className="h-full">
-              {terminalRows.map((row, rowIndex) => (
-                <div key={rowIndex} className="contents">
-                  <Panel id={`row-${rowIndex}`} order={rowIndex} defaultSize={100 / terminalRows.length} minSize={15}>
-                    <PanelGroup direction="horizontal" className="h-full">
-                      {row.map((terminal, colIndex) => (
-                        <div key={terminal.id} className="contents">
-                          <Panel id={terminal.id} order={colIndex} defaultSize={100 / row.length} minSize={20}>
-                            <div className="h-full p-1">
-                              <Terminal
-                                id={terminal.id}
-                                cwd={terminal.cwd || projectPath}
-                                projectPath={projectPath}
-                                isActive={terminal.id === activeTerminalId}
-                                onClose={() => handleCloseTerminal(terminal.id)}
-                                onActivate={() => setActiveTerminal(terminal.id)}
-                                tasks={tasks}
-                                onNewTaskClick={onNewTaskClick}
-                              />
-                            </div>
-                          </Panel>
-                          {colIndex < row.length - 1 && (
-                            <PanelResizeHandle className="w-1 hover:bg-primary/30 transition-colors" />
-                          )}
-                        </div>
-                      ))}
-                    </PanelGroup>
-                  </Panel>
-                  {rowIndex < terminalRows.length - 1 && (
-                    <PanelResizeHandle className="h-1 hover:bg-primary/30 transition-colors" />
-                  )}
-                </div>
-              ))}
-            </PanelGroup>
+            {expandedTerminalId ? (
+              // Show only the expanded terminal
+              (() => {
+                const expandedTerminal = terminals.find(t => t.id === expandedTerminalId);
+                if (!expandedTerminal) return null;
+                return (
+                  <div className="h-full p-1">
+                    <SortableTerminalWrapper
+                      id={expandedTerminal.id}
+                      cwd={expandedTerminal.cwd || projectPath}
+                      projectPath={projectPath}
+                      isActive={expandedTerminal.id === activeTerminalId}
+                      onClose={() => handleCloseTerminal(expandedTerminal.id)}
+                      onActivate={() => setActiveTerminal(expandedTerminal.id)}
+                      tasks={tasks}
+                      onNewTaskClick={onNewTaskClick}
+                      terminalCount={1}
+                      isExpanded={true}
+                      onToggleExpand={() => handleToggleExpand(expandedTerminal.id)}
+                    />
+                  </div>
+                );
+              })()
+            ) : (
+              // Show the normal grid layout
+              <SortableContext items={terminalIds} strategy={rectSortingStrategy}>
+                <Group orientation="vertical" className="h-full">
+                  {terminalRows.map((row, rowIndex) => (
+                    <React.Fragment key={rowIndex}>
+                      <Panel id={`row-${rowIndex}`} defaultSize={100 / terminalRows.length} minSize={15}>
+                        <Group orientation="horizontal" className="h-full">
+                          {row.map((terminal, colIndex) => (
+                            <React.Fragment key={terminal.id}>
+                              <Panel id={terminal.id} defaultSize={100 / row.length} minSize={10}>
+                                <div className="h-full p-1">
+                                  <SortableTerminalWrapper
+                                    id={terminal.id}
+                                    cwd={terminal.cwd || projectPath}
+                                    projectPath={projectPath}
+                                    isActive={terminal.id === activeTerminalId}
+                                    onClose={() => handleCloseTerminal(terminal.id)}
+                                    onActivate={() => setActiveTerminal(terminal.id)}
+                                    tasks={tasks}
+                                    onNewTaskClick={onNewTaskClick}
+                                    terminalCount={terminals.length}
+                                    isExpanded={false}
+                                    onToggleExpand={() => handleToggleExpand(terminal.id)}
+                                  />
+                                </div>
+                              </Panel>
+                              {colIndex < row.length - 1 && (
+                                <Separator className="w-1 hover:bg-primary/30 transition-colors" />
+                              )}
+                            </React.Fragment>
+                          ))}
+                        </Group>
+                      </Panel>
+                      {rowIndex < terminalRows.length - 1 && (
+                        <Separator className="h-1 hover:bg-primary/30 transition-colors" />
+                      )}
+                    </React.Fragment>
+                  ))}
+                </Group>
+              </SortableContext>
+            )}
           </div>
 
           {/* File explorer panel (slides from right, pushes content) */}
@@ -447,6 +536,12 @@ export function TerminalGrid({ projectPath, onNewTaskClick, isActive = false }: 
                 <File className="h-4 w-4 text-muted-foreground" />
               )}
               <span className="text-sm">{activeDragData.name}</span>
+            </div>
+          )}
+          {draggingTerminal && (
+            <div className="flex items-center gap-2 bg-card border border-primary rounded-md px-3 py-2 shadow-lg">
+              <TerminalSquare className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium">{draggingTerminal.title || 'Terminal'}</span>
             </div>
           )}
         </DragOverlay>
